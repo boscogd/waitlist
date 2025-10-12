@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { sendLaunchNotification } from '@/lib/resend';
-import type { WaitlistEntry } from '@/lib/types';
+import type { WaitlistEntry, Database } from '@/lib/types';
 
 /**
  * Endpoint protegido para notificar a todos los usuarios de la waitlist
@@ -120,7 +120,7 @@ export async function POST(request: Request) {
         // Marcar como notificado
         await supabase
           .from('waitlist')
-          .update({ notified: true })
+          .update({ notified: true } as Database['public']['Tables']['waitlist']['Update'])
           .eq('id', user.id);
       } else {
         results.failed++;
