@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { sendLaunchNotification } from '@/lib/resend';
+import type { WaitlistEntry } from '@/lib/types';
 
 /**
  * Endpoint protegido para notificar a todos los usuarios de la waitlist
@@ -46,13 +47,13 @@ export async function POST(request: Request) {
         );
       }
 
-      const { data: testUser } = await supabase
+      const { data: testUser, error: testError } = await supabase
         .from('waitlist')
         .select('*')
         .eq('email', testEmail)
         .single();
 
-      if (!testUser) {
+      if (testError || !testUser) {
         return NextResponse.json(
           { error: 'Email de prueba no encontrado en la waitlist' },
           { status: 404 }
@@ -60,9 +61,9 @@ export async function POST(request: Request) {
       }
 
       const result = await sendLaunchNotification({
-        email: testUser.email,
-        name: testUser.name,
-        code: testUser.code,
+        email: (testUser as WaitlistEntry).email,
+        name: (testUser as WaitlistEntry).name,
+        code: (testUser as WaitlistEntry).code,
       });
 
       return NextResponse.json({
