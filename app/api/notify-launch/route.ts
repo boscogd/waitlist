@@ -100,7 +100,7 @@ export async function POST(request: Request) {
       total: waitlistUsers.length,
       success: 0,
       failed: 0,
-      errors: [] as any[],
+      errors: [] as Array<{ email: string; error: unknown }>,
     };
 
     for (const user of waitlistUsers) {

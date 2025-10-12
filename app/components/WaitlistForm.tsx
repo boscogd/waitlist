@@ -35,7 +35,7 @@ export default function WaitlistForm() {
         setStatus('error');
         setMessage(data.error || 'Hubo un error. Por favor, inténtalo de nuevo.');
       }
-    } catch (error) {
+    } catch {
       setStatus('error');
       setMessage('Error de conexión. Por favor, inténtalo más tarde.');
     } finally {
