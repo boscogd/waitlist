@@ -96,15 +96,18 @@ export async function POST(request: Request) {
       });
     }
 
+    // Cast a tipo correcto
+    const users = waitlistUsers as WaitlistEntry[];
+
     // Enviar emails a todos los usuarios
     const results = {
-      total: waitlistUsers.length,
+      total: users.length,
       success: 0,
       failed: 0,
       errors: [] as Array<{ email: string; error: unknown }>,
     };
 
-    for (const user of waitlistUsers) {
+    for (const user of users) {
       const emailResult = await sendLaunchNotification({
         email: user.email,
         name: user.name,
