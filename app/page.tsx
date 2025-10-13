@@ -105,7 +105,7 @@ export default function Home() {
               </p>
             </div>
             <p className="font-[family-name:var(--font-inter)] text-base text-texto/70 italic max-w-xl mx-auto">
-              "Una herramienta que estaba esperando para fortalecer mi vida espiritual cada día"
+              &ldquo;Una herramienta que estaba esperando para fortalecer mi vida espiritual cada día&rdquo;
             </p>
           </section>
 
