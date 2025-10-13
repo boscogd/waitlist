@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { sendLaunchNotification } from '@/lib/resend';
-import type { WaitlistEntry, Database } from '@/lib/types';
+import type { WaitlistEntry } from '@/lib/types';
 
 /**
  * Endpoint protegido para notificar a todos los usuarios de la waitlist
@@ -47,7 +47,7 @@ export async function POST(request: Request) {
         );
       }
 
-      // @ts-ignore - Supabase type inference issue in build
+      // @ts-expect-error - Supabase type inference issue in build
       const { data: testUser, error: testError } = await supabase
         .from('waitlist')
         .select('*')
@@ -76,7 +76,7 @@ export async function POST(request: Request) {
     }
 
     // Obtener todos los usuarios de la waitlist que no han sido notificados
-    // @ts-ignore - Supabase type inference issue in build
+    // @ts-expect-error - Supabase type inference issue in build
     const { data: waitlistUsers, error } = await supabase
       .from('waitlist')
       .select('*')
@@ -120,7 +120,7 @@ export async function POST(request: Request) {
         results.success++;
 
         // Marcar como notificado
-        // @ts-ignore - Supabase type inference issue in build
+        // @ts-expect-error - Supabase type inference issue in build
         await supabase
           .from('waitlist')
           .update({ notified: true })
