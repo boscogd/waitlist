@@ -99,7 +99,6 @@ export async function POST(request: Request) {
     }
 
     // Enviar email de confirmación
-    // @ts-expect-error - Supabase type inference issue
     const emailResult = await sendWaitlistConfirmation({
       // @ts-expect-error - Supabase type inference issue
       email: newEntry.email,

@@ -60,7 +60,6 @@ export async function POST(request: Request) {
         );
       }
 
-      // @ts-expect-error - Supabase type inference issue
       const result = await sendLaunchNotification({
         // @ts-expect-error - Supabase type inference issue
         email: testUser.email,
