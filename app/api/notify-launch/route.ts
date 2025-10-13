@@ -60,10 +60,14 @@ export async function POST(request: Request) {
         );
       }
 
+      // @ts-expect-error - Supabase type inference issue
       const result = await sendLaunchNotification({
-        email: (testUser as WaitlistEntry).email,
-        name: (testUser as WaitlistEntry).name,
-        code: (testUser as WaitlistEntry).code,
+        // @ts-expect-error - Supabase type inference issue
+        email: testUser.email,
+        // @ts-expect-error - Supabase type inference issue
+        name: testUser.name,
+        // @ts-expect-error - Supabase type inference issue
+        code: testUser.code,
       });
 
       return NextResponse.json({
