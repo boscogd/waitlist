@@ -1,4 +1,5 @@
 import WaitlistForm from './components/WaitlistForm';
+import Image from 'next/image';
 
 export default function Home() {
   return (
@@ -9,10 +10,24 @@ export default function Home() {
 
           {/* Hero Section */}
           <section className="text-center space-y-8 pt-8">
-            <div className="space-y-6">
+            <div className="space-y-8">
               <h1 className="font-[family-name:var(--font-lora)] text-4xl sm:text-5xl md:text-6xl font-semibold text-azul leading-tight tracking-tight">
                 Fortalece tu fe cada día<br />con tu guía espiritual
               </h1>
+
+              {/* Logo/App Image */}
+              <div className="flex justify-center">
+                <div className="relative w-40 h-40 sm:w-48 sm:h-48">
+                  <Image
+                    src="/logo-512-1.png"
+                    alt="Refugio en la Palabra"
+                    fill
+                    className="object-contain drop-shadow-2xl"
+                    priority
+                  />
+                </div>
+              </div>
+
               <p className="font-[family-name:var(--font-inter)] text-lg sm:text-xl text-texto/80 max-w-2xl mx-auto leading-relaxed">
                 Reza el rosario, reflexiona con el evangelio y avanza en tu camino espiritual con acompañamiento 24/7.
               </p>
