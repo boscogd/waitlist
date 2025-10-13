@@ -12,7 +12,7 @@ export default function Home() {
           <section className="text-center space-y-8 pt-8">
             <div className="space-y-8">
               <h1 className="font-[family-name:var(--font-lora)] text-4xl sm:text-5xl md:text-6xl font-semibold text-azul leading-tight tracking-tight">
-                Fortalece tu fe cada día<br />con tu guía espiritual
+                Refugio en la Palabra
               </h1>
 
               {/* Logo/App Image */}
@@ -29,14 +29,26 @@ export default function Home() {
               </div>
 
               <p className="font-[family-name:var(--font-inter)] text-lg sm:text-xl text-texto/80 max-w-2xl mx-auto leading-relaxed">
+                Tu espacio diario para orar, comprender y avanzar con sentido.
+              </p>
+
+              <p className="font-[family-name:var(--font-inter)] text-base text-texto/70 max-w-xl mx-auto leading-relaxed">
                 Reza el rosario, reflexiona con el evangelio y avanza en tu camino espiritual con acompañamiento 24/7.
               </p>
             </div>
 
-            {/* CTA destacado */}
-            <div className="inline-block bg-albero/10 border border-albero/30 rounded-lg px-6 py-3">
-              <p className="text-sm text-azul font-medium">
-                ✨ Únete a la lista de espera y recibe acceso anticipado
+            {/* CTA más visible */}
+            <div className="flex flex-col items-center gap-4">
+              <div className="bg-gradient-to-r from-albero to-dorado text-white rounded-xl px-8 py-4 shadow-lg hover:shadow-xl transition-shadow">
+                <p className="text-lg font-semibold">
+                  ✨ Únete a la lista de espera
+                </p>
+                <p className="text-sm opacity-90">
+                  Recibe acceso anticipado exclusivo
+                </p>
+              </div>
+              <p className="text-xs text-texto/60">
+                👇 Regístrate abajo y obtén tu código único
               </p>
             </div>
           </section>
