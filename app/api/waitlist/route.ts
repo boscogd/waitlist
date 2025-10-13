@@ -81,6 +81,7 @@ export async function POST(request: Request) {
     // Insertar en la base de datos
     const { data: newEntry, error: insertError } = await supabase
       .from('waitlist')
+      // @ts-expect-error - Supabase type inference issue
       .insert({
         email: email.toLowerCase().trim(),
         name: name.trim(),
