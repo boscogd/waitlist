@@ -120,6 +120,7 @@ export async function POST(request: Request) {
         // Marcar como notificado
         await supabase
           .from('waitlist')
+          // @ts-expect-error - Supabase types differ between dev and prod build
           .update({ notified: true })
           .eq('id', user.id);
       } else {
