@@ -90,7 +90,7 @@ export default function WaitlistForm() {
                    focus:ring-albero disabled:opacity-50 disabled:cursor-not-allowed
                    transition-all duration-200 shadow-sm hover:shadow-md"
         >
-          {loading ? 'Enviando...' : 'Quiero acceso anticipado'}
+          {loading ? 'Enviando...' : 'Quiero mi código exclusivo'}
         </button>
       </form>
 

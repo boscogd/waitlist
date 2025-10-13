@@ -44,7 +44,7 @@ export default function Home() {
                   ✨ Únete a la lista de espera
                 </p>
                 <p className="text-sm opacity-90">
-                  Recibe acceso anticipado exclusivo
+                  Recibe un regalo exclusivo en el lanzamiento
                 </p>
               </div>
               <p className="text-xs text-texto/60">
@@ -125,10 +125,10 @@ export default function Home() {
           <section className="max-w-2xl mx-auto space-y-6 text-center">
             <div className="space-y-4">
               <h2 className="font-[family-name:var(--font-lora)] text-3xl font-semibold text-azul">
-                Únete hoy y recibe acceso anticipado
+                Únete hoy y recibe tu regalo exclusivo
               </h2>
               <p className="text-texto/70">
-                Sé de los primeros en experimentar Refugio en la Palabra y recibe un código exclusivo en el lanzamiento.
+                Regístrate en la lista de espera y recibe un código con beneficios exclusivos cuando lancemos la aplicación.
               </p>
             </div>
             <WaitlistForm />
@@ -160,10 +160,10 @@ export default function Home() {
 
               <div className="space-y-2">
                 <h3 className="font-[family-name:var(--font-inter)] text-base font-semibold text-azul">
-                  ¿Qué incluye el acceso anticipado?
+                  ¿Qué regalo voy a recibir?
                 </h3>
                 <p className="text-texto/70 text-sm leading-relaxed">
-                  Recibirás un código único para acceder antes del lanzamiento público, permitiéndote ser de los primeros en usar todas las funcionalidades.
+                  Recibirás un código único con beneficios exclusivos al momento del lanzamiento, como agradecimiento por unirte a nuestra comunidad desde el principio.
                 </p>
               </div>
 
