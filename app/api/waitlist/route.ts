@@ -94,12 +94,7 @@ export async function POST(request: Request) {
     if (insertError) {
       console.error('Error insertando en waitlist:', insertError);
       return NextResponse.json(
-        {
-          error: 'Error al registrarse en la waitlist',
-          details: insertError.message,
-          code: insertError.code,
-          hint: insertError.hint
-        },
+        { error: 'Error al registrarse en la waitlist' },
         { status: 500 }
       );
     }
