@@ -33,7 +33,6 @@ export async function POST(request: Request) {
     }
 
     // Verificar si el email ya existe
-    // @ts-expect-error - Supabase type inference issue in build
     const { data: existingUser } = await supabase
       .from('waitlist')
       .select('email, code')
@@ -57,7 +56,6 @@ export async function POST(request: Request) {
 
     // Intentar generar un código único (máximo 10 intentos)
     while (codeExists && attempts < 10) {
-      // @ts-expect-error - Supabase type inference issue in build
       const { data } = await supabase
         .from('waitlist')
         .select('code')
@@ -80,7 +78,6 @@ export async function POST(request: Request) {
     }
 
     // Insertar en la base de datos
-    // @ts-expect-error - Supabase type inference issue in build
     const { data: newEntry, error: insertError } = await supabase
       .from('waitlist')
       .insert({
@@ -142,7 +139,6 @@ export async function GET(request: Request) {
       );
     }
 
-    // @ts-expect-error - Supabase type inference issue in build
     const { data, error } = await supabase
       .from('waitlist')
       .select('email, code, created_at')

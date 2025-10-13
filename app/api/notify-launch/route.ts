@@ -47,7 +47,6 @@ export async function POST(request: Request) {
         );
       }
 
-      // @ts-expect-error - Supabase type inference issue in build
       const { data: testUser, error: testError } = await supabase
         .from('waitlist')
         .select('*')
@@ -76,7 +75,6 @@ export async function POST(request: Request) {
     }
 
     // Obtener todos los usuarios de la waitlist que no han sido notificados
-    // @ts-expect-error - Supabase type inference issue in build
     const { data: waitlistUsers, error } = await supabase
       .from('waitlist')
       .select('*')
@@ -120,7 +118,6 @@ export async function POST(request: Request) {
         results.success++;
 
         // Marcar como notificado
-        // @ts-expect-error - Supabase type inference issue in build
         await supabase
           .from('waitlist')
           .update({ notified: true })
