@@ -1,5 +1,6 @@
 import WaitlistForm from './components/WaitlistForm';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export default function Home() {
   return (
@@ -186,6 +187,15 @@ export default function Home() {
         <p className="text-xs text-texto/50">
           © {new Date().getFullYear()} Refugio en la Palabra. Todos los derechos reservados.
         </p>
+        <div className="mt-2 space-x-4 text-xs">
+          <Link href="/legal" className="text-azul/50 hover:text-azul transition-colors">
+            Información Legal
+          </Link>
+          <span className="text-texto/30">•</span>
+          <Link href="/privacidad" className="text-azul/50 hover:text-azul transition-colors">
+            Privacidad
+          </Link>
+        </div>
       </footer>
     </div>
   );
