@@ -81,7 +81,7 @@ export default function LegalPage() {
                   1.1. Aceptación de los Términos
                 </h3>
                 <p className="leading-relaxed">
-                  Al acceder y utilizar <strong>Refugio en la Palabra</strong> (en adelante, "la Aplicación"),
+                  Al acceder y utilizar <strong>Refugio en la Palabra</strong> (en adelante, &ldquo;la Aplicación&rdquo;),
                   aceptas estar legalmente vinculado por estos términos y condiciones. Si no estás de acuerdo
                   con alguna parte de estos términos, no debes utilizar la Aplicación.
                 </p>
@@ -212,7 +212,7 @@ export default function LegalPage() {
                   1.10. Limitación de Responsabilidad
                 </h3>
                 <p className="leading-relaxed">
-                  La Aplicación se proporciona "tal cual" y "según disponibilidad". No garantizamos
+                  La Aplicación se proporciona &ldquo;tal cual&rdquo; y &ldquo;según disponibilidad&rdquo;. No garantizamos
                   que el servicio será ininterrumpido, seguro o libre de errores.
                 </p>
                 <p className="leading-relaxed">
@@ -314,7 +314,7 @@ export default function LegalPage() {
                 </h3>
                 <p className="leading-relaxed">
                   El sitio web www.refugioenlapalabra.com proporciona el acceso a información,
-                  servicios y herramientas relacionadas con la vida espiritual católica (en adelante, "los contenidos").
+                  servicios y herramientas relacionadas con la vida espiritual católica (en adelante, &ldquo;los contenidos&rdquo;).
                 </p>
                 <p className="leading-relaxed">
                   El usuario asume la responsabilidad del uso del portal. El usuario se compromete
@@ -516,7 +516,7 @@ export default function LegalPage() {
                 <p className="leading-relaxed">
                   Podemos actualizar nuestra Política de Cookies periódicamente. Te notificaremos
                   cualquier cambio publicando la nueva política en esta página y actualizando la
-                  fecha de "Última actualización" en la parte superior.
+                  fecha de &ldquo;Última actualización&rdquo; en la parte superior.
                 </p>
               </div>
             </div>
