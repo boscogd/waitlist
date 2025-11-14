@@ -8,7 +8,10 @@
       "Bash(git push)",
       "Bash(git pull:*)",
       "Bash(cat:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(vercel --version:*)",
+      "Bash(npm install:*)",
+      "Bash(vercel:*)"
     ],
     "deny": [],
     "ask": []

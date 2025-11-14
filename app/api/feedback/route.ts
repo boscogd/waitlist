@@ -44,7 +44,7 @@ export async function POST(request: Request) {
     }
 
     // Insertar en la base de datos
-    // @ts-expect-error - Supabase types will be generated after creating the feedback table
+    // @ts-ignore - Supabase types will be generated after creating the feedback table
     const { data: newFeedback, error: insertError } = await supabase
       .from('feedback')
       .insert({
@@ -113,7 +113,7 @@ export async function GET(request: Request) {
     }
 
     // Obtener todos los feedbacks
-    // @ts-expect-error - Supabase types will be generated after creating the feedback table
+    // @ts-ignore - Supabase types will be generated after creating the feedback table
     const { data: feedbacks, error } = await supabase
       .from('feedback')
       .select('*')
