@@ -67,6 +67,9 @@ export async function POST(request: Request) {
     }
 
     // Enviar notificación por email (no bloqueante, no falla la request si falla el email)
+    console.log('ADMIN_EMAIL configurado:', process.env.ADMIN_EMAIL);
+    console.log('RESEND_FROM_EMAIL configurado:', process.env.RESEND_FROM_EMAIL);
+
     sendFeedbackNotification({
       // @ts-expect-error - Supabase type inference issue
       feedbackId: newFeedback.id,
