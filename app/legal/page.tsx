@@ -6,6 +6,7 @@ export const metadata = {
   description: 'Términos y condiciones, aviso legal y políticas de Refugio en la Palabra',
 };
 
+
 export default function LegalPage() {
   return (
     <div className="min-h-screen bg-marfil">
