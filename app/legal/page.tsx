@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 import Link from 'next/link';
 
 export const metadata = {
@@ -277,7 +278,7 @@ export default function LegalPage() {
             <div className="space-y-8">
               <div className="space-y-4">
                 <h3 className="font-[family-name:var(--font-lora)] text-xl font-semibold text-azul">
-                  2.1. Información General
+                  2.1. Identificación del Titular (Art. 10 LSSI-CE)
                 </h3>
                 <p className="leading-relaxed">
                   En cumplimiento del artículo 10 de la Ley 34/2002, de 11 de julio, de Servicios
@@ -285,11 +286,39 @@ export default function LegalPage() {
                   de los datos identificativos del titular de este sitio web:
                 </p>
                 <div className="bg-white/50 backdrop-blur-sm rounded-lg p-6 border border-azul/10">
-                  <ul className="space-y-2">
-                    <li><strong>Denominación:</strong> Refugio en la Palabra</li>
+                  <ul className="space-y-3">
+                    <li><strong>Denominación social:</strong> Refugio en la Palabra</li>
+                    <li><strong>NIF/CIF:</strong> [PENDIENTE: Insertar NIF/CIF]</li>
+                    <li><strong>Domicilio social:</strong> [PENDIENTE: Insertar dirección completa: Calle, número, código postal, ciudad, provincia]</li>
+                    <li><strong>Correo electrónico:</strong> [PENDIENTE: Insertar email de contacto]</li>
+                    <li><strong>Teléfono:</strong> [PENDIENTE: Insertar teléfono de contacto]</li>
                     <li><strong>Dominio:</strong> www.refugioenlapalabra.com</li>
                     <li><strong>Actividad:</strong> Plataforma digital de acompañamiento espiritual católico</li>
                   </ul>
+                  <div className="mt-4 pt-4 border-t border-azul/20">
+                    <p className="text-sm text-texto/70 italic">
+                      Nota: Si la entidad está inscrita en el Registro Mercantil u otro registro público,
+                      debe añadirse: Registro, tomo, libro, folio, sección, hoja e inscripción.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-amber-50 border-l-4 border-amber-500 p-4 mt-4">
+                  <div className="flex">
+                    <div className="flex-shrink-0">
+                      <span className="text-2xl">⚠️</span>
+                    </div>
+                    <div className="ml-3">
+                      <h4 className="text-sm font-semibold text-amber-800 mb-1">
+                        ACCIÓN REQUERIDA - Cumplimiento LSSI
+                      </h4>
+                      <p className="text-sm text-amber-700">
+                        <strong>IMPORTANTE:</strong> Debes completar TODOS los datos marcados como [PENDIENTE]
+                        para cumplir con el artículo 10 de la LSSI-CE. La ausencia de esta información puede
+                        acarrear sanciones de hasta 30.000 euros por infracción grave según el artículo 38 de la LSSI.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
 

@@ -138,6 +138,58 @@ function getWaitlistEmailTemplate(name: string, code: string): string {
 }
 
 /**
+ * Email de notificación cuando llega nuevo feedback
+ */
+export async function sendFeedbackNotification({
+  feedbackId,
+  rating,
+  whatYouLike,
+  whatYouDontLike,
+  whatToImprove,
+  additionalComments,
+}: {
+  feedbackId: string;
+  rating?: number;
+  whatYouLike?: string;
+  whatYouDontLike?: string;
+  whatToImprove?: string;
+  additionalComments?: string;
+}) {
+  try {
+    // Solo enviar si hay un email de administrador configurado
+    const adminEmail = process.env.ADMIN_EMAIL;
+    if (!adminEmail) {
+      console.log('ADMIN_EMAIL no configurado, no se enviará notificación');
+      return { success: false, error: 'Admin email not configured' };
+    }
+
+    const { data, error } = await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL || 'Refugio en la Palabra <onboarding@resend.dev>',
+      to: adminEmail,
+      subject: `Nuevo Feedback MVP - ${rating ? `⭐ ${rating}/5` : 'Sin calificación'}`,
+      html: getFeedbackNotificationTemplate({
+        feedbackId,
+        rating,
+        whatYouLike,
+        whatYouDontLike,
+        whatToImprove,
+        additionalComments,
+      }),
+    });
+
+    if (error) {
+      console.error('Error enviando email de feedback:', error);
+      return { success: false, error };
+    }
+
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error en sendFeedbackNotification:', error);
+    return { success: false, error };
+  }
+}
+
+/**
  * Plantilla HTML para email de lanzamiento
  */
 function getLaunchEmailTemplate(name: string, code: string): string {
@@ -205,6 +257,149 @@ function getLaunchEmailTemplate(name: string, code: string): string {
           <div style="text-align: center; margin-top: 30px; color: #6B7280; font-size: 12px;">
             <p style="margin: 5px 0;">
               © ${new Date().getFullYear()} Refugio en la Palabra. Todos los derechos reservados.
+            </p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+}
+
+/**
+ * Plantilla HTML para notificación de nuevo feedback
+ */
+function getFeedbackNotificationTemplate({
+  feedbackId,
+  rating,
+  whatYouLike,
+  whatYouDontLike,
+  whatToImprove,
+  additionalComments,
+}: {
+  feedbackId: string;
+  rating?: number;
+  whatYouLike?: string;
+  whatYouDontLike?: string;
+  whatToImprove?: string;
+  additionalComments?: string;
+}): string {
+  const renderStars = (rating: number) => {
+    return '⭐'.repeat(rating) + '☆'.repeat(5 - rating);
+  };
+
+  return `
+    <!DOCTYPE html>
+    <html lang="es">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Nuevo Feedback del MVP</title>
+      </head>
+      <body style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background-color: #FAF7F0;">
+        <div style="max-width: 700px; margin: 0 auto; padding: 40px 20px;">
+          <!-- Header -->
+          <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="font-family: 'Lora', Georgia, serif; color: #1F3A5F; font-size: 28px; margin: 0;">
+              Nuevo Feedback Recibido
+            </h1>
+            <p style="color: #6B7280; font-size: 14px; margin-top: 8px;">
+              ID: ${feedbackId.substring(0, 8)}...
+            </p>
+          </div>
+
+          <!-- Content -->
+          <div style="background-color: white; border-radius: 12px; padding: 32px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+
+            ${rating ? `
+              <!-- Rating Section -->
+              <div style="background-color: #FAF7F0; border-left: 4px solid #E1B955; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+                <h3 style="color: #1F3A5F; font-size: 16px; margin: 0 0 8px 0; font-weight: 600;">
+                  Calificación General
+                </h3>
+                <p style="font-size: 24px; margin: 0; letter-spacing: 4px;">
+                  ${renderStars(rating)}
+                </p>
+                <p style="color: #6B7280; font-size: 14px; margin: 8px 0 0 0;">
+                  ${rating} de 5 estrellas
+                </p>
+              </div>
+            ` : ''}
+
+            ${whatYouLike ? `
+              <!-- What They Like -->
+              <div style="margin-bottom: 24px;">
+                <h3 style="color: #059669; font-size: 16px; margin: 0 0 8px 0; font-weight: 600;">
+                  ✅ Lo que les gusta
+                </h3>
+                <div style="background-color: #ECFDF5; border-radius: 8px; padding: 16px;">
+                  <p style="color: #1F2937; font-size: 15px; line-height: 1.6; margin: 0; white-space: pre-wrap;">
+                    ${whatYouLike}
+                  </p>
+                </div>
+              </div>
+            ` : ''}
+
+            ${whatYouDontLike ? `
+              <!-- What They Don't Like -->
+              <div style="margin-bottom: 24px;">
+                <h3 style="color: #DC2626; font-size: 16px; margin: 0 0 8px 0; font-weight: 600;">
+                  ❌ Lo que no les gusta / encuentran confuso
+                </h3>
+                <div style="background-color: #FEF2F2; border-radius: 8px; padding: 16px;">
+                  <p style="color: #1F2937; font-size: 15px; line-height: 1.6; margin: 0; white-space: pre-wrap;">
+                    ${whatYouDontLike}
+                  </p>
+                </div>
+              </div>
+            ` : ''}
+
+            ${whatToImprove ? `
+              <!-- Improvements -->
+              <div style="margin-bottom: 24px;">
+                <h3 style="color: #2563EB; font-size: 16px; margin: 0 0 8px 0; font-weight: 600;">
+                  💡 Sugerencias de mejora
+                </h3>
+                <div style="background-color: #EFF6FF; border-radius: 8px; padding: 16px;">
+                  <p style="color: #1F2937; font-size: 15px; line-height: 1.6; margin: 0; white-space: pre-wrap;">
+                    ${whatToImprove}
+                  </p>
+                </div>
+              </div>
+            ` : ''}
+
+            ${additionalComments ? `
+              <!-- Additional Comments -->
+              <div style="margin-bottom: 24px;">
+                <h3 style="color: #7C3AED; font-size: 16px; margin: 0 0 8px 0; font-weight: 600;">
+                  💬 Comentarios adicionales
+                </h3>
+                <div style="background-color: #F5F3FF; border-radius: 8px; padding: 16px;">
+                  <p style="color: #1F2937; font-size: 15px; line-height: 1.6; margin: 0; white-space: pre-wrap;">
+                    ${additionalComments}
+                  </p>
+                </div>
+              </div>
+            ` : ''}
+
+            <!-- CTA Button -->
+            <div style="text-align: center; margin-top: 32px; padding-top: 24px; border-top: 1px solid #E5E7EB;">
+              <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/admin/feedback"
+                 style="display: inline-block; background-color: #1F3A5F; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 500;">
+                Ver todos los feedbacks
+              </a>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div style="text-align: center; margin-top: 24px; color: #6B7280; font-size: 12px;">
+            <p style="margin: 5px 0;">
+              Fecha: ${new Date().toLocaleString('es-ES', {
+                dateStyle: 'full',
+                timeStyle: 'short'
+              })}
+            </p>
+            <p style="margin: 5px 0;">
+              Refugio en la Palabra - Panel de Administración
             </p>
           </div>
         </div>
