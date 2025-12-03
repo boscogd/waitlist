@@ -1,0 +1,21 @@
+{
+  "name": "Refugio en la Palabra",
+  "short_name": "Refugio",
+  "description": "Tu espacio diario para orar, comprender y avanzar con sentido. App católica de acompañamiento espiritual.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAF7F0",
+  "theme_color": "#1F3A5F",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/logo-512-1.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["lifestyle", "education", "books"],
+  "lang": "es",
+  "dir": "ltr"
+}
