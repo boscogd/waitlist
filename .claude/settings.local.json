@@ -11,7 +11,8 @@
       "WebSearch",
       "Bash(vercel --version:*)",
       "Bash(npm install:*)",
-      "Bash(vercel:*)"
+      "Bash(vercel:*)",
+      "Bash(dir:*)"
     ],
     "deny": [],
     "ask": []

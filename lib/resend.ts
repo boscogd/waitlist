@@ -3,6 +3,41 @@ import { Resend } from 'resend';
 export const resend = new Resend(process.env.RESEND_API_KEY);
 
 /**
+ * Enviar email genérico desde un borrador
+ */
+export async function sendDraftEmail({
+  to,
+  subject,
+  htmlContent,
+  previewText,
+}: {
+  to: string;
+  subject: string;
+  htmlContent: string;
+  previewText?: string;
+}) {
+  try {
+    const { data, error } = await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL || 'Refugio en la Palabra <onboarding@resend.dev>',
+      to,
+      subject,
+      html: htmlContent,
+      text: previewText || undefined,
+    });
+
+    if (error) {
+      console.error('Error enviando email:', error);
+      return { success: false, error, resendId: null };
+    }
+
+    return { success: true, data, resendId: data?.id || null };
+  } catch (error) {
+    console.error('Error en sendDraftEmail:', error);
+    return { success: false, error, resendId: null };
+  }
+}
+
+/**
  * Email de confirmación para la waitlist
  */
 export async function sendWaitlistConfirmation({
