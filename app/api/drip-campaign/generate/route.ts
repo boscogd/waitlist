@@ -538,9 +538,9 @@ IMPORTANTE: Responde ÚNICAMENTE con un JSON válido (sin markdown, sin \`\`\`) 
   "content": "<h2>Título</h2><p>Contenido HTML aquí...</p>"
 }`;
 
-    // Llamar a Gemini API (usando gemini-2.5-flash - modelo estable más reciente)
+    // Llamar a Gemini API (usando gemini-1.5-flash - modelo gratuito y estable)
     const geminiResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`,
       {
         method: 'POST',
         headers: {
