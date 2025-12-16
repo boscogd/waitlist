@@ -308,13 +308,28 @@ export default function EmailsAdmin() {
   // Schedule email
   const handleSchedule = async (draftId: string) => {
     if (!scheduledDate) {
-      alert('Selecciona una fecha y hora para programar');
+      alert('Selecciona un dia para programar');
       return;
     }
 
-    const scheduledTime = new Date(scheduledDate);
-    if (scheduledTime <= new Date()) {
-      alert('La fecha programada debe ser en el futuro');
+    // Programar para las 9:00 UTC (10:00am España) del día seleccionado
+    const scheduledTime = new Date(scheduledDate + 'T09:00:00.000Z');
+
+    // Verificar que el día no sea pasado
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const selectedDay = new Date(scheduledDate);
+    selectedDay.setHours(0, 0, 0, 0);
+
+    if (selectedDay < today) {
+      alert('Selecciona un dia futuro');
+      return;
+    }
+
+    // Si es hoy pero ya pasaron las 10am España (9am UTC), avisar
+    const now = new Date();
+    if (selectedDay.getTime() === today.getTime() && now.getUTCHours() >= 9) {
+      alert('Ya pasaron las 10:00am de hoy. Selecciona otro dia.');
       return;
     }
 
@@ -329,7 +344,12 @@ export default function EmailsAdmin() {
       });
 
       if (response.ok) {
-        alert(`Email programado para ${scheduledTime.toLocaleString('es-ES')}`);
+        const dayFormatted = new Date(scheduledDate + 'T10:00:00').toLocaleDateString('es-ES', {
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long'
+        });
+        alert(`Email programado para el ${dayFormatted} a las 10:00am`);
         setScheduledDate('');
         await loadDrafts();
         setSelectedDraft(null);
@@ -1268,35 +1288,42 @@ export default function EmailsAdmin() {
                       </svg>
                       Programar envio
                     </div>
-                    <div className="flex gap-2">
-                      <input
-                        type="datetime-local"
-                        value={scheduledDate}
-                        onChange={(e) => setScheduledDate(e.target.value)}
-                        min={new Date().toISOString().slice(0, 16)}
-                        className="flex-1 px-3 py-2 text-sm bg-white border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/30"
-                      />
-                      <button
-                        onClick={() => handleSchedule(selectedDraft.id)}
-                        disabled={scheduling || !scheduledDate}
-                        className="px-4 py-2 text-sm bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
-                      >
-                        {scheduling ? (
-                          <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                          </svg>
-                        ) : (
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                        )}
-                        Programar
-                      </button>
+                    <div className="flex flex-col gap-2">
+                      <div className="flex gap-2">
+                        <input
+                          type="date"
+                          value={scheduledDate}
+                          onChange={(e) => setScheduledDate(e.target.value)}
+                          min={new Date().toISOString().slice(0, 10)}
+                          className="flex-1 px-3 py-2 text-sm bg-white border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/30"
+                        />
+                        <button
+                          onClick={() => handleSchedule(selectedDraft.id)}
+                          disabled={scheduling || !scheduledDate}
+                          className="px-4 py-2 text-sm bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                        >
+                          {scheduling ? (
+                            <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                            </svg>
+                          ) : (
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          )}
+                          Programar
+                        </button>
+                      </div>
+                      {scheduledDate && (
+                        <p className="text-xs text-purple-600">
+                          Se enviara el <strong>{new Date(scheduledDate + 'T10:00:00').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}</strong> a las <strong>10:00am</strong>
+                        </p>
+                      )}
                     </div>
                     {selectedDraft.scheduled_for && (
-                      <div className="mt-2 text-sm text-purple-700">
-                        Programado para: {formatDate(selectedDraft.scheduled_for)}
+                      <div className="mt-3 p-2 bg-purple-100 rounded-lg text-sm text-purple-700 font-medium">
+                        Programado para: {new Date(selectedDraft.scheduled_for).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })} a las 10:00am
                       </div>
                     )}
                   </div>
