@@ -1,15 +1,16 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { sendDraftEmail } from '@/lib/resend';
-import type { WaitlistEntry, SequenceConfig, EmailTemplate, DripCampaignResult } from '@/lib/types';
+import type { WaitlistEntry, SequenceConfig, EmailTemplate, DripCampaignResult, EmailDraft, TargetAudience } from '@/lib/types';
 
 // =====================================================
 // VERCEL CRON JOB: Drip Campaign Processor
 // =====================================================
 // Se ejecuta diariamente para:
-// 1. Verificar usuarios que necesitan el siguiente email de la secuencia
-// 2. Enviar emails según la configuración de timing
-// 3. Actualizar el progreso de cada usuario
+// 1. Procesar emails programados (scheduled)
+// 2. Verificar usuarios que necesitan el siguiente email de la secuencia
+// 3. Enviar emails según la configuración de timing
+// 4. Actualizar el progreso de cada usuario
 
 // =====================================================
 // MIDDLEWARE: Verificar autorización (Cron o Admin)
@@ -52,6 +53,128 @@ function daysSince(dateString: string | null): number {
   const now = new Date();
   const diffTime = now.getTime() - date.getTime();
   return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+}
+
+// =====================================================
+// HELPER: Obtener destinatarios para email programado
+// =====================================================
+
+async function getScheduledEmailRecipients(targetAudience: TargetAudience): Promise<WaitlistEntry[]> {
+  let query = supabase
+    .from('waitlist')
+    .select('*')
+    .eq('unsubscribed', false);
+
+  if (!targetAudience.all) {
+    if (targetAudience.sequence_step !== undefined) {
+      query = query.eq('email_sequence_step', targetAudience.sequence_step);
+    }
+    if (targetAudience.sequence_step_gte !== undefined) {
+      query = query.gte('email_sequence_step', targetAudience.sequence_step_gte);
+    }
+    if (targetAudience.sequence_step_lte !== undefined) {
+      query = query.lte('email_sequence_step', targetAudience.sequence_step_lte);
+    }
+  }
+
+  const { data, error } = await query;
+  if (error) throw new Error(`Error obteniendo destinatarios: ${error.message}`);
+  return (data || []) as WaitlistEntry[];
+}
+
+// =====================================================
+// HELPER: Procesar emails programados
+// =====================================================
+
+async function processScheduledEmails(): Promise<{ processed: number; sent: number; failed: number }> {
+  const result = { processed: 0, sent: 0, failed: 0 };
+
+  const now = new Date().toISOString();
+  const { data: scheduledEmails, error } = await supabase
+    .from('email_drafts')
+    .select('*')
+    .eq('status', 'scheduled')
+    .lte('scheduled_for', now);
+
+  if (error || !scheduledEmails || scheduledEmails.length === 0) {
+    console.log('[DripCampaign] No hay emails programados para enviar');
+    return result;
+  }
+
+  console.log(`[DripCampaign] Procesando ${scheduledEmails.length} emails programados...`);
+
+  for (const draft of scheduledEmails as EmailDraft[]) {
+    // @ts-ignore
+    await supabase.from('email_drafts').update({ status: 'sending' }).eq('id', draft.id);
+
+    const recipients = await getScheduledEmailRecipients(draft.target_audience as TargetAudience);
+
+    if (recipients.length === 0) {
+      // @ts-ignore
+      await supabase.from('email_drafts').update({
+        status: 'sent',
+        sent_at: new Date().toISOString(),
+        recipients_count: 0,
+        sent_count: 0,
+        failed_count: 0,
+      }).eq('id', draft.id);
+      result.processed++;
+      continue;
+    }
+
+    // @ts-ignore
+    await supabase.from('email_drafts').update({ recipients_count: recipients.length }).eq('id', draft.id);
+
+    let sentCount = 0;
+    let failedCount = 0;
+
+    for (const recipient of recipients) {
+      try {
+        const personalizedSubject = personalizeContent(draft.subject, recipient);
+        const personalizedHtml = personalizeContent(draft.html_content, recipient);
+
+        const sendResult = await sendDraftEmail({
+          to: recipient.email,
+          subject: personalizedSubject,
+          htmlContent: personalizedHtml,
+          previewText: draft.preview_text || undefined,
+        });
+
+        // @ts-ignore
+        await supabase.from('email_logs').insert({
+          draft_id: draft.id,
+          waitlist_id: recipient.id,
+          email_to: recipient.email,
+          subject: personalizedSubject,
+          status: sendResult.success ? 'sent' : 'failed',
+          error_message: sendResult.success ? null : String(sendResult.error),
+          resend_id: sendResult.resendId,
+        });
+
+        if (sendResult.success) sentCount++;
+        else failedCount++;
+
+        await new Promise(resolve => setTimeout(resolve, 100));
+      } catch {
+        failedCount++;
+      }
+    }
+
+    // @ts-ignore
+    await supabase.from('email_drafts').update({
+      status: 'sent',
+      sent_at: new Date().toISOString(),
+      sent_count: sentCount,
+      failed_count: failedCount,
+    }).eq('id', draft.id);
+
+    result.processed++;
+    result.sent += sentCount;
+    result.failed += failedCount;
+    console.log(`[DripCampaign] Email programado enviado: ${draft.subject} - ${sentCount} ok, ${failedCount} fail`);
+  }
+
+  return result;
 }
 
 // =====================================================
@@ -119,7 +242,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: auth.error }, { status: 401 });
     }
 
-    console.log('[DripCampaign] Iniciando procesamiento de secuencia...');
+    console.log('[DripCampaign] Iniciando procesamiento...');
+
+    // 1. Primero procesar emails programados
+    const scheduledResult = await processScheduledEmails();
+    console.log(`[DripCampaign] Emails programados: ${scheduledResult.processed} procesados, ${scheduledResult.sent} enviados`);
+
+    // 2. Luego procesar secuencia de drip campaign
+    console.log('[DripCampaign] Procesando secuencia de nurturing...');
 
     const result: DripCampaignResult = {
       processed: 0,
@@ -127,6 +257,7 @@ export async function POST(request: Request) {
       failed: 0,
       skipped: 0,
       errors: [],
+      scheduledEmails: scheduledResult,
     };
 
     // Obtener configuración de secuencia activa

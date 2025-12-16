@@ -3,10 +3,6 @@
     {
       "path": "/api/drip-campaign",
       "schedule": "0 9 * * *"
-    },
-    {
-      "path": "/api/scheduled-emails",
-      "schedule": "0 8 * * *"
     }
   ]
 }

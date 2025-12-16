@@ -285,6 +285,11 @@ export type DripCampaignResult = {
     email: string;
     error: string;
   }>;
+  scheduledEmails?: {
+    processed: number;
+    sent: number;
+    failed: number;
+  };
 };
 
 export type EmailPreview = {
