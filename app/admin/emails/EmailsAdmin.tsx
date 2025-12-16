@@ -77,6 +77,12 @@ export default function EmailsAdmin() {
   const [generatePrompt, setGeneratePrompt] = useState('');
   const [generating, setGenerating] = useState(false);
 
+  // Test & Schedule state
+  const [testEmail, setTestEmail] = useState('');
+  const [sendingTest, setSendingTest] = useState(false);
+  const [scheduledDate, setScheduledDate] = useState('');
+  const [scheduling, setScheduling] = useState(false);
+
   // API helpers
   const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
     return fetch(url, {
@@ -262,6 +268,74 @@ export default function EmailsAdmin() {
       }
     } catch {
       alert('Error de conexión');
+    }
+  };
+
+  // Send test email
+  const handleSendTest = async (draftId: string) => {
+    if (!testEmail.trim()) {
+      alert('Ingresa un email para la prueba');
+      return;
+    }
+
+    setSendingTest(true);
+    try {
+      const response = await fetchWithAuth(`/api/admin/emails/${draftId}/test`, {
+        method: 'POST',
+        body: JSON.stringify({ test_email: testEmail }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert(`Email de prueba enviado a ${testEmail}`);
+        setTestEmail('');
+      } else {
+        alert(`Error: ${data.error}`);
+      }
+    } catch {
+      alert('Error de conexión');
+    } finally {
+      setSendingTest(false);
+    }
+  };
+
+  // Schedule email
+  const handleSchedule = async (draftId: string) => {
+    if (!scheduledDate) {
+      alert('Selecciona una fecha y hora para programar');
+      return;
+    }
+
+    const scheduledTime = new Date(scheduledDate);
+    if (scheduledTime <= new Date()) {
+      alert('La fecha programada debe ser en el futuro');
+      return;
+    }
+
+    setScheduling(true);
+    try {
+      const response = await fetchWithAuth(`/api/admin/emails/${draftId}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          status: 'scheduled',
+          scheduled_for: scheduledTime.toISOString(),
+        }),
+      });
+
+      if (response.ok) {
+        alert(`Email programado para ${scheduledTime.toLocaleString('es-ES')}`);
+        setScheduledDate('');
+        await loadDrafts();
+        setSelectedDraft(null);
+      } else {
+        const data = await response.json();
+        alert(`Error: ${data.error}`);
+      }
+    } catch {
+      alert('Error de conexión');
+    } finally {
+      setScheduling(false);
     }
   };
 
@@ -1132,6 +1206,87 @@ export default function EmailsAdmin() {
                     </>
                   )}
                 </div>
+
+                {/* Enviar prueba */}
+                {selectedDraft.status !== 'sent' && selectedDraft.status !== 'sending' && (
+                  <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+                    <div className="text-xs font-medium text-blue-600 uppercase tracking-wider mb-3 flex items-center gap-2">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                      Enviar email de prueba
+                    </div>
+                    <div className="flex gap-2">
+                      <input
+                        type="email"
+                        value={testEmail}
+                        onChange={(e) => setTestEmail(e.target.value)}
+                        placeholder="tu@email.com"
+                        className="flex-1 px-3 py-2 text-sm bg-white border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                      />
+                      <button
+                        onClick={() => handleSendTest(selectedDraft.id)}
+                        disabled={sendingTest || !testEmail.trim()}
+                        className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                      >
+                        {sendingTest ? (
+                          <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                          </svg>
+                        ) : (
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                          </svg>
+                        )}
+                        Enviar prueba
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Programar envio */}
+                {(selectedDraft.status === 'draft' || selectedDraft.status === 'approved') && (
+                  <div className="bg-purple-50 rounded-xl p-4 border border-purple-200">
+                    <div className="text-xs font-medium text-purple-600 uppercase tracking-wider mb-3 flex items-center gap-2">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      Programar envio
+                    </div>
+                    <div className="flex gap-2">
+                      <input
+                        type="datetime-local"
+                        value={scheduledDate}
+                        onChange={(e) => setScheduledDate(e.target.value)}
+                        min={new Date().toISOString().slice(0, 16)}
+                        className="flex-1 px-3 py-2 text-sm bg-white border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/30"
+                      />
+                      <button
+                        onClick={() => handleSchedule(selectedDraft.id)}
+                        disabled={scheduling || !scheduledDate}
+                        className="px-4 py-2 text-sm bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                      >
+                        {scheduling ? (
+                          <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                          </svg>
+                        ) : (
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        )}
+                        Programar
+                      </button>
+                    </div>
+                    {selectedDraft.scheduled_for && (
+                      <div className="mt-2 text-sm text-purple-700">
+                        Programado para: {formatDate(selectedDraft.scheduled_for)}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Modal Footer */}
