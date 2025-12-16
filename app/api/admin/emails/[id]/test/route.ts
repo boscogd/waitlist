@@ -72,22 +72,20 @@ export async function POST(
 
     const emailDraft = draft as EmailDraft;
 
-    // Personalizar contenido con datos de prueba
-    const testData = {
-      name: 'Usuario de Prueba',
-      email: test_email,
-      code: 'TEST-1234',
-    };
+    // Obtener datos de prueba del body o usar valores por defecto
+    const testName = body.test_name || 'Usuario';
+    const testCode = body.test_code || 'REFUGIO-2024';
 
-    const personalizedSubject = `[PRUEBA] ${emailDraft.subject}`
-      .replace(/\{\{name\}\}/g, testData.name)
-      .replace(/\{\{email\}\}/g, testData.email)
-      .replace(/\{\{code\}\}/g, testData.code);
+    // Personalizar contenido con datos proporcionados (email real, exacto como lo recibirán)
+    const personalizedSubject = emailDraft.subject
+      .replace(/\{\{name\}\}/g, testName)
+      .replace(/\{\{email\}\}/g, test_email)
+      .replace(/\{\{code\}\}/g, testCode);
 
     const personalizedHtml = emailDraft.html_content
-      .replace(/\{\{name\}\}/g, testData.name)
-      .replace(/\{\{email\}\}/g, testData.email)
-      .replace(/\{\{code\}\}/g, testData.code);
+      .replace(/\{\{name\}\}/g, testName)
+      .replace(/\{\{email\}\}/g, test_email)
+      .replace(/\{\{code\}\}/g, testCode);
 
     // Enviar email de prueba
     const result = await sendDraftEmail({

@@ -79,6 +79,7 @@ export default function EmailsAdmin() {
 
   // Test & Schedule state
   const [testEmail, setTestEmail] = useState('');
+  const [testName, setTestName] = useState('');
   const [sendingTest, setSendingTest] = useState(false);
   const [scheduledDate, setScheduledDate] = useState('');
   const [scheduling, setScheduling] = useState(false);
@@ -282,14 +283,18 @@ export default function EmailsAdmin() {
     try {
       const response = await fetchWithAuth(`/api/admin/emails/${draftId}/test`, {
         method: 'POST',
-        body: JSON.stringify({ test_email: testEmail }),
+        body: JSON.stringify({
+          test_email: testEmail,
+          test_name: testName || 'Usuario',
+        }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        alert(`Email de prueba enviado a ${testEmail}`);
+        alert(`Email enviado a ${testEmail}`);
         setTestEmail('');
+        setTestName('');
       } else {
         alert(`Error: ${data.error}`);
       }
@@ -1214,20 +1219,29 @@ export default function EmailsAdmin() {
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                       </svg>
-                      Enviar email de prueba
+                      Enviarme una prueba (exacto como lo recibiran)
                     </div>
-                    <div className="flex gap-2">
-                      <input
-                        type="email"
-                        value={testEmail}
-                        onChange={(e) => setTestEmail(e.target.value)}
-                        placeholder="tu@email.com"
-                        className="flex-1 px-3 py-2 text-sm bg-white border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30"
-                      />
+                    <div className="flex flex-col gap-2">
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={testName}
+                          onChange={(e) => setTestName(e.target.value)}
+                          placeholder="Tu nombre"
+                          className="w-1/3 px-3 py-2 text-sm bg-white border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                        />
+                        <input
+                          type="email"
+                          value={testEmail}
+                          onChange={(e) => setTestEmail(e.target.value)}
+                          placeholder="tu@email.com"
+                          className="flex-1 px-3 py-2 text-sm bg-white border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                        />
+                      </div>
                       <button
                         onClick={() => handleSendTest(selectedDraft.id)}
                         disabled={sendingTest || !testEmail.trim()}
-                        className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                        className="w-full px-4 py-2 text-sm bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
                       >
                         {sendingTest ? (
                           <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
@@ -1239,7 +1253,7 @@ export default function EmailsAdmin() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                           </svg>
                         )}
-                        Enviar prueba
+                        Enviarme el email
                       </button>
                     </div>
                   </div>
