@@ -12,7 +12,8 @@
       "Bash(vercel --version:*)",
       "Bash(npm install:*)",
       "Bash(vercel:*)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "WebFetch(domain:ai.google.dev)"
     ],
     "deny": [],
     "ask": []
