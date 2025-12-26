@@ -19,16 +19,24 @@ import type { WaitlistEntry, SequenceConfig, EmailTemplate, DripCampaignResult, 
 function verifyAuth(request: Request): { authorized: boolean; error?: string } {
   const authHeader = request.headers.get('authorization');
 
+  // DEBUG: Log para diagnosticar problemas de autenticación
+  console.log('[DripCampaign Auth] Header recibido:', authHeader ? `Bearer ***${authHeader.slice(-8)}` : 'ninguno');
+  console.log('[DripCampaign Auth] CRON_SECRET configurado:', process.env.CRON_SECRET ? `***${process.env.CRON_SECRET.slice(-8)}` : 'no');
+  console.log('[DripCampaign Auth] ADMIN_SECRET_KEY configurado:', process.env.ADMIN_SECRET_KEY ? `***${process.env.ADMIN_SECRET_KEY.slice(-8)}` : 'no');
+
   // Verificar Vercel Cron secret (para ejecución automática)
   if (process.env.CRON_SECRET && authHeader === `Bearer ${process.env.CRON_SECRET}`) {
+    console.log('[DripCampaign Auth] ✓ Autenticado via CRON_SECRET');
     return { authorized: true };
   }
 
   // Verificar Admin Secret Key (para acceso desde panel de admin)
   if (process.env.ADMIN_SECRET_KEY && authHeader === `Bearer ${process.env.ADMIN_SECRET_KEY}`) {
+    console.log('[DripCampaign Auth] ✓ Autenticado via ADMIN_SECRET_KEY');
     return { authorized: true };
   }
 
+  console.log('[DripCampaign Auth] ✗ No autorizado - header no coincide con ningún secret');
   return { authorized: false, error: 'No autorizado' };
 }
 
