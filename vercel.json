@@ -1,8 +1,2 @@
 {
-  "crons": [
-    {
-      "path": "/api/drip-campaign",
-      "schedule": "0 9 * * *"
-    }
-  ]
 }
