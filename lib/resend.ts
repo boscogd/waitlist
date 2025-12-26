@@ -27,13 +27,15 @@ export async function sendDraftEmail({
 
     if (error) {
       console.error('Error enviando email:', error);
-      return { success: false, error, resendId: null };
+      const errorMessage = error.message || JSON.stringify(error);
+      return { success: false, error: errorMessage, resendId: null };
     }
 
     return { success: true, data, resendId: data?.id || null };
   } catch (error) {
     console.error('Error en sendDraftEmail:', error);
-    return { success: false, error, resendId: null };
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
+    return { success: false, error: errorMessage, resendId: null };
   }
 }
 

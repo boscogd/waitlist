@@ -162,7 +162,8 @@ async function processScheduledEmails(): Promise<{ processed: number; sent: numb
         if (sendResult.success) sentCount++;
         else failedCount++;
 
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Delay de 300ms entre emails para evitar rate limiting de Resend
+        await new Promise(resolve => setTimeout(resolve, 300));
       } catch {
         failedCount++;
       }
@@ -406,8 +407,8 @@ export async function POST(request: Request) {
           });
         }
 
-        // Pausa para evitar rate limits
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        // Delay de 300ms entre emails para evitar rate limiting de Resend
+        await new Promise((resolve) => setTimeout(resolve, 300));
 
       } catch (error) {
         result.failed++;
