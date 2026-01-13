@@ -145,7 +145,7 @@ export default function DescargarPage() {
     },
     {
       question: '¿Por qué no están en la App Store o Google Play?',
-      answer: 'Las tiendas de aplicaciones cobran un 30% de comisión y tienen procesos de aprobación largos. Al ser una PWA, podemos ofrecerte la app gratis, actualizarla más rápido y sin intermediarios. Además, funciona igual o mejor que una app nativa.',
+      answer: 'Somos Aida y Bosco, un equipo pequeño que está empezando. Queríamos que pudieras usar Refugio cuanto antes, sin esperar meses de procesos de aprobación. Con una PWA podemos mejorar la app cada semana y que tú tengas las novedades al instante. Y tranquilo: funciona exactamente igual que cualquier app de las tiendas.',
     },
     {
       question: '¿Funciona sin conexión a internet?',
@@ -262,11 +262,11 @@ export default function DescargarPage() {
 
         {/* Video Tutorial Section */}
         <section className="px-6 py-8">
-          <div className="max-w-3xl mx-auto">
+          <div className="max-w-md mx-auto">
             <AnimateOnScroll>
               <div className="relative bg-gradient-to-br from-azul to-azul-800 rounded-3xl overflow-hidden shadow-2xl shadow-azul/20">
-                {/* Video placeholder - aspect ratio 9:16 para móvil */}
-                <div className="relative aspect-[9/16] sm:aspect-video max-h-[500px] mx-auto">
+                {/* Video placeholder - siempre vertical 9:16 */}
+                <div className="relative aspect-[9/16] mx-auto">
                   {/* Fondo decorativo */}
                   <div className="absolute inset-0 bg-gradient-to-br from-azul via-azul-800 to-azul flex items-center justify-center">
                     {/* Patrón decorativo */}
