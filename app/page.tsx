@@ -861,7 +861,6 @@ export default function Home() {
                 <li><a href="#testimonios" className="hover:text-white transition-colors">Quiénes somos</a></li>
                 <li><a href="#faq" className="hover:text-white transition-colors">Preguntas frecuentes</a></li>
                 <li><a href="#unete" className="hover:text-white transition-colors">Únete</a></li>
-                <li><Link href="/descargar" className="hover:text-white transition-colors">Instalar App</Link></li>
               </ul>
             </div>
 
@@ -869,7 +868,6 @@ export default function Home() {
             <div className="space-y-4">
               <h3 className="font-semibold">Legal</h3>
               <ul className="space-y-3 text-sm text-white/70">
-                <li><Link href="/descargar" className="hover:text-white transition-colors font-medium text-albero">Instalar App</Link></li>
                 <li><Link href="/privacidad" className="hover:text-white transition-colors">Política de Privacidad</Link></li>
                 <li><Link href="/legal" className="hover:text-white transition-colors">Términos y Condiciones</Link></li>
                 <li><Link href="/legal#cookies" className="hover:text-white transition-colors">Política de Cookies</Link></li>
