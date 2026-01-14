@@ -56,8 +56,8 @@ export default function DescargarPage() {
   const iosSteps = [
     {
       number: 1,
-      title: 'Abre la web en Safari',
-      description: 'Si ya estás en Safari, perfecto. Si estás en Chrome u otro navegador, abre Safari y entra a esta web. Solo Safari permite instalar apps en iPhone.',
+      title: 'Abre la app en Safari',
+      description: 'Pulsa el botón "Abrir Refugio en la Palabra" de arriba. Si estás en Chrome u otro navegador, abre Safari y vuelve a esta página. Solo Safari permite instalar apps en iPhone.',
       icon: (
         <svg className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 2.182a9.818 9.818 0 110 19.636 9.818 9.818 0 010-19.636zm4.034 4.352l-5.72 2.674-2.673 5.72 5.72-2.674zm-3.352 3.42a1.364 1.364 0 100 2.728 1.364 1.364 0 000-2.728z"/>
