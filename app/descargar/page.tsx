@@ -14,7 +14,7 @@ export default function DescargarPage() {
     {
       number: 1,
       title: 'Abre Chrome',
-      description: 'Visita refugioenlapalabra.app desde el navegador Chrome en tu dispositivo Android.',
+      description: 'Pulsa el botón "Abrir Refugio en la Palabra" de arriba, o escribe la dirección en Chrome.',
       icon: (
         <svg className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 0C8.21 0 4.831 1.757 2.632 4.501l3.953 6.848A5.454 5.454 0 0 1 12 6.545h10.691A12 12 0 0 0 12 0zM1.931 5.47A11.943 11.943 0 0 0 0 12c0 6.012 4.42 10.991 10.189 11.864l3.953-6.847a5.45 5.45 0 0 1-6.865-2.29zm13.342 2.166a5.446 5.446 0 0 1 1.45 7.09l.002.001h-.002l-3.952 6.848a12.014 12.014 0 0 0 9.921-9.718zm-3.218 2.31a2.182 2.182 0 1 0 0 4.364 2.182 2.182 0 0 0 0-4.364z"/>
@@ -56,8 +56,8 @@ export default function DescargarPage() {
   const iosSteps = [
     {
       number: 1,
-      title: 'Abre Safari',
-      description: 'Es importante usar Safari, el navegador de Apple. Chrome u otros navegadores no permiten instalar apps en iOS.',
+      title: 'Abre la web en Safari',
+      description: 'Si ya estás en Safari, perfecto. Si estás en Chrome u otro navegador, abre Safari y entra a esta web. Solo Safari permite instalar apps en iPhone.',
       icon: (
         <svg className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 2.182a9.818 9.818 0 110 19.636 9.818 9.818 0 010-19.636zm4.034 4.352l-5.72 2.674-2.673 5.72 5.72-2.674zm-3.352 3.42a1.364 1.364 0 100 2.728 1.364 1.364 0 000-2.728z"/>
@@ -257,52 +257,57 @@ export default function DescargarPage() {
                 </button>
               </div>
             </AnimateOnScroll>
+
+            {/* CTA Principal - Acceder a la app */}
+            <AnimateOnScroll delay={400}>
+              <div className="mt-10">
+                <a
+                  href="https://refugio-en-la-palabra.netlify.app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group inline-flex items-center gap-3 bg-gradient-to-r from-albero to-dorado text-azul-800 px-8 py-4 rounded-2xl text-lg font-semibold shadow-lg shadow-albero/25 hover:shadow-xl hover:shadow-albero/30 hover:scale-[1.02] transition-all duration-300"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                  Abrir Refugio en la Palabra
+                  <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </a>
+                <p className="text-sm text-texto/50 mt-3">
+                  Se abrirá en una nueva pestaña. Sigue los pasos de abajo para instalarla.
+                </p>
+              </div>
+            </AnimateOnScroll>
           </div>
         </section>
 
         {/* Video Tutorial Section */}
         <section className="px-6 py-8">
-          <div className="max-w-md mx-auto">
+          <div className="max-w-lg sm:max-w-xl mx-auto">
             <AnimateOnScroll>
               <div className="relative bg-gradient-to-br from-azul to-azul-800 rounded-3xl overflow-hidden shadow-2xl shadow-azul/20">
-                {/* Video placeholder - siempre vertical 9:16 */}
-                <div className="relative aspect-[9/16] mx-auto">
-                  {/* Fondo decorativo */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-azul via-azul-800 to-azul flex items-center justify-center">
-                    {/* Patrón decorativo */}
-                    <div className="absolute inset-0 opacity-10">
-                      <div className="absolute top-10 left-10 w-32 h-32 border border-white/20 rounded-full"></div>
-                      <div className="absolute bottom-10 right-10 w-48 h-48 border border-white/20 rounded-full"></div>
-                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 border border-white/10 rounded-full"></div>
-                    </div>
-
-                    {/* Contenido del placeholder */}
-                    <div className="relative z-10 text-center text-white p-8">
-                      <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-6 border border-white/20">
-                        <svg className="w-10 h-10 sm:w-12 sm:h-12 text-white/80" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M8 5v14l11-7z"/>
-                        </svg>
-                      </div>
-                      <h3 className="font-[family-name:var(--font-lora)] text-xl sm:text-2xl font-semibold mb-2">
-                        Tutorial en vídeo
-                      </h3>
-                      <p className="text-white/70 text-sm sm:text-base max-w-xs mx-auto">
-                        {platform === 'android'
-                          ? 'Cómo instalar Refugio en Android paso a paso'
-                          : 'Cómo instalar Refugio en iPhone paso a paso'}
-                      </p>
-                      <div className="mt-6 inline-flex items-center gap-2 text-xs text-white/50 bg-white/5 px-4 py-2 rounded-full">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        Próximamente
-                      </div>
-                    </div>
-                  </div>
+                {/* Video - siempre vertical 9:16, con altura máxima para no salirse de pantalla */}
+                <div className="relative aspect-[9/16] mx-auto max-h-[80vh]">
+                  <video
+                    key={platform}
+                    className="absolute inset-0 w-full h-full object-contain"
+                    controls
+                    playsInline
+                    preload="metadata"
+                    poster=""
+                  >
+                    <source
+                      src={platform === 'android' ? '/android.mp4' : '/ios.mp4'}
+                      type="video/mp4"
+                    />
+                    Tu navegador no soporta videos HTML5.
+                  </video>
                 </div>
 
                 {/* Badge de plataforma */}
-                <div className="absolute top-4 right-4 bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full text-white text-xs font-medium flex items-center gap-1.5">
+                <div className="absolute top-4 right-4 bg-black/50 backdrop-blur-sm px-3 py-1.5 rounded-full text-white text-xs font-medium flex items-center gap-1.5 z-10">
                   {platform === 'android' ? (
                     <>
                       <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
@@ -414,9 +419,24 @@ export default function DescargarPage() {
                 <h3 className="font-[family-name:var(--font-lora)] text-xl font-semibold text-green-800 mb-2">
                   ¡Ya está!
                 </h3>
-                <p className="text-green-700">
+                <p className="text-green-700 mb-6">
                   Refugio en la Palabra ya está en tu pantalla de inicio. Ábrela cuando quieras rezar.
                 </p>
+                <a
+                  href="https://refugio-en-la-palabra.netlify.app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-semibold shadow-md hover:shadow-lg transition-all duration-300"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Empezar a usar Refugio
+                  <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </a>
               </div>
             </AnimateOnScroll>
           </div>
