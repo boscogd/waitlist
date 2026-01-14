@@ -1,5 +1,3 @@
-import WaitlistForm from './components/WaitlistForm';
-import WaitlistCounter from './components/WaitlistCounter';
 import InstagramBadge from './components/InstagramBadge';
 import AnimateOnScroll from './components/AnimateOnScroll';
 import Image from 'next/image';
@@ -37,12 +35,12 @@ export default function Home() {
               FAQ
             </a>
           </nav>
-          <a
-            href="#unete"
+          <Link
+            href="/descargar"
             className="bg-azul text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-azul-800 transition-colors shadow-sm"
           >
-            Únete gratis
-          </a>
+            Descargar
+          </Link>
         </div>
       </header>
 
@@ -56,10 +54,9 @@ export default function Home() {
 
               {/* Contenido izquierdo */}
               <div className="space-y-6 text-center lg:text-left">
-                {/* Badges de comunidad y waitlist */}
+                {/* Badge de Instagram */}
                 <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3">
                   <InstagramBadge />
-                  <WaitlistCounter />
                 </div>
 
                 {/* Título principal */}
@@ -77,15 +74,15 @@ export default function Home() {
 
                 {/* CTA Principal */}
                 <div className="flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-4 pt-2 animate-fade-in-up animation-delay-200">
-                  <a
-                    href="#unete"
+                  <Link
+                    href="/descargar"
                     className="group bg-gradient-to-r from-azul to-azul-800 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:shadow-xl hover:shadow-azul/20 transition-all duration-300 flex items-center gap-2"
                   >
-                    Únete a la lista de espera
+                    Descarga nuestra aplicación
                     <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                     </svg>
-                  </a>
+                  </Link>
                 </div>
 
                 {/* Prueba social rápida */}
@@ -423,10 +420,10 @@ export default function Home() {
                   1
                 </div>
                 <h3 className="font-[family-name:var(--font-lora)] text-xl font-semibold text-azul">
-                  Únete a la lista
+                  Descarga la app
                 </h3>
                 <p className="text-texto/70 text-sm">
-                  Regístrate con tu email para ser de los primeros en saber cuando lancemos.
+                  Instálala en tu móvil o accede desde cualquier navegador. Sin tiendas, sin complicaciones.
                 </p>
               </div>
 
@@ -435,10 +432,10 @@ export default function Home() {
                   2
                 </div>
                 <h3 className="font-[family-name:var(--font-lora)] text-xl font-semibold text-azul">
-                  Recibe el aviso
+                  Crea tu cuenta
                 </h3>
                 <p className="text-texto/70 text-sm">
-                  Te notificaremos por email cuando la app esté lista, antes que nadie.
+                  Regístrate en segundos y personaliza tu experiencia espiritual.
                 </p>
               </div>
 
@@ -655,27 +652,40 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Formulario de Waitlist */}
+        {/* CTA Descarga */}
         <section id="unete" className="px-6 py-20">
           <AnimateOnScroll className="max-w-2xl mx-auto">
             <div className="bg-gradient-to-br from-white to-marfil rounded-3xl p-8 sm:p-12 shadow-xl shadow-azul/5 border border-azul/5">
               <div className="text-center space-y-4 mb-8">
-                <div className="inline-flex items-center gap-2 bg-albero/10 text-albero px-4 py-2 rounded-full text-sm font-medium">
+                <div className="inline-flex items-center gap-2 bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-medium">
                   <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-albero opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-albero"></span>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                   </span>
-                  Únete a la comunidad
+                  Ya disponible
                 </div>
                 <h2 className="font-[family-name:var(--font-lora)] text-3xl sm:text-4xl font-semibold text-azul">
-                  Sé parte de Refugio desde el principio
+                  Descarga Refugio en la Palabra
                 </h2>
                 <p className="text-texto/70">
-                  Únete a nuestra lista de espera y te avisaremos en cuanto la app esté disponible. Además, te tenemos preparada una sorpresa...
+                  Tu refugio espiritual está listo. Instala la app en tu dispositivo y comienza tu camino de fe hoy mismo.
                 </p>
               </div>
 
-              <WaitlistForm />
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <Link
+                  href="/descargar"
+                  className="w-full sm:w-auto px-8 py-4 text-base font-medium text-white bg-azul rounded-lg
+                           hover:bg-azul-800 focus:outline-none focus:ring-2 focus:ring-offset-2
+                           focus:ring-albero transition-all duration-200 shadow-sm hover:shadow-md
+                           flex items-center justify-center gap-2"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                  Descargar ahora
+                </Link>
+              </div>
 
               <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-xs text-texto/50">
                 <div className="flex items-center gap-1.5">
@@ -686,15 +696,15 @@ export default function Home() {
                 </div>
                 <div className="flex items-center gap-1.5">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  Sin spam
+                  100% gratis
                 </div>
                 <div className="flex items-center gap-1.5">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
                   </svg>
-                  Baja cuando quieras
+                  iOS y Android
                 </div>
               </div>
             </div>
@@ -716,13 +726,13 @@ export default function Home() {
             <div className="space-y-4">
               <details className="group bg-white rounded-xl border border-azul/10 overflow-hidden">
                 <summary className="flex items-center justify-between p-6 cursor-pointer font-medium text-azul hover:bg-marfil/50 transition-colors">
-                  ¿Cuándo estará disponible la aplicación?
+                  ¿Cómo descargo la aplicación?
                   <svg className="w-5 h-5 text-texto/50 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </summary>
                 <div className="px-6 pb-6 text-texto/70">
-                  Estamos en fase final de desarrollo. Los miembros de la lista de espera serán los primeros en recibir acceso cuando lancemos. Estimamos que será en las próximas semanas.
+                  Es muy sencillo. Ve a la página de descarga y sigue las instrucciones según tu dispositivo. En iPhone/iPad, abre Safari y añade la app a tu pantalla de inicio. En Android, Chrome te ofrecerá instalarla directamente.
                 </div>
               </details>
 
@@ -734,19 +744,19 @@ export default function Home() {
                   </svg>
                 </summary>
                 <div className="px-6 pb-6 text-texto/70">
-                  Refugio en la Palabra es una aplicación web que funciona en cualquier dispositivo moderno: móvil, tablet o computadora. Solo necesitas un navegador actualizado. No requiere descargas.
+                  Refugio en la Palabra funciona en cualquier dispositivo moderno: iPhone, Android, tablet o computadora. Solo necesitas un navegador actualizado como Safari, Chrome o Firefox.
                 </div>
               </details>
 
               <details className="group bg-white rounded-xl border border-azul/10 overflow-hidden">
                 <summary className="flex items-center justify-between p-6 cursor-pointer font-medium text-azul hover:bg-marfil/50 transition-colors">
-                  ¿Por qué unirme a la lista de espera?
+                  ¿Por qué no está en la App Store o Google Play?
                   <svg className="w-5 h-5 text-texto/50 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </summary>
                 <div className="px-6 pb-6 text-texto/70">
-                  Serás de los primeros en saber cuando lancemos. Recibirás emails con contenido espiritual mientras esperamos juntos. Y entre nosotros... te tenemos preparada una sorpresa especial por confiar desde el principio.
+                  Refugio es una Progressive Web App (PWA). Esto significa que funciona como una app nativa pero se instala directamente desde el navegador. No necesitas pasar por las tiendas, se actualiza automáticamente y ocupa menos espacio en tu dispositivo.
                 </div>
               </details>
 
@@ -764,13 +774,13 @@ export default function Home() {
 
               <details className="group bg-white rounded-xl border border-azul/10 overflow-hidden">
                 <summary className="flex items-center justify-between p-6 cursor-pointer font-medium text-azul hover:bg-marfil/50 transition-colors">
-                  ¿Cuánto costará la aplicación?
+                  ¿Cuánto cuesta la aplicación?
                   <svg className="w-5 h-5 text-texto/50 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </summary>
                 <div className="px-6 pb-6 text-texto/70">
-                  Habrá una versión gratuita con funciones esenciales. Los miembros de la lista de espera recibirán beneficios especiales en la versión premium. Nuestro objetivo es que el precio nunca sea una barrera para acercarse a Dios.
+                  Refugio en la Palabra es completamente gratuita. Todas las funciones están disponibles sin coste. Nuestro objetivo es que el precio nunca sea una barrera para acercarse a Dios.
                 </div>
               </details>
 
@@ -796,17 +806,17 @@ export default function Home() {
               Tu camino espiritual comienza con un paso
             </h2>
             <p className="text-lg text-texto/70 max-w-2xl mx-auto">
-              Únete a quienes ya esperan Refugio en la Palabra. El primer paso es el más importante.
+              Descarga Refugio en la Palabra y empieza hoy tu camino de fe. El primer paso es el más importante.
             </p>
-            <a
-              href="#unete"
+            <Link
+              href="/descargar"
               className="inline-flex items-center gap-2 bg-gradient-to-r from-albero to-dorado text-white px-8 py-4 rounded-xl text-lg font-semibold hover:shadow-xl hover:shadow-albero/20 transition-all duration-300"
             >
-              Únete a la lista de espera
+              Descargar ahora
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
-            </a>
+            </Link>
           </AnimateOnScroll>
         </section>
 
@@ -860,7 +870,7 @@ export default function Home() {
                 <li><a href="#como-funciona" className="hover:text-white transition-colors">Cómo funciona</a></li>
                 <li><a href="#testimonios" className="hover:text-white transition-colors">Quiénes somos</a></li>
                 <li><a href="#faq" className="hover:text-white transition-colors">Preguntas frecuentes</a></li>
-                <li><a href="#unete" className="hover:text-white transition-colors">Únete</a></li>
+                <li><Link href="/descargar" className="hover:text-white transition-colors">Descargar</Link></li>
               </ul>
             </div>
 
