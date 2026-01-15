@@ -14,7 +14,7 @@ export default function DescargarPage() {
     {
       number: 1,
       title: 'Abre la app en Chrome',
-      description: 'Pulsa el botón "Abrir Refugio en la Palabra" de arriba. Se abrirá en Chrome u otro navegador.',
+      description: 'Pulsa el botón "Acceder a la app" de arriba. Se abrirá en Chrome u otro navegador.',
       icon: (
         <svg className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 0C8.21 0 4.831 1.757 2.632 4.501l3.953 6.848A5.454 5.454 0 0 1 12 6.545h10.691A12 12 0 0 0 12 0zM1.931 5.47A11.943 11.943 0 0 0 0 12c0 6.012 4.42 10.991 10.189 11.864l3.953-6.847a5.45 5.45 0 0 1-6.865-2.29zm13.342 2.166a5.446 5.446 0 0 1 1.45 7.09l.002.001h-.002l-3.952 6.848a12.014 12.014 0 0 0 9.921-9.718zm-3.218 2.31a2.182 2.182 0 1 0 0 4.364 2.182 2.182 0 0 0 0-4.364z"/>
@@ -57,7 +57,7 @@ export default function DescargarPage() {
     {
       number: 1,
       title: 'Abre la app en Safari',
-      description: 'Pulsa el botón "Abrir Refugio en la Palabra" de arriba. Si estás en Chrome u otro navegador, abre Safari y vuelve a esta página. Solo Safari permite instalar apps en iPhone.',
+      description: 'Pulsa el botón "Acceder a la app" de arriba. Si estás en Chrome u otro navegador, abre Safari y vuelve a esta página. Solo Safari permite instalar apps en iPhone.',
       icon: (
         <svg className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 2.182a9.818 9.818 0 110 19.636 9.818 9.818 0 010-19.636zm4.034 4.352l-5.72 2.674-2.673 5.72 5.72-2.674zm-3.352 3.42a1.364 1.364 0 100 2.728 1.364 1.364 0 000-2.728z"/>
@@ -270,7 +270,7 @@ export default function DescargarPage() {
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                   </svg>
-                  Abrir Refugio en la Palabra
+                  Acceder a la app
                   <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
