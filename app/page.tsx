@@ -87,11 +87,17 @@ export default function Home() {
 
                 {/* Prueba social rápida */}
                 <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-4 text-sm text-texto/60 animate-fade-in-up animation-delay-300">
+                  <div className="flex items-center gap-2 bg-green-50 text-green-700 px-3 py-1.5 rounded-full font-medium">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+                    </svg>
+                    <span>+400 usuarios</span>
+                  </div>
                   <div className="flex items-center gap-2">
                     <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
-                    <span>100% gratis</span>
+                    <span>Descarga gratis</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
@@ -698,7 +704,7 @@ export default function Home() {
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  100% gratis
+                  Gratis para empezar
                 </div>
                 <div className="flex items-center gap-1.5">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -780,7 +786,7 @@ export default function Home() {
                   </svg>
                 </summary>
                 <div className="px-6 pb-6 text-texto/70">
-                  Refugio en la Palabra es completamente gratuita. Todas las funciones están disponibles sin coste. Nuestro objetivo es que el precio nunca sea una barrera para acercarse a Dios.
+                  Descargar y usar Refugio en la Palabra es gratis. Tienes acceso al Evangelio del día, Rosario, Lectio Divina y mucho más sin pagar nada. Algunas funciones avanzadas son de pago para ayudarnos a mantener el proyecto, pero siempre podrás rezar y crecer en tu fe sin coste.
                 </div>
               </details>
 
