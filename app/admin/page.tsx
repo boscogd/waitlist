@@ -52,7 +52,7 @@ export default function AdminDashboard() {
       if (feedbackRes.status === 'fulfilled' && feedbackRes.value.ok) {
         const data = await feedbackRes.value.json();
         totalFeedbacks = data.feedbacks?.length || 0;
-        avgRating = data.averageRating || 0;
+        avgRating = parseFloat(data.averageRating) || 0;
       }
 
       setStats({ totalUsers, pendingReminder, usedCode, totalFeedbacks, avgRating });
