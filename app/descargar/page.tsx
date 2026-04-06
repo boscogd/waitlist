@@ -258,38 +258,48 @@ export default function DescargarPage() {
               </div>
             </AnimateOnScroll>
 
-            {/* CTA Principal - Acceder a la app */}
-            <AnimateOnScroll delay={400}>
-              <div className="mt-10">
-                <a
-                  href="https://refugio-en-la-palabra.netlify.app"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group inline-flex items-center gap-3 bg-gradient-to-r from-albero to-dorado text-azul-800 px-8 py-4 rounded-2xl text-lg font-semibold shadow-lg shadow-albero/25 hover:shadow-xl hover:shadow-albero/30 hover:scale-[1.02] transition-all duration-300"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                  Acceder a la app
-                  <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                </a>
-                <p className="text-sm text-texto/50 mt-3">
-                  Se abrirá en una nueva pestaña. Sigue los pasos de abajo para instalarla.
-                </p>
-              </div>
-            </AnimateOnScroll>
+            {/* Advertencia Safari para iOS - ANTES del video */}
+            {platform === 'ios' && (
+              <AnimateOnScroll delay={350}>
+                <div className="mt-6 max-w-xl mx-auto bg-amber-50 border border-amber-200 rounded-2xl p-4 flex gap-3 items-start">
+                  <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-amber-800 text-sm">Importante: Usa Safari</h3>
+                    <p className="text-xs text-amber-700 mt-0.5">
+                      En iPhone solo Safari permite instalar apps. Si usas Chrome u otro navegador, abre Safari primero.
+                    </p>
+                  </div>
+                </div>
+              </AnimateOnScroll>
+            )}
+
           </div>
         </section>
 
-        {/* Video Tutorial Section */}
-        <section className="px-6 py-8">
+        {/* Video Tutorial Section - Ahora visible inmediatamente */}
+        <section className="px-6 py-4 -mt-4">
           <div className="max-w-lg sm:max-w-xl mx-auto">
-            <AnimateOnScroll>
+            {/* Título del video */}
+            <AnimateOnScroll delay={350}>
+              <div className="text-center mb-4">
+                <div className="inline-flex items-center gap-2 bg-albero/10 text-albero px-4 py-2 rounded-full text-sm font-medium">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Tutorial de {platform === 'android' ? 'Android' : 'iPhone'} (30 seg)
+                </div>
+              </div>
+            </AnimateOnScroll>
+
+            <AnimateOnScroll delay={400}>
               <div className="relative bg-gradient-to-br from-azul to-azul-800 rounded-3xl overflow-hidden shadow-2xl shadow-azul/20">
                 {/* Video - siempre vertical 9:16, con altura máxima para no salirse de pantalla */}
-                <div className="relative aspect-[9/16] mx-auto max-h-[80vh]">
+                <div className="relative aspect-[9/16] mx-auto max-h-[70vh]">
                   <video
                     key={platform}
                     className="absolute inset-0 w-full h-full object-contain"
@@ -327,21 +337,46 @@ export default function DescargarPage() {
               </div>
             </AnimateOnScroll>
 
-            {/* Nota bajo el video */}
-            <AnimateOnScroll delay={100}>
-              <p className="text-center text-sm text-texto/50 mt-4">
-                ¿Prefieres leer los pasos? Los tienes justo debajo
+            {/* CTA Principal - Ahora DESPUÉS del video */}
+            <AnimateOnScroll delay={500}>
+              <div className="mt-6 text-center">
+                <a
+                  href="https://refugio-en-la-palabra.netlify.app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group inline-flex items-center gap-3 bg-gradient-to-r from-albero to-dorado text-azul-800 px-8 py-4 rounded-2xl text-lg font-semibold shadow-lg shadow-albero/25 hover:shadow-xl hover:shadow-albero/30 hover:scale-[1.02] transition-all duration-300"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                  Abrir la app e instalar
+                  <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </a>
+                <p className="text-sm text-texto/50 mt-3">
+                  Se abrirá en una nueva pestaña. Sigue los pasos del video para instalarla.
+                </p>
+              </div>
+            </AnimateOnScroll>
+
+            {/* Enlace a pasos escritos */}
+            <AnimateOnScroll delay={550}>
+              <p className="text-center text-sm text-texto/50 mt-6">
+                <a href="#pasos" className="text-azul hover:text-azul-800 underline underline-offset-2">
+                  ¿Prefieres leer los pasos? Haz clic aquí
+                </a>
               </p>
             </AnimateOnScroll>
           </div>
         </section>
 
         {/* Steps Section */}
-        <section className="px-6 py-16">
+        <section id="pasos" className="px-6 py-16 scroll-mt-24">
           <div className="max-w-4xl mx-auto">
             <AnimateOnScroll>
               <div className="text-center mb-12">
-                <span className="text-albero font-medium text-sm uppercase tracking-wider">Paso a paso</span>
+                <span className="text-albero font-medium text-sm uppercase tracking-wider">Paso a paso (versión escrita)</span>
                 <h2 className="font-[family-name:var(--font-lora)] text-3xl sm:text-4xl font-semibold text-azul mt-3 mb-4">
                   {platform === 'android' ? 'Instalación en Android' : 'Instalación en iPhone'}
                 </h2>
@@ -350,26 +385,6 @@ export default function DescargarPage() {
                 </p>
               </div>
             </AnimateOnScroll>
-
-            {/* iOS Safari Warning */}
-            {platform === 'ios' && (
-              <AnimateOnScroll>
-                <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 mb-8 flex gap-4">
-                  <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <svg className="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-amber-800 mb-1">Importante: Usa Safari</h3>
-                    <p className="text-sm text-amber-700">
-                      En iPhone y iPad, solo Safari permite instalar apps web. Si estás usando Chrome, Firefox u otro navegador,
-                      abre esta página en Safari para continuar.
-                    </p>
-                  </div>
-                </div>
-              </AnimateOnScroll>
-            )}
 
             {/* Steps Grid */}
             <div className="space-y-6">

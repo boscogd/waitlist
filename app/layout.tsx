@@ -21,13 +21,13 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://refugioenlapalabra.com"),
+  metadataBase: new URL("https://refugioenlapalabra.vercel.app"),
   title: {
-    default: "Refugio en la Palabra | App Católica de Oración y Acompañamiento Espiritual",
+    default: "Refugio en la Palabra | App Católica de Oración y Crecimiento en la Fe",
     template: "%s | Refugio en la Palabra",
   },
   description:
-    "Tu espacio diario para orar y crecer en la fe. Rosario guiado con audio, Evangelio del día comentado, sistema de logros espirituales y consultor IA católico disponible 24/7. La app de acompañamiento espiritual hecha por católicos, para católicos.",
+    "Tu espacio diario para orar y crecer en la fe. Rosario guiado con audio, Evangelio del día comentado, sistema de logros y compañero de fe disponible 24/7. La app católica hecha por católicos, para católicos.",
   keywords: [
     "app católica",
     "rosario guiado",
@@ -36,10 +36,10 @@ export const metadata: Metadata = {
     "oración diaria",
     "meditación católica",
     "lectio divina",
-    "acompañamiento espiritual",
+    "compañero de fe",
     "fe católica",
     "espiritualidad cristiana",
-    "consultor espiritual",
+    "guía católico",
     "app de oración",
     "rezar rosario",
     "misterios del rosario",
@@ -67,46 +67,38 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "es_ES",
-    url: "https://refugioenlapalabra.com",
+    url: "https://refugioenlapalabra.vercel.app",
     siteName: "Refugio en la Palabra",
     title: "Refugio en la Palabra | App Católica de Oración",
     description:
-      "Tu espacio diario para orar, comprender y avanzar con sentido. Rosario guiado, Evangelio comentado y acompañamiento espiritual 24/7.",
+      "Tu espacio diario para orar, comprender y avanzar con sentido. Rosario guiado, Evangelio comentado y compañero de fe disponible 24/7.",
     images: [
       {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
+        url: "/logo-512-1.png",
+        width: 512,
+        height: 512,
         alt: "Refugio en la Palabra - App de Oración Católica",
       },
     ],
   },
   twitter: {
-    card: "summary_large_image",
+    card: "summary",
     title: "Refugio en la Palabra | App Católica de Oración",
     description:
-      "Tu espacio diario para orar, comprender y avanzar con sentido. Rosario guiado, Evangelio comentado y acompañamiento espiritual 24/7.",
-    images: ["/og-image.png"],
+      "Tu espacio diario para orar, comprender y avanzar con sentido. Rosario guiado, Evangelio comentado y compañero de fe disponible 24/7.",
+    images: ["/logo-512-1.png"],
     creator: "@refugioenlapalabra",
   },
   alternates: {
-    canonical: "https://refugioenlapalabra.com",
+    canonical: "https://refugioenlapalabra.vercel.app",
   },
   category: "Religion & Spirituality",
   classification: "Catholic Prayer App",
   icons: {
     icon: [
-      { url: "/favicon.ico", sizes: "any" },
-      { url: "/logo-512-1.png", type: "image/png", sizes: "512x512" },
+      { url: "/icon.png", type: "image/png", sizes: "512x512" },
     ],
-    apple: [{ url: "/logo-512-1.png", sizes: "512x512", type: "image/png" }],
-  },
-  manifest: "/manifest.json",
-  other: {
-    "apple-mobile-web-app-capable": "yes",
-    "apple-mobile-web-app-status-bar-style": "default",
-    "apple-mobile-web-app-title": "Refugio",
-    "mobile-web-app-capable": "yes",
+    apple: [{ url: "/icon.png", sizes: "512x512", type: "image/png" }],
   },
 };
 
@@ -123,18 +115,11 @@ const jsonLd = {
     priceCurrency: "EUR",
   },
   description:
-    "App católica de acompañamiento espiritual con rosario guiado, evangelio diario y consultor IA.",
-  aggregateRating: {
-    "@type": "AggregateRating",
-    ratingValue: "5",
-    ratingCount: "500",
-    bestRating: "5",
-    worstRating: "1",
-  },
+    "App católica con rosario guiado, evangelio diario y compañero de fe para resolver tus dudas.",
   author: {
     "@type": "Organization",
     name: "Refugio en la Palabra",
-    url: "https://refugioenlapalabra.com",
+    url: "https://refugioenlapalabra.vercel.app",
   },
 };
 

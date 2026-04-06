@@ -216,6 +216,15 @@ a {
   background-clip: text;
 }
 
+/* Hide scrollbar */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* Loading skeleton */
 .skeleton {
   background: linear-gradient(

@@ -98,8 +98,8 @@ export default function LegalPage() {
                 <ul className="list-disc pl-6 space-y-2">
                   <li>Guías para el rezo del Santo Rosario</li>
                   <li>Lecturas y reflexiones del Evangelio diario</li>
-                  <li>Sistema de logros y seguimiento espiritual</li>
-                  <li>Consultor espiritual basado en inteligencia artificial</li>
+                  <li>Sistema de logros y seguimiento de oración</li>
+                  <li>Compañero de fe basado en inteligencia artificial</li>
                   <li>Contenido educativo sobre la fe católica</li>
                 </ul>
               </div>
@@ -171,8 +171,8 @@ export default function LegalPage() {
                 <div className="bg-albero/10 border border-albero/30 rounded-lg p-6">
                   <p className="leading-relaxed">
                     <strong>Importante:</strong> El contenido proporcionado por la Aplicación, incluido
-                    el consultor espiritual basado en IA, tiene fines informativos y de acompañamiento
-                    espiritual personal. <strong>No sustituye</strong> el consejo, dirección espiritual
+                    el compañero de fe basado en IA, tiene fines informativos y de orientación
+                    personal. <strong>No sustituye</strong> el consejo, dirección espiritual
                     o los sacramentos proporcionados por un sacerdote o director espiritual debidamente
                     ordenado y autorizado por la Iglesia Católica.
                   </p>

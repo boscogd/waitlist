@@ -134,8 +134,8 @@ export async function POST(request: Request) {
         });
       }
 
-      // Pequeña pausa para evitar límites de rate
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      // Pausa de 1 segundo para evitar límites de rate de Resend
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
     return NextResponse.json({

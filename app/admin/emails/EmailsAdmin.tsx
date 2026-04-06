@@ -84,6 +84,15 @@ export default function EmailsAdmin() {
   const [scheduledDate, setScheduledDate] = useState('');
   const [scheduling, setScheduling] = useState(false);
 
+  // Edit state
+  const [isEditing, setIsEditing] = useState(false);
+  const [editSubject, setEditSubject] = useState('');
+  const [editPreviewText, setEditPreviewText] = useState('');
+  const [editHtmlContent, setEditHtmlContent] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [editMode, setEditMode] = useState<'visual' | 'code'>('visual');
+  const [iframeRef, setIframeRef] = useState<HTMLIFrameElement | null>(null);
+
   // API helpers
   const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
     return fetch(url, {
@@ -302,6 +311,86 @@ export default function EmailsAdmin() {
       alert('Error de conexión');
     } finally {
       setSendingTest(false);
+    }
+  };
+
+  // Start editing
+  const startEditing = (draft: EmailDraft) => {
+    setEditSubject(draft.subject);
+    setEditPreviewText(draft.preview_text || '');
+    setEditHtmlContent(draft.html_content);
+    setIsEditing(true);
+    setEditMode('visual');
+  };
+
+  // Sync iframe content to state
+  const syncIframeContent = () => {
+    if (iframeRef && iframeRef.contentDocument) {
+      const newHtml = iframeRef.contentDocument.documentElement.outerHTML;
+      setEditHtmlContent('<!DOCTYPE html>' + newHtml);
+    }
+  };
+
+  // Setup editable iframe
+  const setupEditableIframe = (iframe: HTMLIFrameElement | null) => {
+    if (iframe && iframe.contentDocument) {
+      setIframeRef(iframe);
+      const doc = iframe.contentDocument;
+      doc.designMode = 'on';
+
+      // Sync on blur and input
+      doc.body.addEventListener('blur', syncIframeContent, true);
+      doc.body.addEventListener('input', () => {
+        if (iframeRef && iframeRef.contentDocument) {
+          const newHtml = iframeRef.contentDocument.documentElement.outerHTML;
+          setEditHtmlContent('<!DOCTYPE html>' + newHtml);
+        }
+      });
+    }
+  };
+
+  // Cancel editing
+  const cancelEditing = () => {
+    setIsEditing(false);
+    setEditSubject('');
+    setEditPreviewText('');
+    setEditHtmlContent('');
+  };
+
+  // Save edited draft
+  const handleSaveEdit = async (draftId: string) => {
+    // Sincronizar contenido del iframe antes de guardar
+    let finalHtmlContent = editHtmlContent;
+    if (editMode === 'visual' && iframeRef && iframeRef.contentDocument) {
+      finalHtmlContent = '<!DOCTYPE html>' + iframeRef.contentDocument.documentElement.outerHTML;
+    }
+
+    setSaving(true);
+    try {
+      const response = await fetchWithAuth(`/api/admin/emails/${draftId}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          subject: editSubject,
+          preview_text: editPreviewText,
+          html_content: finalHtmlContent,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Actualizar el draft seleccionado con los nuevos datos
+        setSelectedDraft(data.data);
+        setIsEditing(false);
+        await loadDrafts();
+        alert('Email actualizado correctamente');
+      } else {
+        const data = await response.json();
+        alert(`Error: ${data.error}`);
+      }
+    } catch {
+      alert('Error de conexión');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -1145,17 +1234,35 @@ export default function EmailsAdmin() {
             <div className="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
               {/* Modal Header */}
               <div className="px-6 py-5 border-b border-azul/10 flex items-start justify-between">
-                <div>
+                <div className="flex-1 mr-4">
                   <div className="flex items-center gap-2 mb-2">
                     {getStatusBadge(selectedDraft.status)}
                     {getSourceBadge(selectedDraft.source)}
+                    {isEditing && (
+                      <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-700">
+                        Editando
+                      </span>
+                    )}
                   </div>
-                  <h3 className="font-[family-name:var(--font-lora)] text-xl font-semibold text-azul">
-                    {selectedDraft.subject}
-                  </h3>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={editSubject}
+                      onChange={(e) => setEditSubject(e.target.value)}
+                      className="w-full font-[family-name:var(--font-lora)] text-xl font-semibold text-azul bg-marfil/50 border border-azul/20 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-albero/50"
+                      placeholder="Asunto del email"
+                    />
+                  ) : (
+                    <h3 className="font-[family-name:var(--font-lora)] text-xl font-semibold text-azul">
+                      {selectedDraft.subject}
+                    </h3>
+                  )}
                 </div>
                 <button
-                  onClick={() => setSelectedDraft(null)}
+                  onClick={() => {
+                    if (isEditing) cancelEditing();
+                    setSelectedDraft(null);
+                  }}
                   className="w-10 h-10 rounded-xl bg-texto/5 hover:bg-red-50 hover:text-red-600 flex items-center justify-center transition-colors"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1166,25 +1273,110 @@ export default function EmailsAdmin() {
 
               {/* Modal Content */}
               <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                {selectedDraft.preview_text && (
-                  <div className="bg-marfil/50 rounded-xl p-4">
-                    <div className="text-xs font-medium text-texto/40 uppercase tracking-wider mb-2">Vista previa</div>
-                    <div className="text-sm text-texto/70">{selectedDraft.preview_text}</div>
-                  </div>
-                )}
+                {/* Vista previa / Preview text */}
+                <div className="bg-marfil/50 rounded-xl p-4">
+                  <div className="text-xs font-medium text-texto/40 uppercase tracking-wider mb-2">Vista previa (preview text)</div>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={editPreviewText}
+                      onChange={(e) => setEditPreviewText(e.target.value)}
+                      className="w-full text-sm text-texto bg-white border border-azul/20 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-albero/50"
+                      placeholder="Texto de vista previa (aparece en la bandeja de entrada)"
+                    />
+                  ) : (
+                    <div className="text-sm text-texto/70">
+                      {selectedDraft.preview_text || <span className="italic text-texto/40">Sin vista previa</span>}
+                    </div>
+                  )}
+                </div>
 
+                {/* Contenido HTML */}
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <div className="text-xs font-medium text-texto/40 uppercase tracking-wider">Contenido HTML</div>
-                    <button
-                      onClick={() => setShowPreview(!showPreview)}
-                      className="text-sm text-azul hover:text-azul-800 font-medium transition-colors"
-                    >
-                      {showPreview ? '← Ver código' : 'Ver preview →'}
-                    </button>
+                    <div className="text-xs font-medium text-texto/40 uppercase tracking-wider">
+                      {isEditing ? 'Editar contenido' : 'Contenido del email'}
+                    </div>
+                    {isEditing ? (
+                      <div className="flex items-center gap-1 bg-texto/5 rounded-lg p-1">
+                        <button
+                          onClick={() => {
+                            syncIframeContent();
+                            setEditMode('visual');
+                          }}
+                          className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                            editMode === 'visual'
+                              ? 'bg-white text-azul shadow-sm'
+                              : 'text-texto/60 hover:text-texto'
+                          }`}
+                        >
+                          Visual
+                        </button>
+                        <button
+                          onClick={() => setEditMode('code')}
+                          className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                            editMode === 'code'
+                              ? 'bg-white text-azul shadow-sm'
+                              : 'text-texto/60 hover:text-texto'
+                          }`}
+                        >
+                          Código
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setShowPreview(!showPreview)}
+                        className="text-sm text-azul hover:text-azul-800 font-medium transition-colors"
+                      >
+                        {showPreview ? '← Ver código' : 'Ver preview →'}
+                      </button>
+                    )}
                   </div>
                   <div className="border border-azul/10 rounded-xl overflow-hidden">
-                    {showPreview ? (
+                    {isEditing ? (
+                      editMode === 'visual' ? (
+                        <div>
+                          <div className="bg-amber-50 border-b border-amber-200 px-4 py-2 flex items-center gap-2">
+                            <svg className="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
+                            <span className="text-sm text-amber-700 font-medium">
+                              Haz clic en el texto para editarlo directamente
+                            </span>
+                          </div>
+                          <iframe
+                            ref={setupEditableIframe}
+                            srcDoc={editHtmlContent}
+                            className="w-full h-[500px] bg-white"
+                            title="Email Editor"
+                            onLoad={(e) => {
+                              const iframe = e.target as HTMLIFrameElement;
+                              if (iframe.contentDocument) {
+                                iframe.contentDocument.designMode = 'on';
+                                setIframeRef(iframe);
+                              }
+                            }}
+                          />
+                        </div>
+                      ) : (
+                        <div>
+                          <div className="bg-slate-800 border-b border-slate-700 px-4 py-2 flex items-center gap-2">
+                            <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                            </svg>
+                            <span className="text-sm text-slate-400 font-medium">
+                              Edición de código HTML (avanzado)
+                            </span>
+                          </div>
+                          <textarea
+                            value={editHtmlContent}
+                            onChange={(e) => setEditHtmlContent(e.target.value)}
+                            className="w-full h-[500px] p-4 text-xs font-mono bg-slate-900 text-slate-200 resize-none focus:outline-none"
+                            placeholder="Contenido HTML del email..."
+                          />
+                        </div>
+                      )
+                    ) : showPreview ? (
                       <iframe
                         srcDoc={selectedDraft.html_content}
                         className="w-full h-96 bg-white"
@@ -1332,41 +1524,87 @@ export default function EmailsAdmin() {
 
               {/* Modal Footer */}
               <div className="px-6 py-4 border-t border-azul/10 flex items-center justify-between">
-                <button
-                  onClick={() => handleDelete(selectedDraft.id)}
-                  disabled={selectedDraft.status === 'sent' || selectedDraft.status === 'sending'}
-                  className="px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                  Eliminar
-                </button>
+                {isEditing ? (
+                  <>
+                    <button
+                      onClick={cancelEditing}
+                      className="px-4 py-2.5 text-sm text-texto/60 hover:text-texto hover:bg-texto/5 rounded-xl transition-colors flex items-center gap-2"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      Cancelar
+                    </button>
+                    <button
+                      onClick={() => handleSaveEdit(selectedDraft.id)}
+                      disabled={saving || !editSubject.trim() || !editHtmlContent.trim()}
+                      className="px-5 py-2.5 text-sm bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-xl font-medium hover:shadow-lg hover:shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
+                    >
+                      {saving ? (
+                        <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                      ) : (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                      Guardar cambios
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleDelete(selectedDraft.id)}
+                        disabled={selectedDraft.status === 'sent' || selectedDraft.status === 'sending'}
+                        className="px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        Eliminar
+                      </button>
+                      {selectedDraft.status !== 'sent' && selectedDraft.status !== 'sending' && (
+                        <button
+                          onClick={() => startEditing(selectedDraft)}
+                          className="px-4 py-2.5 text-sm text-amber-600 hover:bg-amber-50 rounded-xl transition-colors flex items-center gap-2"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                          Editar
+                        </button>
+                      )}
+                    </div>
 
-                <div className="flex items-center gap-3">
-                  {selectedDraft.status === 'draft' && (
-                    <button
-                      onClick={() => handleApprove(selectedDraft.id)}
-                      className="px-5 py-2.5 text-sm bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition-colors flex items-center gap-2"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      Aprobar
-                    </button>
-                  )}
-                  {selectedDraft.status === 'approved' && (
-                    <button
-                      onClick={() => handleSend(selectedDraft.id)}
-                      className="px-5 py-2.5 text-sm bg-gradient-to-r from-azul to-azul-800 text-white rounded-xl font-medium hover:shadow-lg hover:shadow-azul/20 transition-all flex items-center gap-2"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                      </svg>
-                      Enviar Ahora
-                    </button>
-                  )}
-                </div>
+                    <div className="flex items-center gap-3">
+                      {selectedDraft.status === 'draft' && (
+                        <button
+                          onClick={() => handleApprove(selectedDraft.id)}
+                          className="px-5 py-2.5 text-sm bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition-colors flex items-center gap-2"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          Aprobar
+                        </button>
+                      )}
+                      {selectedDraft.status === 'approved' && (
+                        <button
+                          onClick={() => handleSend(selectedDraft.id)}
+                          className="px-5 py-2.5 text-sm bg-gradient-to-r from-azul to-azul-800 text-white rounded-xl font-medium hover:shadow-lg hover:shadow-azul/20 transition-all flex items-center gap-2"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                          </svg>
+                          Enviar Ahora
+                        </button>
+                      )}
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>

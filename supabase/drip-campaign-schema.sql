@@ -762,7 +762,7 @@ VALUES
                     <p style="margin: 0; font-size: 15px; color: #5D574F;">El método de oración de los monjes, adaptado para tu día a día.</p>
                 </div>
                 <div>
-                    <p style="margin: 0 0 5px 0; font-size: 18px; font-weight: bold; color: #1F3A5F;">Consultor espiritual IA</p>
+                    <p style="margin: 0 0 5px 0; font-size: 18px; font-weight: bold; color: #1F3A5F;">Compañero de fe</p>
                     <p style="margin: 0; font-size: 15px; color: #5D574F;">Respuestas a tus dudas de fe, basadas en el Catecismo y las Escrituras.</p>
                 </div>
             </div>

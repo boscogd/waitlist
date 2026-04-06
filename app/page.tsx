@@ -1,4 +1,5 @@
 import InstagramBadge from './components/InstagramBadge';
+import WaitlistCounter from './components/WaitlistCounter';
 import AnimateOnScroll from './components/AnimateOnScroll';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -39,7 +40,7 @@ export default function Home() {
             href="/descargar"
             className="bg-azul text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-azul-800 transition-colors shadow-sm"
           >
-            Descargar
+            Cómo instalar
           </Link>
         </div>
       </header>
@@ -69,7 +70,7 @@ export default function Home() {
 
                 {/* Subtítulo */}
                 <p className="text-lg sm:text-xl text-texto/80 max-w-md sm:max-w-xl mx-auto lg:mx-0 leading-relaxed animate-fade-in-up animation-delay-100 px-2 sm:px-0">
-                  Reza el Rosario guiado, reflexiona con el Evangelio diario y recibe acompañamiento espiritual 24/7 con inteligencia artificial católica.
+                  Reza el Rosario guiado, reflexiona con el Evangelio diario y resuelve tus dudas de fe 24/7 con inteligencia artificial católica.
                 </p>
 
                 {/* CTA Principal */}
@@ -78,21 +79,16 @@ export default function Home() {
                     href="/descargar"
                     className="group bg-gradient-to-r from-azul to-azul-800 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:shadow-xl hover:shadow-azul/20 transition-all duration-300 flex items-center gap-2"
                   >
-                    Descarga nuestra aplicación
+                    Cómo instalar la app
                     <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
                   </Link>
                 </div>
 
                 {/* Prueba social rápida */}
                 <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-4 text-sm text-texto/60 animate-fade-in-up animation-delay-300">
-                  <div className="flex items-center gap-2 bg-green-50 text-green-700 px-3 py-1.5 rounded-full font-medium">
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
-                    </svg>
-                    <span>+400 usuarios</span>
-                  </div>
+                  <WaitlistCounter />
                   <div className="flex items-center gap-2">
                     <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -343,10 +339,10 @@ export default function Home() {
                   <Image src="/icons/chat-icon.png" alt="Chat" width={40} height={40} />
                 </div>
                 <h3 className="font-[family-name:var(--font-lora)] text-xl font-semibold text-azul">
-                  Consultor espiritual IA
+                  Compañero de fe
                 </h3>
                 <p className="text-texto/70 leading-relaxed">
-                  Un guía virtual formado en doctrina católica que responde tus dudas sobre fe, moral y espiritualidad. Disponible 24/7 cuando necesites orientación.
+                  Un asistente formado en doctrina católica que responde tus dudas sobre fe, moral y vida cristiana. Disponible 24/7 cuando necesites orientación.
                 </p>
                 <ul className="space-y-2 text-sm text-texto/60">
                   <li className="flex items-center gap-2">
@@ -671,7 +667,7 @@ export default function Home() {
                   Ya disponible
                 </div>
                 <h2 className="font-[family-name:var(--font-lora)] text-3xl sm:text-4xl font-semibold text-azul">
-                  Descarga Refugio en la Palabra
+                  Instala Refugio en la Palabra
                 </h2>
                 <p className="text-texto/70">
                   Tu refugio espiritual está listo. Instala la app en tu dispositivo y comienza tu camino de fe hoy mismo.
@@ -687,9 +683,9 @@ export default function Home() {
                            flex items-center justify-center gap-2"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
-                  Descargar ahora
+                  Ver cómo instalar
                 </Link>
               </div>
 
@@ -768,13 +764,13 @@ export default function Home() {
 
               <details className="group bg-white rounded-xl border border-azul/10 overflow-hidden">
                 <summary className="flex items-center justify-between p-6 cursor-pointer font-medium text-azul hover:bg-marfil/50 transition-colors">
-                  ¿Cómo funciona el consultor espiritual IA?
+                  ¿Cómo funciona el Compañero de fe?
                   <svg className="w-5 h-5 text-texto/50 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </summary>
                 <div className="px-6 pb-6 text-texto/70">
-                  Es un asistente de inteligencia artificial entrenado específicamente con fuentes católicas: el Catecismo, las Escrituras, documentos del Magisterio y enseñanzas de santos. Puede responder dudas sobre la fe, orientarte en situaciones difíciles y acompañarte en tu camino espiritual. No reemplaza a un sacerdote, pero está disponible 24/7 para cuando necesites orientación.
+                  Es un asistente de inteligencia artificial formado con fuentes católicas: el Catecismo, las Escrituras, documentos del Magisterio y enseñanzas de santos. Puede responder dudas sobre la fe, orientarte en situaciones difíciles y acompañarte en tu camino. No reemplaza a un sacerdote ni a la dirección espiritual, pero está disponible 24/7 para cuando necesites orientación.
                 </div>
               </details>
 
@@ -812,15 +808,15 @@ export default function Home() {
               Tu camino espiritual comienza con un paso
             </h2>
             <p className="text-lg text-texto/70 max-w-2xl mx-auto">
-              Descarga Refugio en la Palabra y empieza hoy tu camino de fe. El primer paso es el más importante.
+              Instala Refugio en la Palabra y empieza hoy tu camino de fe. El primer paso es el más importante.
             </p>
             <Link
               href="/descargar"
               className="inline-flex items-center gap-2 bg-gradient-to-r from-albero to-dorado text-white px-8 py-4 rounded-xl text-lg font-semibold hover:shadow-xl hover:shadow-albero/20 transition-all duration-300"
             >
-              Descargar ahora
+              Cómo instalar la app
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
             </Link>
           </AnimateOnScroll>
@@ -876,7 +872,7 @@ export default function Home() {
                 <li><a href="#como-funciona" className="hover:text-white transition-colors">Cómo funciona</a></li>
                 <li><a href="#testimonios" className="hover:text-white transition-colors">Quiénes somos</a></li>
                 <li><a href="#faq" className="hover:text-white transition-colors">Preguntas frecuentes</a></li>
-                <li><Link href="/descargar" className="hover:text-white transition-colors">Descargar</Link></li>
+                <li><Link href="/descargar" className="hover:text-white transition-colors">Cómo instalar</Link></li>
               </ul>
             </div>
 
