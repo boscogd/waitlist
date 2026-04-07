@@ -24,3 +24,24 @@ $$;
 revoke all on function public.profiles_count() from public;
 grant execute on function public.profiles_count() to anon;
 grant execute on function public.profiles_count() to authenticated;
+
+
+-- =====================================================
+-- Función RPC: get_instagram_followers
+-- =====================================================
+-- Lee el valor de instagram_followers de la tabla `config`.
+-- SECURITY DEFINER para saltarse RLS.
+-- =====================================================
+
+create or replace function public.get_instagram_followers()
+returns integer
+language sql
+security definer
+set search_path = public
+as $$
+  select coalesce((select value::int from public.config where key = 'instagram_followers'), 500);
+$$;
+
+revoke all on function public.get_instagram_followers() from public;
+grant execute on function public.get_instagram_followers() to anon;
+grant execute on function public.get_instagram_followers() to authenticated;

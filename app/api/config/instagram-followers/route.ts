@@ -6,14 +6,12 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const { data, error } = await supabase
-      .from('config')
-      .select('value')
-      .eq('key', 'instagram_followers')
-      .single();
+    // Usa la función RPC `get_instagram_followers` definida en Supabase
+    // con SECURITY DEFINER para saltarse RLS de la tabla config.
+    const { data, error } = await supabase.rpc('get_instagram_followers');
 
-    if (error || !data) {
-      // Fallback si no existe la tabla o el valor
+    if (error || data === null) {
+      console.error('Error obteniendo seguidores:', error);
       return NextResponse.json(
         { followers: 500 },
         { status: 200 }
@@ -21,11 +19,10 @@ export async function GET() {
     }
 
     return NextResponse.json(
-      { followers: parseInt(data.value) || 500 },
+      { followers: typeof data === 'number' ? data : 500 },
       {
         status: 200,
         headers: {
-          // Sin caché para que los cambios se reflejen inmediatamente
           'Cache-Control': 'no-store, no-cache, must-revalidate'
         }
       }
