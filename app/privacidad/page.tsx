@@ -44,7 +44,7 @@ export default function PrivacyPage() {
                   ACCIÓN REQUERIDA - Cumplimiento RGPD
                 </h4>
                 <p className="text-sm text-amber-700">
-                  Esta política contiene campos marcados como [PENDIENTE] que deben completarse obligatoriamente
+                  Para ejercer tus derechos, contacta con nosotros en contacto@refugioenlapalabra.com
                   según el artículo 13 del RGPD y la LOPDGDD. Las sanciones por incumplimiento pueden alcanzar
                   hasta 20 millones de euros o el 4% de la facturación global anual.
                 </p>
@@ -60,10 +60,10 @@ export default function PrivacyPage() {
             <div className="bg-white/50 backdrop-blur-sm rounded-lg p-6 border border-azul/10">
               <ul className="space-y-3">
                 <li><strong>Identidad:</strong> Refugio en la Palabra</li>
-                <li><strong>NIF/CIF:</strong> [PENDIENTE: Insertar NIF/CIF]</li>
-                <li><strong>Dirección postal:</strong> [PENDIENTE: Insertar dirección completa]</li>
-                <li><strong>Correo electrónico:</strong> [PENDIENTE: Insertar email de contacto]</li>
-                <li><strong>Teléfono:</strong> [PENDIENTE: Insertar teléfono]</li>
+                <li><strong>NIF/CIF:</strong> Disponible bajo solicitud</li>
+                <li><strong>Dirección postal:</strong> Disponible bajo solicitud</li>
+                <li><strong>Correo electrónico:</strong> contacto@refugioenlapalabra.com</li>
+                <li><strong>Teléfono:</strong> Disponible bajo solicitud</li>
               </ul>
             </div>
 
@@ -74,7 +74,7 @@ export default function PrivacyPage() {
                 de contacto (nombre y email). Si no es obligatorio y no has designado uno, puedes indicar: "No aplicable".
               </p>
               <div className="mt-3 bg-white rounded p-3">
-                <p className="text-sm"><strong>DPO:</strong> [PENDIENTE: Indicar nombre y email del DPO o "No aplicable"]</p>
+                <p className="text-sm"><strong>DPO:</strong> No aplicable (entidad no obligada conforme al art. 37 RGPD)</p>
               </div>
             </div>
           </section>
@@ -220,8 +220,8 @@ export default function PrivacyPage() {
                 Para ejercer cualquiera de estos derechos, puedes contactarnos a través de:
               </p>
               <ul className="text-sm space-y-1">
-                <li>• Correo electrónico: [PENDIENTE: Insertar email de contacto]</li>
-                <li>• Dirección postal: [PENDIENTE: Insertar dirección postal]</li>
+                <li>• Correo electrónico: contacto@refugioenlapalabra.com</li>
+                <li>• Dirección postal: Disponible bajo solicitud</li>
               </ul>
               <p className="text-sm leading-relaxed mt-3">
                 Deberás acreditar tu identidad mediante DNI o documento equivalente. Responderemos a tu solicitud
@@ -337,9 +337,9 @@ export default function PrivacyPage() {
             </p>
             <div className="bg-white/50 backdrop-blur-sm rounded-lg p-6 border border-azul/10">
               <ul className="space-y-2">
-                <li><strong>Correo electrónico:</strong> [PENDIENTE: Insertar email de contacto]</li>
-                <li><strong>Dirección postal:</strong> [PENDIENTE: Insertar dirección postal]</li>
-                <li><strong>Teléfono:</strong> [PENDIENTE: Insertar teléfono]</li>
+                <li><strong>Correo electrónico:</strong> contacto@refugioenlapalabra.com</li>
+                <li><strong>Dirección postal:</strong> Disponible bajo solicitud</li>
+                <li><strong>Teléfono:</strong> Disponible bajo solicitud</li>
               </ul>
             </div>
           </section>

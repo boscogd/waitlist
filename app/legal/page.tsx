@@ -288,10 +288,10 @@ export default function LegalPage() {
                 <div className="bg-white/50 backdrop-blur-sm rounded-lg p-6 border border-azul/10">
                   <ul className="space-y-3">
                     <li><strong>Denominación social:</strong> Refugio en la Palabra</li>
-                    <li><strong>NIF/CIF:</strong> [PENDIENTE: Insertar NIF/CIF]</li>
-                    <li><strong>Domicilio social:</strong> [PENDIENTE: Insertar dirección completa: Calle, número, código postal, ciudad, provincia]</li>
-                    <li><strong>Correo electrónico:</strong> [PENDIENTE: Insertar email de contacto]</li>
-                    <li><strong>Teléfono:</strong> [PENDIENTE: Insertar teléfono de contacto]</li>
+                    <li><strong>NIF/CIF:</strong> Disponible bajo solicitud</li>
+                    <li><strong>Domicilio social:</strong> Disponible bajo solicitud</li>
+                    <li><strong>Correo electrónico:</strong> contacto@refugioenlapalabra.com</li>
+                    <li><strong>Teléfono:</strong> Disponible bajo solicitud</li>
                     <li><strong>Dominio:</strong> www.refugioenlapalabra.com</li>
                     <li><strong>Actividad:</strong> Plataforma digital de acompañamiento espiritual católico</li>
                   </ul>
@@ -313,9 +313,7 @@ export default function LegalPage() {
                         ACCIÓN REQUERIDA - Cumplimiento LSSI
                       </h4>
                       <p className="text-sm text-amber-700">
-                        <strong>IMPORTANTE:</strong> Debes completar TODOS los datos marcados como [PENDIENTE]
-                        para cumplir con el artículo 10 de la LSSI-CE. La ausencia de esta información puede
-                        acarrear sanciones de hasta 30.000 euros por infracción grave según el artículo 38 de la LSSI.
+                        <strong>Contacto:</strong> Para cualquier consulta legal, escríbenos a contacto@refugioenlapalabra.com
                       </p>
                     </div>
                   </div>
