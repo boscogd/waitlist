@@ -1,9 +1,20 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { sendFeedbackNotification } from '@/lib/resend';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 
 export async function POST(request: Request) {
   try {
+    // Rate limiting: 5 feedbacks por IP cada 15 minutos
+    const ip = getClientIp(request);
+    const { allowed } = checkRateLimit(`feedback:${ip}`, 5, 15 * 60 * 1000);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: 'Demasiadas solicitudes. Inténtalo en unos minutos.' },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const { whatYouLike, whatYouDontLike, whatToImprove, additionalComments, rating } = body;
 
@@ -66,10 +77,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Enviar notificación por email (no bloqueante, no falla la request si falla el email)
-    console.log('ADMIN_EMAIL configurado:', process.env.ADMIN_EMAIL);
-    console.log('RESEND_FROM_EMAIL configurado:', process.env.RESEND_FROM_EMAIL);
-
+    // Enviar notificación por email (no bloqueante)
     sendFeedbackNotification({
       // @ts-expect-error - Supabase type inference issue
       feedbackId: newFeedback.id,
@@ -80,15 +88,12 @@ export async function POST(request: Request) {
       additionalComments,
     }).catch((err) => {
       console.error('Error enviando notificación de feedback:', err);
-      // No retornamos error al usuario, solo lo logueamos
     });
 
     return NextResponse.json(
       {
         success: true,
         message: '¡Gracias por tu feedback!',
-        // @ts-expect-error - Supabase type inference issue
-        id: newFeedback.id,
       },
       { status: 201 }
     );
@@ -101,26 +106,30 @@ export async function POST(request: Request) {
   }
 }
 
-// Endpoint GET para obtener estadísticas de feedback (opcional, para admin)
+// Endpoint GET para obtener feedbacks (protegido con Authorization header)
 export async function GET(request: Request) {
   try {
-    const { searchParams } = new URL(request.url);
-    const secretKey = searchParams.get('key');
-
-    // Proteger el endpoint con una clave secreta (opcional)
-    if (secretKey !== process.env.ADMIN_SECRET_KEY) {
+    // Verificar Authorization header (no query string)
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader || authHeader !== `Bearer ${process.env.ADMIN_SECRET_KEY}`) {
       return NextResponse.json(
         { error: 'No autorizado' },
         { status: 401 }
       );
     }
 
-    // Obtener todos los feedbacks
+    // Obtener feedbacks con paginación
+    const { searchParams } = new URL(request.url);
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1'));
+    const pageSize = Math.min(100, parseInt(searchParams.get('pageSize') || '50'));
+    const offset = (page - 1) * pageSize;
+
     // @ts-ignore - Supabase types will be generated after creating the feedback table
-    const { data: feedbacks, error } = await supabase
+    const { data: feedbacks, error, count } = await supabase
       .from('feedback')
-      .select('*')
-      .order('created_at', { ascending: false });
+      .select('*', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(offset, offset + pageSize - 1);
 
     if (error) {
       console.error('Error obteniendo feedbacks:', error);
@@ -131,15 +140,19 @@ export async function GET(request: Request) {
     }
 
     // Calcular estadísticas
-    const totalFeedbacks = feedbacks?.length || 0;
-    const averageRating =
-      feedbacks?.reduce((sum, f) => sum + (f.rating || 0), 0) / totalFeedbacks || 0;
+    const totalFeedbacks = count || 0;
+    const ratingsOnly = (feedbacks || []).filter((f: { rating?: number }) => f.rating);
+    const averageRating = ratingsOnly.length > 0
+      ? ratingsOnly.reduce((sum: number, f: { rating: number }) => sum + f.rating, 0) / ratingsOnly.length
+      : 0;
 
     return NextResponse.json(
       {
         total: totalFeedbacks,
         averageRating: averageRating.toFixed(2),
         feedbacks: feedbacks || [],
+        page,
+        pageSize,
       },
       { status: 200 }
     );

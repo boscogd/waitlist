@@ -2,9 +2,20 @@ import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { generateWaitlistCode, isValidEmail } from '@/lib/utils';
 import { sendWaitlistConfirmation } from '@/lib/resend';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 
 export async function POST(request: Request) {
   try {
+    // Rate limiting: 3 registros por IP cada 15 minutos
+    const ip = getClientIp(request);
+    const { allowed } = checkRateLimit(`waitlist:${ip}`, 3, 15 * 60 * 1000);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: 'Demasiadas solicitudes. Inténtalo en unos minutos.' },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const { email, name } = body;
 
@@ -35,17 +46,13 @@ export async function POST(request: Request) {
     // Verificar si el email ya existe
     const { data: existingUser } = await supabase
       .from('waitlist')
-      .select('email, code')
+      .select('email')
       .eq('email', email.toLowerCase().trim())
       .single();
 
     if (existingUser) {
       return NextResponse.json(
-        {
-          error: 'Este email ya está registrado en la waitlist',
-          // @ts-expect-error - Supabase type inference issue
-          code: existingUser.code
-        },
+        { error: 'Este email ya está registrado en la waitlist' },
         { status: 409 }
       );
     }
@@ -111,15 +118,12 @@ export async function POST(request: Request) {
 
     if (!emailResult.success) {
       console.error('Error enviando email de confirmación:', emailResult.error);
-      // No fallamos la solicitud si falla el email, pero lo registramos
     }
 
     return NextResponse.json(
       {
         success: true,
-        message: '¡Bienvenido a la waitlist!',
-        // @ts-expect-error - Supabase type inference issue
-        code: newEntry.code,
+        message: '¡Bienvenido a la waitlist! Revisa tu email para ver tu código.',
       },
       { status: 201 }
     );
@@ -133,6 +137,7 @@ export async function POST(request: Request) {
 }
 
 // Endpoint GET para verificar si un email ya está en la waitlist
+// Solo devuelve si existe o no (sin datos sensibles)
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -147,7 +152,7 @@ export async function GET(request: Request) {
 
     const { data, error } = await supabase
       .from('waitlist')
-      .select('email, code, created_at')
+      .select('email')
       .eq('email', email.toLowerCase().trim())
       .single();
 
@@ -159,13 +164,7 @@ export async function GET(request: Request) {
     }
 
     return NextResponse.json(
-      {
-        exists: true,
-        // @ts-expect-error - Supabase type inference issue
-        code: data.code,
-        // @ts-expect-error - Supabase type inference issue
-        created_at: data.created_at,
-      },
+      { exists: true },
       { status: 200 }
     );
   } catch (error) {

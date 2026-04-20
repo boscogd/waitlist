@@ -28,7 +28,7 @@ export default function AdminDashboard() {
     try {
       const [remindRes, feedbackRes, countRes] = await Promise.allSettled([
         fetch('/api/remind-code', { headers: { 'Authorization': `Bearer ${key}` } }),
-        fetch(`/api/feedback?key=${key}`),
+        fetch('/api/feedback', { headers: { 'Authorization': `Bearer ${key}` } }),
         fetch('/api/waitlist/count'),
       ]);
 
@@ -67,11 +67,14 @@ export default function AdminDashboard() {
     setError('');
 
     try {
-      const response = await fetch('/api/remind-code', {
-        headers: { 'Authorization': `Bearer ${apiKey}` },
+      // Validar clave y establecer cookie de sesión segura
+      const loginRes = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: apiKey }),
       });
 
-      if (response.status === 401) {
+      if (!loginRes.ok) {
         setError('Clave de acceso incorrecta');
         setLoading(false);
         return;
@@ -91,13 +94,18 @@ export default function AdminDashboard() {
     const savedKey = localStorage.getItem('admin_dashboard_key');
     if (savedKey) {
       setApiKey(savedKey);
-      fetch('/api/remind-code', {
-        headers: { 'Authorization': `Bearer ${savedKey}` },
+      // Verificar clave y renovar cookie de sesión
+      fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: savedKey }),
       }).then(async (response) => {
         if (response.ok) {
           setAuthenticated(true);
           setApiKey(savedKey);
           await loadStats(savedKey);
+        } else {
+          localStorage.removeItem('admin_dashboard_key');
         }
         setLoading(false);
       }).catch(() => setLoading(false));

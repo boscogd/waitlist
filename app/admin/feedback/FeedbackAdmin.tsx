@@ -25,7 +25,9 @@ export default function FeedbackAdmin() {
       setLoading(true);
       setError('');
 
-      const response = await fetch(`/api/feedback?key=${encodeURIComponent(key)}`);
+      const response = await fetch('/api/feedback', {
+        headers: { 'Authorization': `Bearer ${key}` },
+      });
 
       if (response.status === 401) {
         setError('Clave de acceso incorrecta');

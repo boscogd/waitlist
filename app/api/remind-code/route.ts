@@ -170,10 +170,10 @@ export async function GET(request: Request) {
       );
     }
 
-    // Contar usuarios que recibirían el recordatorio
-    const { data: pendingUsers, error } = await supabase
+    // Contar usuarios que recibirían el recordatorio (solo count, sin datos)
+    const { count: pendingCount, error } = await supabase
       .from('waitlist')
-      .select('id, email, name, code, created_at')
+      .select('*', { count: 'exact', head: true })
       .eq('code_used', false)
       .eq('unsubscribed', false);
 
@@ -199,16 +199,10 @@ export async function GET(request: Request) {
     return NextResponse.json({
       success: true,
       summary: {
-        pendingReminder: pendingUsers?.length || 0,
+        pendingReminder: pendingCount || 0,
         alreadyUsedCode: usedCount || 0,
         unsubscribed: unsubscribedCount || 0,
       },
-      pendingUsers: pendingUsers?.map(u => ({
-        email: u.email,
-        name: u.name,
-        code: u.code,
-        registeredAt: u.created_at,
-      })),
     });
   } catch (error) {
     console.error('Error en GET remind-code:', error);

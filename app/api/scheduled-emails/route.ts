@@ -248,11 +248,11 @@ export async function POST(request: Request) {
   }
 }
 
-// GET para verificar estado (sin autenticación)
-export async function GET() {
-  return NextResponse.json({
-    status: 'ok',
-    endpoint: 'scheduled-emails',
-    description: 'Procesa emails programados cuando scheduled_for <= ahora',
-  });
+// GET protegido — no exponer info del endpoint
+export async function GET(request: Request) {
+  const auth = verifyCronAuth(request);
+  if (!auth.authorized) {
+    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+  }
+  return NextResponse.json({ status: 'ok' });
 }
