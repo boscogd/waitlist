@@ -74,10 +74,10 @@ export const metadata: Metadata = {
       "Tu espacio diario para orar, comprender y avanzar con sentido. Rosario guiado, Evangelio comentado y compañero de fe disponible 24/7.",
     images: [
       {
-        url: "/logo-512-1.png",
-        width: 512,
-        height: 512,
-        alt: "Refugio en la Palabra - App de Oración Católica",
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "Refugio en la Palabra - App Católica de Oración",
       },
     ],
   },
@@ -86,7 +86,7 @@ export const metadata: Metadata = {
     title: "Refugio en la Palabra | App Católica de Oración",
     description:
       "Tu espacio diario para orar, comprender y avanzar con sentido. Rosario guiado, Evangelio comentado y compañero de fe disponible 24/7.",
-    images: ["/logo-512-1.png"],
+    images: ["/opengraph-image"],
     creator: "@refugioenlapalabra",
   },
   alternates: {
