@@ -18,6 +18,11 @@ export type Database = {
           last_email_sent_at: string | null;
           unsubscribed: boolean;
           unsubscribed_at: string | null;
+          // Campos para la campaña de recordatorio de código
+          code_used: boolean;
+          code_used_at: string | null;
+          code_reminder_step: number;
+          last_code_reminder_at: string | null;
         };
         Insert: {
           id?: string;
@@ -30,6 +35,10 @@ export type Database = {
           last_email_sent_at?: string;
           unsubscribed?: boolean;
           unsubscribed_at?: string;
+          code_used?: boolean;
+          code_used_at?: string;
+          code_reminder_step?: number;
+          last_code_reminder_at?: string;
         };
         Update: {
           id?: string;
@@ -42,6 +51,10 @@ export type Database = {
           last_email_sent_at?: string;
           unsubscribed?: boolean;
           unsubscribed_at?: string;
+          code_used?: boolean;
+          code_used_at?: string;
+          code_reminder_step?: number;
+          last_code_reminder_at?: string;
         };
       };
       email_drafts: {

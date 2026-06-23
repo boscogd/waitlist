@@ -90,19 +90,47 @@ export default function WaitlistForm() {
                    focus:ring-albero disabled:opacity-50 disabled:cursor-not-allowed
                    transition-all duration-200 shadow-sm hover:shadow-md"
         >
-          {loading ? 'Enviando...' : 'Unirme a la lista'}
+          {loading ? (
+            <span className="flex items-center justify-center gap-2">
+              <span>Enviando</span>
+              <span className="dots-loader" aria-hidden="true">
+                <span />
+                <span />
+                <span />
+              </span>
+            </span>
+          ) : (
+            'Unirme a la lista'
+          )}
         </button>
       </form>
 
       {status !== 'idle' && (
         <div
-          className={`mt-4 p-4 rounded-lg text-sm ${
+          role="status"
+          aria-live="polite"
+          className={`mt-4 p-4 rounded-lg text-sm flex items-start gap-2 ${
             status === 'success'
               ? 'bg-albero/10 text-azul border border-albero/30'
               : 'bg-red-50 text-red-800 border border-red-200'
           }`}
         >
-          {message}
+          {status === 'success' && (
+            <svg
+              className="w-5 h-5 shrink-0 mt-0.5"
+              viewBox="0 0 52 52"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <circle className="checkmark-circle" cx="26" cy="26" r="23" />
+              <path className="checkmark-check" d="M15 27l8 8 14-16" />
+            </svg>
+          )}
+          <span>{message}</span>
         </div>
       )}
 

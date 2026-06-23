@@ -1,2 +1,12 @@
 {
+  "crons": [
+    {
+      "path": "/api/winback-campaign",
+      "schedule": "0 10 * * *"
+    },
+    {
+      "path": "/api/code-reminder-campaign",
+      "schedule": "0 11 * * *"
+    }
+  ]
 }

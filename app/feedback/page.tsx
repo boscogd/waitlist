@@ -1,5 +1,43 @@
+import type { Metadata } from 'next';
 import FeedbackForm from './FeedbackForm';
 import Link from 'next/link';
+
+export const metadata: Metadata = {
+  title: 'Envía tu opinión',
+  description:
+    'Comparte tu opinión, sugerencias o reporta un problema sobre Refugio en la Palabra. Tu feedback nos ayuda a mejorar la app católica de oración.',
+  openGraph: {
+    title: 'Envía tu opinión | Refugio en la Palabra',
+    description:
+      'Comparte tu opinión, sugerencias o reporta un problema sobre Refugio en la Palabra. Tu feedback moldea el producto.',
+    type: 'website',
+    locale: 'es_ES',
+    url: 'https://refugioenlapalabra.com/feedback',
+    siteName: 'Refugio en la Palabra',
+    images: [
+      {
+        url: '/opengraph-image',
+        width: 1200,
+        height: 630,
+        alt: 'Refugio en la Palabra - App Católica de Oración',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Envía tu opinión | Refugio en la Palabra',
+    description:
+      'Comparte tu opinión, sugerencias o reporta un problema sobre Refugio en la Palabra.',
+    images: ['/opengraph-image'],
+  },
+  alternates: {
+    canonical: 'https://refugioenlapalabra.com/feedback',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
 
 export default function FeedbackPage() {
   return (

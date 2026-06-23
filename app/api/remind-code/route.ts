@@ -196,6 +196,28 @@ export async function GET(request: Request) {
       .select('*', { count: 'exact', head: true })
       .eq('unsubscribed', true);
 
+    // Lista de pendientes para la tabla del panel admin
+    const { data: pending } = await supabase
+      .from('waitlist')
+      .select('email, name, code, created_at')
+      .eq('code_used', false)
+      .eq('unsubscribed', false)
+      .order('created_at', { ascending: true })
+      .limit(500);
+
+    const pendingRows = (pending || []) as Array<{
+      email: string;
+      name: string;
+      code: string;
+      created_at: string;
+    }>;
+    const pendingUsers = pendingRows.map((u) => ({
+      email: u.email,
+      name: u.name,
+      code: u.code,
+      registeredAt: u.created_at,
+    }));
+
     return NextResponse.json({
       success: true,
       summary: {
@@ -203,6 +225,7 @@ export async function GET(request: Request) {
         alreadyUsedCode: usedCount || 0,
         unsubscribed: unsubscribedCount || 0,
       },
+      pendingUsers,
     });
   } catch (error) {
     console.error('Error en GET remind-code:', error);

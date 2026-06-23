@@ -1,10 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export default function WaitlistCounter() {
   const [count, setCount] = useState<number | null>(null);
+  const [displayCount, setDisplayCount] = useState(0);
+  const rafRef = useRef<number | null>(null);
 
+  // Fetch del número real (sin cambiar la lógica de datos ni el endpoint)
   useEffect(() => {
     async function fetchCount() {
       try {
@@ -23,7 +26,46 @@ export default function WaitlistCounter() {
     fetchCount();
   }, []);
 
-  const display = count === null ? '...' : `+${count}`;
+  // Count-up animado de 0 al valor final (respeta prefers-reduced-motion)
+  useEffect(() => {
+    if (count === null) return;
+
+    const prefersReducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (prefersReducedMotion || count <= 0) {
+      setDisplayCount(count);
+      return;
+    }
+
+    const duration = 1200; // ms
+    let startTime: number | null = null;
+
+    const step = (timestamp: number) => {
+      if (startTime === null) startTime = timestamp;
+      const progress = Math.min((timestamp - startTime) / duration, 1);
+      // easeOutCubic para una desaceleración suave
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplayCount(Math.round(eased * count));
+
+      if (progress < 1) {
+        rafRef.current = requestAnimationFrame(step);
+      } else {
+        setDisplayCount(count);
+      }
+    };
+
+    rafRef.current = requestAnimationFrame(step);
+
+    return () => {
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+      }
+    };
+  }, [count]);
+
+  const display = count === null ? '...' : `+${displayCount}`;
 
   return (
     <div className="flex items-center gap-2 bg-green-50 text-green-700 px-3 py-1.5 rounded-full font-medium">

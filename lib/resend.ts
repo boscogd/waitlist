@@ -175,6 +175,156 @@ function getWaitlistEmailTemplate(name: string, code: string): string {
 }
 
 /**
+ * Email de win-back para usuarios dormidos de la app.
+ * Reemplaza {{name}}, {{app_url}} y {{unsubscribe_url}} en
+ * subject y html antes de enviar.
+ */
+export async function sendWinbackEmail({
+  to,
+  name,
+  subject,
+  htmlContent,
+  previewText,
+  appUrl,
+  unsubscribeUrl,
+}: {
+  to: string;
+  name: string;
+  subject: string;
+  htmlContent: string;
+  previewText?: string;
+  appUrl: string;
+  unsubscribeUrl: string;
+}) {
+  const replacements: Record<string, string> = {
+    '{{name}}': name,
+    '{{app_url}}': appUrl,
+    '{{unsubscribe_url}}': unsubscribeUrl,
+  };
+
+  const apply = (s: string) =>
+    Object.entries(replacements).reduce(
+      (acc, [token, value]) => acc.split(token).join(value),
+      s
+    );
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL || 'Refugio en la Palabra <onboarding@resend.dev>',
+      to,
+      subject: apply(subject),
+      html: apply(htmlContent),
+      text: previewText || undefined,
+      headers: {
+        'List-Unsubscribe': `<${unsubscribeUrl}>`,
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+      },
+    });
+
+    if (error) {
+      console.error('Error enviando winback:', error);
+      const errorMessage = error.message || JSON.stringify(error);
+      return { success: false, error: errorMessage, resendId: null };
+    }
+
+    return { success: true, data, resendId: data?.id || null };
+  } catch (error) {
+    console.error('Error en sendWinbackEmail:', error);
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
+    return { success: false, error: errorMessage, resendId: null };
+  }
+}
+
+/**
+ * Email de recordatorio de código para usuarios de la waitlist que NO
+ * han canjeado su código (mes premium gratis). Secuencia automática.
+ * Reemplaza {{name}}, {{code}}, {{app_url}} y {{unsubscribe_url}} en
+ * subject y html antes de enviar.
+ */
+export async function sendCodeReminderCampaign({
+  to,
+  name,
+  code,
+  subject,
+  htmlContent,
+  previewText,
+  appUrl,
+  unsubscribeUrl,
+}: {
+  to: string;
+  name: string;
+  code: string;
+  subject: string;
+  htmlContent: string;
+  previewText?: string;
+  appUrl: string;
+  unsubscribeUrl: string;
+}) {
+  const replacements: Record<string, string> = {
+    '{{name}}': name,
+    '{{code}}': code,
+    '{{app_url}}': appUrl,
+    '{{unsubscribe_url}}': unsubscribeUrl,
+  };
+
+  const apply = (s: string) =>
+    Object.entries(replacements).reduce(
+      (acc, [token, value]) => acc.split(token).join(value),
+      s
+    );
+
+  const payload = {
+    from: process.env.RESEND_FROM_EMAIL || 'Refugio en la Palabra <onboarding@resend.dev>',
+    to,
+    subject: apply(subject),
+    html: apply(htmlContent),
+    text: previewText || undefined,
+    headers: {
+      'List-Unsubscribe': `<${unsubscribeUrl}>`,
+      'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+    },
+  };
+
+  // El rate limit de Resend (2 req/s por defecto) es independiente del plan.
+  // Reintentamos con backoff si nos lo devuelve, para auto-recuperarnos.
+  const MAX_ATTEMPTS = 3;
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      const { data, error } = await resend.emails.send(payload);
+
+      if (error) {
+        const statusCode = (error as { statusCode?: number }).statusCode;
+        const isRateLimit =
+          statusCode === 429 ||
+          /rate.?limit|too many requests/i.test(error.name || '') ||
+          /rate.?limit|too many requests/i.test(error.message || '');
+
+        if (isRateLimit && attempt < MAX_ATTEMPTS) {
+          await new Promise((r) => setTimeout(r, attempt * 1000));
+          continue;
+        }
+
+        console.error('Error enviando recordatorio de código:', error);
+        const errorMessage = error.message || JSON.stringify(error);
+        return { success: false, error: errorMessage, resendId: null };
+      }
+
+      return { success: true, data, resendId: data?.id || null };
+    } catch (error) {
+      if (attempt < MAX_ATTEMPTS) {
+        await new Promise((r) => setTimeout(r, attempt * 1000));
+        continue;
+      }
+      console.error('Error en sendCodeReminderCampaign:', error);
+      const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
+      return { success: false, error: errorMessage, resendId: null };
+    }
+  }
+
+  return { success: false, error: 'No se pudo enviar tras varios intentos', resendId: null };
+}
+
+/**
  * Email de notificación cuando llega nuevo feedback
  */
 export async function sendFeedbackNotification({
@@ -422,9 +572,7 @@ function getCodeReminderTemplate(name: string, code: string): string {
               © ${new Date().getFullYear()} Refugio en la Palabra. Todos los derechos reservados.
             </p>
             <p style="margin: 5px 0;">
-              <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://refugioenlapalabra.com'}/unsubscribe?email=${encodeURIComponent('{{email}}')}}" style="color: #6B7280;">
-                Darse de baja
-              </a>
+              Si no quieres recibir más recordatorios, responde a este email y te damos de baja.
             </p>
           </div>
         </div>

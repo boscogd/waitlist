@@ -19,21 +19,26 @@ export const metadata: Metadata = {
       "Añade Refugio en la Palabra a tu pantalla de inicio en 30 segundos. Tutorial para Android e iPhone.",
     type: "website",
     locale: "es_ES",
+    url: "https://refugioenlapalabra.com/descargar",
+    siteName: "Refugio en la Palabra",
     images: [
       {
-        url: "/logo-512-1.png",
-        width: 512,
-        height: 512,
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
         alt: "Refugio en la Palabra - Instalar App",
       },
     ],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Instala Refugio en tu móvil",
     description:
       "Tutorial para añadir Refugio en la Palabra a tu pantalla de inicio. Android e iPhone.",
-    images: ["/logo-512-1.png"],
+    images: ["/opengraph-image"],
+  },
+  alternates: {
+    canonical: "https://refugioenlapalabra.com/descargar",
   },
   robots: {
     index: true,

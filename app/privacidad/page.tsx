@@ -1,8 +1,34 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 
-export const metadata = {
-  title: 'Política de Privacidad | Refugio en la Palabra',
+export const metadata: Metadata = {
+  title: 'Política de Privacidad',
   description: 'Política de privacidad y protección de datos de Refugio en la Palabra',
+  openGraph: {
+    title: 'Política de Privacidad | Refugio en la Palabra',
+    description: 'Política de privacidad y protección de datos de Refugio en la Palabra.',
+    type: 'website',
+    locale: 'es_ES',
+    url: 'https://refugioenlapalabra.com/privacidad',
+    siteName: 'Refugio en la Palabra',
+    images: [
+      {
+        url: '/opengraph-image',
+        width: 1200,
+        height: 630,
+        alt: 'Refugio en la Palabra - App Católica de Oración',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Política de Privacidad | Refugio en la Palabra',
+    description: 'Política de privacidad y protección de datos de Refugio en la Palabra.',
+    images: ['/opengraph-image'],
+  },
+  alternates: {
+    canonical: 'https://refugioenlapalabra.com/privacidad',
+  },
 };
 
 export default function PrivacyPage() {

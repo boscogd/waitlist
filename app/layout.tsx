@@ -92,6 +92,7 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://refugioenlapalabra.com",
   },
+  manifest: "/manifest.json",
   category: "Religion & Spirituality",
   classification: "Catholic Prayer App",
   icons: {
@@ -104,6 +105,23 @@ export const metadata: Metadata = {
 
 // Schema.org JSON-LD para SEO
 const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Refugio en la Palabra",
+    url: "https://refugioenlapalabra.com",
+    logo: "https://refugioenlapalabra.com/logo-512-1.png",
+    description:
+      "App católica de oración y crecimiento en la fe: Rosario guiado con audio, Evangelio del día comentado y compañero de fe disponible 24/7.",
+    email: "contacto@refugioenlapalabra.com",
+    sameAs: ["https://www.instagram.com/refugioenlapalabra_"],
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Refugio en la Palabra",
+    url: "https://refugioenlapalabra.com",
+  },
   {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",

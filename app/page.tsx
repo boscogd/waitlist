@@ -226,7 +226,7 @@ export default function Home() {
               <AnimateOnScroll delay={100}>
                 <div className="text-center space-y-4">
                   <div className="w-16 h-16 bg-albero/10 rounded-2xl flex items-center justify-center mx-auto p-3">
-                    <Image src="/icons/calendario-icon.png" alt="Sin tiempo" width={48} height={48} />
+                    <Image src="/icons/calendario-icon.png" alt="Calendario que ilustra la falta de tiempo para orar cada día" width={48} height={48} />
                   </div>
                   <h3 className="font-semibold text-azul">Sin tiempo para orar</h3>
                   <p className="text-sm text-texto/70">El ritmo diario te consume y la oración queda relegada. Necesitas algo que se adapte a tu vida.</p>
@@ -235,7 +235,7 @@ export default function Home() {
               <AnimateOnScroll delay={200}>
                 <div className="text-center space-y-4">
                   <div className="w-16 h-16 bg-albero/10 rounded-2xl flex items-center justify-center mx-auto p-3">
-                    <Image src="/icons/confianza-icon.png" alt="Dudas" width={48} height={48} />
+                    <Image src="/icons/confianza-icon.png" alt="Icono que representa las dudas de fe sin respuesta" width={48} height={48} />
                   </div>
                   <h3 className="font-semibold text-azul">Dudas sin respuesta</h3>
                   <p className="text-sm text-texto/70">Tienes preguntas sobre la fe pero no siempre hay alguien disponible para orientarte.</p>
@@ -244,7 +244,7 @@ export default function Home() {
               <AnimateOnScroll delay={300}>
                 <div className="text-center space-y-4">
                   <div className="w-16 h-16 bg-albero/10 rounded-2xl flex items-center justify-center mx-auto p-3">
-                    <Image src="/icons/mundo-icon.png" alt="Apps" width={48} height={48} />
+                    <Image src="/icons/mundo-icon.png" alt="Globo terráqueo que simboliza las apps genéricas que no conectan con la fe católica" width={48} height={48} />
                   </div>
                   <h3 className="font-semibold text-azul">Apps que no conectan</h3>
                   <p className="text-sm text-texto/70">Las apps genéricas de meditación no entienden tu fe católica ni tus tradiciones.</p>
@@ -272,7 +272,7 @@ export default function Home() {
             <div className="grid md:grid-cols-2 gap-8">
               <div className="group bg-white rounded-2xl p-8 space-y-4 border border-azul/5 hover:border-albero/30 hover:shadow-xl hover:shadow-albero/5 transition-all duration-300">
                 <div className="w-14 h-14 bg-gradient-to-br from-albero/20 to-dorado/20 rounded-xl flex items-center justify-center p-2 group-hover:scale-110 transition-transform">
-                  <Image src="/icons/rosario-icon.png" alt="Rosario" width={40} height={40} />
+                  <Image src="/icons/rosario-icon.png" alt="Rosario guiado con audio para rezar paso a paso" width={40} height={40} />
                 </div>
                 <h3 className="font-[family-name:var(--font-lora)] text-xl font-semibold text-azul">
                   Rosario guiado con audio
@@ -304,7 +304,7 @@ export default function Home() {
 
               <div className="group bg-white rounded-2xl p-8 space-y-4 border border-azul/5 hover:border-albero/30 hover:shadow-xl hover:shadow-albero/5 transition-all duration-300">
                 <div className="w-14 h-14 bg-gradient-to-br from-albero/20 to-dorado/20 rounded-xl flex items-center justify-center p-2 group-hover:scale-110 transition-transform">
-                  <Image src="/icons/gospel-icon.png" alt="Evangelio" width={40} height={40} />
+                  <Image src="/icons/gospel-icon.png" alt="Evangelio del día comentado con reflexiones diarias" width={40} height={40} />
                 </div>
                 <h3 className="font-[family-name:var(--font-lora)] text-xl font-semibold text-azul">
                   Evangelio del día comentado
@@ -336,7 +336,7 @@ export default function Home() {
 
               <div className="group bg-white rounded-2xl p-8 space-y-4 border border-azul/5 hover:border-albero/30 hover:shadow-xl hover:shadow-albero/5 transition-all duration-300">
                 <div className="w-14 h-14 bg-gradient-to-br from-albero/20 to-dorado/20 rounded-xl flex items-center justify-center p-2 group-hover:scale-110 transition-transform">
-                  <Image src="/icons/chat-icon.png" alt="Chat" width={40} height={40} />
+                  <Image src="/icons/chat-icon.png" alt="Compañero de fe que responde dudas sobre la fe católica 24/7" width={40} height={40} />
                 </div>
                 <h3 className="font-[family-name:var(--font-lora)] text-xl font-semibold text-azul">
                   Compañero de fe
@@ -368,7 +368,7 @@ export default function Home() {
 
               <div className="group bg-white rounded-2xl p-8 space-y-4 border border-azul/5 hover:border-albero/30 hover:shadow-xl hover:shadow-albero/5 transition-all duration-300">
                 <div className="w-14 h-14 bg-gradient-to-br from-albero/20 to-dorado/20 rounded-xl flex items-center justify-center p-2 group-hover:scale-110 transition-transform">
-                  <Image src="/icons/logros-icon.png" alt="Logros" width={40} height={40} />
+                  <Image src="/icons/logros-icon.png" alt="Sistema de logros y rachas que premia la constancia en la oración" width={40} height={40} />
                 </div>
                 <h3 className="font-[family-name:var(--font-lora)] text-xl font-semibold text-azul">
                   Logros y constancia
@@ -623,7 +623,7 @@ export default function Home() {
             <div className="grid md:grid-cols-3 gap-8">
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 space-y-4">
                 <div className="w-14 h-14 bg-gradient-to-br from-albero/30 to-dorado/30 rounded-xl flex items-center justify-center p-2">
-                  <Image src="/icons/calendario-icon.png" alt="Tiempo" width={40} height={40} />
+                  <Image src="/icons/calendario-icon.png" alt="Calendario que representa el tiempo que Aida y Bosco dedican al proyecto" width={40} height={40} />
                 </div>
                 <h3 className="font-semibold text-lg">Sacamos tiempo de donde no lo hay</h3>
                 <p className="text-white/80 text-sm leading-relaxed">
@@ -633,7 +633,7 @@ export default function Home() {
 
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 space-y-4">
                 <div className="w-14 h-14 bg-gradient-to-br from-albero/30 to-dorado/30 rounded-xl flex items-center justify-center p-2">
-                  <Image src="/icons/comunidad-icon.png" alt="Equipo" width={40} height={40} />
+                  <Image src="/icons/comunidad-icon.png" alt="Icono de equipo que representa a Aida y Bosco trabajando juntos" width={40} height={40} />
                 </div>
                 <h3 className="font-semibold text-lg">Nos complementamos</h3>
                 <p className="text-white/80 text-sm leading-relaxed">
@@ -643,7 +643,7 @@ export default function Home() {
 
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 space-y-4">
                 <div className="w-14 h-14 bg-gradient-to-br from-albero/30 to-dorado/30 rounded-xl flex items-center justify-center p-2">
-                  <Image src="/icons/amor-icon.png" alt="Propósito" width={40} height={40} />
+                  <Image src="/icons/amor-icon.png" alt="Corazón que simboliza el propósito de ayudar a otros con la app" width={40} height={40} />
                 </div>
                 <h3 className="font-semibold text-lg">Hecho con propósito</h3>
                 <p className="text-white/80 text-sm leading-relaxed">
