@@ -1,6 +1,7 @@
 import InstagramBadge from './components/InstagramBadge';
 import WaitlistCounter from './components/WaitlistCounter';
 import AnimateOnScroll from './components/AnimateOnScroll';
+import Parallax from './components/Parallax';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -56,25 +57,25 @@ export default function Home() {
               {/* Contenido izquierdo */}
               <div className="space-y-6 text-center lg:text-left">
                 {/* Badge de Instagram */}
-                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3">
+                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 animate-fade-in-up">
                   <InstagramBadge />
                 </div>
 
                 {/* Título principal */}
-                <h1 className="font-[family-name:var(--font-lora)] text-4xl sm:text-5xl lg:text-6xl font-semibold text-azul leading-tight tracking-tight animate-fade-in-up">
+                <h1 className="font-[family-name:var(--font-lora)] text-4xl sm:text-5xl lg:text-6xl font-semibold text-azul leading-tight tracking-tight animate-fade-in-up animation-delay-100">
                   Tu refugio diario para{' '}
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-albero to-dorado">
+                  <span className="text-gradient-animated">
                     crecer en la fe
                   </span>
                 </h1>
 
                 {/* Subtítulo */}
-                <p className="text-lg sm:text-xl text-texto/80 max-w-md sm:max-w-xl mx-auto lg:mx-0 leading-relaxed animate-fade-in-up animation-delay-100 px-2 sm:px-0">
+                <p className="text-lg sm:text-xl text-texto/80 max-w-md sm:max-w-xl mx-auto lg:mx-0 leading-relaxed animate-fade-in-up animation-delay-200 px-2 sm:px-0">
                   Reza el Rosario guiado, reflexiona con el Evangelio diario y resuelve tus dudas de fe 24/7 con inteligencia artificial católica.
                 </p>
 
                 {/* CTA Principal */}
-                <div className="flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-4 pt-2 animate-fade-in-up animation-delay-200">
+                <div className="flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-4 pt-2 animate-fade-in-up animation-delay-300">
                   <Link
                     href="/descargar"
                     className="group bg-gradient-to-r from-azul to-azul-800 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:shadow-xl hover:shadow-azul/20 transition-all duration-300 flex items-center gap-2"
@@ -87,7 +88,7 @@ export default function Home() {
                 </div>
 
                 {/* Prueba social rápida */}
-                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-4 text-sm text-texto/60 animate-fade-in-up animation-delay-300">
+                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-4 text-sm text-texto/60 animate-fade-in-up animation-delay-400">
                   <WaitlistCounter />
                   <div className="flex items-center gap-2">
                     <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
@@ -112,7 +113,7 @@ export default function Home() {
 
               {/* Mockups derecha */}
               <div className="relative flex justify-center lg:justify-end animate-fade-in-up animation-delay-200">
-                <div className="relative w-full max-w-md lg:max-w-lg">
+                <Parallax className="relative w-full max-w-md lg:max-w-lg">
                   {/* Glow effect */}
                   <div className="absolute inset-0 bg-gradient-to-br from-albero/20 to-dorado/20 rounded-[3rem] blur-3xl scale-110"></div>
 
@@ -201,7 +202,7 @@ export default function Home() {
                       </div>
                     </div>
                   </div>
-                </div>
+                </Parallax>
               </div>
 
             </div>
