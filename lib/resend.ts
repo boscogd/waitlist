@@ -131,27 +131,31 @@ function getWaitlistEmailTemplate(name: string, code: string): string {
             </h2>
 
             <p style="color: #1F2937; font-size: 16px; line-height: 1.6;">
-              Gracias por unirte a la lista de espera de <strong>Refugio en la Palabra</strong>.
+              Gracias por unirte a <strong>Refugio en la Palabra</strong>.
             </p>
 
             <p style="color: #1F2937; font-size: 16px; line-height: 1.6;">
-              Hemos guardado tu código de acceso anticipado. Cuando lancemos la aplicación,
-              recibirás un email con tu código personalizado para acceder antes que nadie.
+              La app ya está disponible. Aquí tienes tu código para disfrutar de
+              un mes de Premium gratis: úsalo al descargarla.
             </p>
 
             <!-- Code Box -->
             <div style="background-color: #FAF7F0; border: 2px dashed #E1B955; border-radius: 8px; padding: 20px; margin: 30px 0; text-align: center;">
               <p style="color: #1F2937; font-size: 14px; margin: 0 0 10px 0;">
-                Tu código de acceso:
+                Tu código de mes gratis:
               </p>
               <p style="color: #1F3A5F; font-size: 24px; font-weight: bold; margin: 0; letter-spacing: 2px;">
                 ${code}
               </p>
             </div>
 
-            <p style="color: #1F2937; font-size: 16px; line-height: 1.6;">
-              Mientras tanto, te mantendremos informado sobre el desarrollo del proyecto.
-            </p>
+            <!-- CTA -->
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://refugio-en-la-palabra.netlify.app'}/bienvenida?code=${code}"
+                 style="display: inline-block; background-color: #1F3A5F; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 500;">
+                Descargar y empezar gratis
+              </a>
+            </div>
 
             <p style="color: #1F2937; font-size: 16px; line-height: 1.6; margin-bottom: 0;">
               Con gratitud,<br>
