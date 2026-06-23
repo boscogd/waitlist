@@ -466,6 +466,38 @@ ON CONFLICT (template_key) DO UPDATE SET
     updated_at = NOW();
 
 -- =====================================================
+-- 8. RPC: suppress_email — baja automática por rebote/queja
+-- =====================================================
+-- Lo llama el webhook de Resend (/api/resend/webhook) cuando un correo
+-- rebota (bounce) o el usuario lo marca como spam (complaint). Da de baja
+-- en AMBAS campañas para proteger la reputación de envío.
+
+CREATE OR REPLACE FUNCTION public.suppress_email(p_email TEXT)
+RETURNS VOID
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, auth
+AS $$
+BEGIN
+  -- Baja en la waitlist (campaña de recordatorio de código)
+  UPDATE public.waitlist
+  SET unsubscribed = TRUE,
+      unsubscribed_at = COALESCE(unsubscribed_at, NOW())
+  WHERE LOWER(email) = LOWER(TRIM(p_email));
+
+  -- Baja en el win-back (usuarios de la app) si hay un auth user con ese email
+  UPDATE public.profiles p
+  SET winback_unsubscribed = TRUE,
+      winback_unsubscribed_at = COALESCE(winback_unsubscribed_at, NOW())
+  FROM auth.users u
+  WHERE u.id = p.id AND LOWER(u.email) = LOWER(TRIM(p_email));
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.suppress_email(TEXT) FROM public;
+GRANT EXECUTE ON FUNCTION public.suppress_email(TEXT) TO anon;
+
+-- =====================================================
 -- FIN
 -- =====================================================
 -- VERIFICACIÓN — pega esto en el SQL Editor para comprobar el estado:

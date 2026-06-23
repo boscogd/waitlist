@@ -174,6 +174,20 @@ async function runWinback() {
     const dormantUsers = (users || []) as DormantUser[];
     console.log(`[Winback] ${dormantUsers.length} usuarios candidatos`);
 
+    // Frequency cap global: no escribir a quien haya recibido CUALQUIER correo
+    // nuestro (recordatorio de código, winback…) en las últimas N horas, para
+    // que las campañas no se solapen sobre la misma persona.
+    const gapHours = Number(process.env.EMAIL_MIN_GAP_HOURS) || 72;
+    const sinceIso = new Date(Date.now() - gapHours * 3600 * 1000).toISOString();
+    const { data: recentLogs } = await supabase
+      .from('email_logs')
+      .select('email_to')
+      .eq('status', 'sent')
+      .gte('sent_at', sinceIso);
+    const recentlyEmailed = new Set(
+      ((recentLogs || []) as Array<{ email_to: string }>).map((r) => r.email_to.toLowerCase())
+    );
+
     for (const user of dormantUsers) {
       result.processed++;
 
@@ -185,6 +199,12 @@ async function runWinback() {
           p_new_step: 0,
         });
         result.reset++;
+        result.skipped++;
+        continue;
+      }
+
+      // Frequency cap global (no solapar con otras campañas)
+      if (recentlyEmailed.has(user.email.toLowerCase())) {
         result.skipped++;
         continue;
       }

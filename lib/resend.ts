@@ -2,6 +2,68 @@ import { Resend } from 'resend';
 
 export const resend = new Resend(process.env.RESEND_API_KEY);
 
+// =====================================================
+// Utilidades comunes de email (profesionalización)
+// =====================================================
+// Buzón al que llegan las respuestas (la copia promete "responde y te
+// lee una persona"). Configurable; por defecto el contacto público.
+const REPLY_TO = process.env.RESEND_REPLY_TO || 'contacto@refugioenlapalabra.com';
+// Identificación del remitente para el pie (LSSI/RGPD). Pon tu dirección
+// postal/fiscal en EMAIL_SENDER_ADDRESS para cumplimiento pleno.
+const SENDER_IDENTITY = process.env.EMAIL_SENDER_IDENTITY || 'Refugio en la Palabra';
+const SENDER_ADDRESS = process.env.EMAIL_SENDER_ADDRESS || '';
+
+/** Pie legal con identificación del remitente, contacto y baja. */
+function legalFooterHtml(unsubscribeUrl: string): string {
+  const addr = SENDER_ADDRESS ? ` · ${SENDER_ADDRESS}` : '';
+  const unsub = unsubscribeUrl
+    ? ` Puedes <a href="${unsubscribeUrl}" style="color:#A09A92;">darte de baja</a> cuando quieras.`
+    : '';
+  return `<div style="max-width:580px;margin:0 auto;padding:8px 20px 32px;font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#A09A92;text-align:center;line-height:1.7;">
+  ${SENDER_IDENTITY}${addr} · <a href="mailto:${REPLY_TO}" style="color:#A09A92;">${REPLY_TO}</a><br>
+  Recibes este correo porque te registraste en Refugio en la Palabra.${unsub}
+</div>`;
+}
+
+/** Inserta el pie legal antes de </body> (o al final si no existe). */
+function withLegalFooter(html: string, unsubscribeUrl: string): string {
+  const footer = legalFooterHtml(unsubscribeUrl);
+  return html.includes('</body>')
+    ? html.replace('</body>', `${footer}\n</body>`)
+    : html + footer;
+}
+
+/** Inserta un preheader oculto (texto de preview del inbox) tras <body>. */
+function withPreheader(html: string, preview: string): string {
+  if (!preview) return html;
+  const ph = `<div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all;">${preview}</div>`;
+  return /<body[^>]*>/i.test(html)
+    ? html.replace(/(<body[^>]*>)/i, `$1\n${ph}`)
+    : ph + html;
+}
+
+/** Versión texto plano básica a partir del HTML, para enviar multipart. */
+function htmlToText(html: string): string {
+  return html
+    .replace(/<head[\s\S]*?<\/head>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<a [^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, '$2 ($1)')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/(p|div|tr|h[1-6])>/gi, '\n')
+    .replace(/<li[^>]*>/gi, '• ')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&ldquo;|&rdquo;|&laquo;|&raquo;/g, '"')
+    .replace(/&aacute;/g, 'á').replace(/&eacute;/g, 'é').replace(/&iacute;/g, 'í')
+    .replace(/&oacute;/g, 'ó').replace(/&uacute;/g, 'ú').replace(/&ntilde;/g, 'ñ')
+    .replace(/&[a-z]+;/gi, '')
+    .replace(/[ \t]+/g, ' ')
+    .replace(/ *\n */g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 /**
  * Enviar email genérico desde un borrador
  */
@@ -212,13 +274,19 @@ export async function sendWinbackEmail({
       s
     );
 
+  const finalHtml = withPreheader(
+    withLegalFooter(apply(htmlContent), unsubscribeUrl),
+    apply(previewText || '')
+  );
+
   try {
     const { data, error } = await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL || 'Refugio en la Palabra <onboarding@resend.dev>',
       to,
+      replyTo: REPLY_TO,
       subject: apply(subject),
-      html: apply(htmlContent),
-      text: previewText || undefined,
+      html: finalHtml,
+      text: htmlToText(finalHtml),
       headers: {
         'List-Unsubscribe': `<${unsubscribeUrl}>`,
         'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
@@ -277,12 +345,17 @@ export async function sendCodeReminderCampaign({
       s
     );
 
+  const finalHtml = withPreheader(
+    withLegalFooter(apply(htmlContent), unsubscribeUrl),
+    apply(previewText || '')
+  );
   const payload = {
     from: process.env.RESEND_FROM_EMAIL || 'Refugio en la Palabra <onboarding@resend.dev>',
     to,
+    replyTo: REPLY_TO,
     subject: apply(subject),
-    html: apply(htmlContent),
-    text: previewText || undefined,
+    html: finalHtml,
+    text: htmlToText(finalHtml),
     headers: {
       'List-Unsubscribe': `<${unsubscribeUrl}>`,
       'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',

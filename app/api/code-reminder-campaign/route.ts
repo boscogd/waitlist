@@ -133,8 +133,27 @@ async function processCampaign() {
   const unredeemed = (users || []) as UnredeemedUser[];
   console.log(`[CodeReminder] ${unredeemed.length} usuarios candidatos`);
 
+  // Frequency cap global: no escribir a quien haya recibido CUALQUIER correo
+  // nuestro (winback, recordatorio…) en las últimas N horas. Evita que las
+  // campañas se solapen sobre la misma persona. Comparte email_logs con winback.
+  const gapHours = Number(process.env.EMAIL_MIN_GAP_HOURS) || 72;
+  const sinceIso = new Date(Date.now() - gapHours * 3600 * 1000).toISOString();
+  const { data: recentLogs } = await supabase
+    .from('email_logs')
+    .select('email_to')
+    .eq('status', 'sent')
+    .gte('sent_at', sinceIso);
+  const recentlyEmailed = new Set(
+    ((recentLogs || []) as Array<{ email_to: string }>).map((r) => r.email_to.toLowerCase())
+  );
+
   for (const user of unredeemed) {
     result.processed++;
+
+    if (recentlyEmailed.has(user.email.toLowerCase())) {
+      result.skipped++;
+      continue;
+    }
 
     const currentStep = user.code_reminder_step ?? 0;
     const nextStep = currentStep + 1;
