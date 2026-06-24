@@ -60,6 +60,42 @@ COMMENT ON COLUMN public.waitlist.code_reminder_step IS
   '0=no en secuencia, 1/2/3=paso enviado, 4=secuencia completada (no re-enganchar)';
 
 -- =====================================================
+-- 1b. Tablas base (por si NO se ejecutó drip-campaign-schema)
+-- =====================================================
+-- email_templates y email_logs normalmente las crea drip-campaign-schema.
+-- Las creamos aquí IF NOT EXISTS para que este script funcione por sí solo.
+-- (Si ya existen, estos CREATE no tocan nada.)
+
+CREATE TABLE IF NOT EXISTS email_templates (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    template_key VARCHAR(100) UNIQUE NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    email_type VARCHAR(50) NOT NULL,
+    sequence_step INTEGER,
+    subject VARCHAR(255) NOT NULL,
+    preview_text VARCHAR(255),
+    html_content TEXT NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS email_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    draft_id UUID,
+    waitlist_id UUID,
+    email_to VARCHAR(255) NOT NULL,
+    subject VARCHAR(255) NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    error_message TEXT,
+    resend_id VARCHAR(255),
+    sent_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_email_logs_sent_at ON email_logs(sent_at);
+CREATE INDEX IF NOT EXISTS idx_email_logs_email_to ON email_logs(email_to);
+
+-- =====================================================
 -- 2. RPC: get_unredeemed_users
 -- =====================================================
 -- Devuelve usuarios de la waitlist elegibles para el siguiente

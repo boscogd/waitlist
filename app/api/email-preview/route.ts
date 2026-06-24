@@ -54,11 +54,24 @@ export async function GET(request: Request) {
     .from('email_templates')
     .select('*')
     .eq('template_key', templateKey)
-    .single();
+    .maybeSingle();
 
-  if (error || !data) {
+  if (error) {
     return NextResponse.json(
-      { error: `Plantilla "${templateKey}" no encontrada. ¿Ejecutaste code-reminder-schema.sql?` },
+      {
+        error: 'No se pudo consultar Supabase desde este entorno.',
+        detail: error.message,
+        hint: 'Casi seguro faltan NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY en las variables del proyecto Vercel (entorno Preview).',
+      },
+      { status: 500 }
+    );
+  }
+  if (!data) {
+    return NextResponse.json(
+      {
+        error: `La plantilla "${templateKey}" no existe en email_templates.`,
+        hint: 'Re-ejecuta supabase/code-reminder-schema.sql (ahora crea la tabla base si faltaba).',
+      },
       { status: 404 }
     );
   }
