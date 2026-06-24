@@ -42,6 +42,19 @@ function withPreheader(html: string, preview: string): string {
     : ph + html;
 }
 
+/**
+ * Decora un HTML de email exactamente igual que en el envío real
+ * (preheader + pie legal). Útil para vistas previa que muestran el
+ * email tal cual lo recibe el usuario, sin enviar nada.
+ */
+export function decorateEmailHtml(
+  html: string,
+  previewText: string,
+  unsubscribeUrl: string
+): string {
+  return withPreheader(withLegalFooter(html, unsubscribeUrl), previewText);
+}
+
 /** Versión texto plano básica a partir del HTML, para enviar multipart. */
 function htmlToText(html: string): string {
   return html
