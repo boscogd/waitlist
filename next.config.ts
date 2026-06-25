@@ -34,6 +34,14 @@ const nextConfig: NextConfig & {
       "form-action 'self'",
     ].join('; ');
 
+    // Bloqueante SOLO en producción. En preview/local va en modo solo-reporte
+    // para no chocar con la barra de Vercel (vercel.live) ni con herramientas
+    // de desarrollo.
+    const cspHeaderKey =
+      process.env.VERCEL_ENV === 'production'
+        ? 'Content-Security-Policy'
+        : 'Content-Security-Policy-Report-Only';
+
     return [
       {
         source: '/:path*',
@@ -46,7 +54,7 @@ const nextConfig: NextConfig & {
           },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'Permissions-Policy', value: 'geolocation=(), microphone=(), camera=()' },
-          { key: 'Content-Security-Policy', value: csp },
+          { key: cspHeaderKey, value: csp },
         ],
       },
     ];
