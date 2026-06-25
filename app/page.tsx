@@ -2,49 +2,19 @@ import InstagramBadge from './components/InstagramBadge';
 import WaitlistCounter from './components/WaitlistCounter';
 import AnimateOnScroll from './components/AnimateOnScroll';
 import Parallax from './components/Parallax';
+import SiteHeader from './components/SiteHeader';
+import ScrollProgress from './components/ScrollProgress';
+import BackToTop from './components/BackToTop';
 import Image from 'next/image';
 import Link from 'next/link';
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-marfil flex flex-col">
-      {/* Header/Navbar */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-marfil/95 backdrop-blur-md border-b border-azul/5">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Image
-              src="/logo-512-1.png"
-              alt="Refugio en la Palabra"
-              width={40}
-              height={40}
-              className="object-contain"
-            />
-            <span className="font-[family-name:var(--font-lora)] text-xl font-semibold text-azul hidden sm:block">
-              Refugio en la Palabra
-            </span>
-          </div>
-          <nav className="hidden md:flex items-center gap-8">
-            <a href="#caracteristicas" className="text-sm text-texto/70 hover:text-azul transition-colors">
-              Características
-            </a>
-            <a href="#como-funciona" className="text-sm text-texto/70 hover:text-azul transition-colors">
-              Cómo funciona
-            </a>
-            <a href="#nosotros" className="text-sm text-texto/70 hover:text-azul transition-colors">
-              Quiénes somos
-            </a>
-            <a href="#faq" className="text-sm text-texto/70 hover:text-azul transition-colors">
-              FAQ
-            </a>
-          </nav>
-          <Link
-            href="/descargar"
-            className="bg-azul text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-azul-800 transition-colors shadow-sm"
-          >
-            Instalar gratis
-          </Link>
-        </div>
-      </header>
+      {/* Header + interacciones de navegación */}
+      <ScrollProgress />
+      <SiteHeader />
+      <BackToTop />
 
       {/* Main Content */}
       <main className="flex-1 pt-20">
