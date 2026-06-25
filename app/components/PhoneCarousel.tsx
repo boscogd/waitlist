@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import Image from 'next/image';
 
 const PHONES = [
@@ -13,8 +13,8 @@ const STEP = 360 / PHONES.length; // 120º entre móviles
 
 /**
  * Carrusel circular de los 3 móviles del hero: van cambiando de posición
- * en redondo (el de un lado pasa al centro, etc.). Se arrastra a izquierda
- * y derecha (ratón o dedo), tiene flechas y gira solo de forma suave.
+ * en redondo (el de un lado pasa al centro, etc.). Se mueve SOLO al arrastrar
+ * a izquierda/derecha (ratón o dedo) o con las flechas; no gira solo.
  *
  * Todos los valores de transform se redondean (toFixed) para que el HTML del
  * servidor y el del cliente coincidan y NO haya error de hidratación.
@@ -23,23 +23,6 @@ export default function PhoneCarousel() {
   const [rotation, setRotation] = useState(0);
   const [animate, setAnimate] = useState(true);
   const drag = useRef({ active: false, startX: 0, startRot: 0 });
-  const paused = useRef(false);
-
-  useEffect(() => {
-    if (
-      typeof window !== 'undefined' &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    ) {
-      return;
-    }
-    const t = setInterval(() => {
-      if (!paused.current && !drag.current.active) {
-        setAnimate(true);
-        setRotation((r) => r - STEP);
-      }
-    }, 4000);
-    return () => clearInterval(t);
-  }, []);
 
   const onDown = (e: React.PointerEvent) => {
     drag.current = { active: true, startX: e.clientX, startRot: rotation };
@@ -62,11 +45,7 @@ export default function PhoneCarousel() {
   };
 
   return (
-    <div
-      className="relative w-full select-none"
-      onPointerEnter={() => (paused.current = true)}
-      onPointerLeave={() => (paused.current = false)}
-    >
+    <div className="relative w-full select-none">
       <div
         className="relative h-[360px] sm:h-[440px] lg:h-[470px] cursor-grab active:cursor-grabbing"
         style={{ perspective: '1200px', touchAction: 'pan-y' }}
