@@ -1,7 +1,18 @@
 import { NextResponse } from 'next/server';
+import crypto from 'crypto';
 import { supabase } from '@/lib/supabase';
 import { sendCodeReminderCampaign } from '@/lib/resend';
 import type { EmailTemplate } from '@/lib/types';
+
+// Comparación constant-time para evitar timing attacks. Iguala longitudes
+// antes de comparar para que timingSafeEqual no lance por buffers de
+// distinto tamaño; si difieren en longitud, no hay match.
+function safeEqual(a: string, b: string): boolean {
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  if (bufA.length !== bufB.length) return false;
+  return crypto.timingSafeEqual(bufA, bufB);
+}
 
 // =====================================================
 // CODE-REMINDER CAMPAIGN
@@ -58,10 +69,10 @@ type UnredeemedUser = {
 function verifyAuth(request: Request): { authorized: boolean; isCron: boolean; error?: string } {
   const authHeader = request.headers.get('authorization');
   // Vercel inyecta `Authorization: Bearer <CRON_SECRET>` en las peticiones del cron.
-  if (process.env.CRON_SECRET && authHeader === `Bearer ${process.env.CRON_SECRET}`) {
+  if (authHeader && process.env.CRON_SECRET && safeEqual(authHeader, `Bearer ${process.env.CRON_SECRET}`)) {
     return { authorized: true, isCron: true };
   }
-  if (process.env.ADMIN_SECRET_KEY && authHeader === `Bearer ${process.env.ADMIN_SECRET_KEY}`) {
+  if (authHeader && process.env.ADMIN_SECRET_KEY && safeEqual(authHeader, `Bearer ${process.env.ADMIN_SECRET_KEY}`)) {
     return { authorized: true, isCron: false };
   }
   return { authorized: false, isCron: false, error: 'No autorizado' };

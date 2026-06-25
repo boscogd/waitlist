@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Política de Privacidad',
-  description: 'Política de privacidad y protección de datos de Refugio en la Palabra',
+  description: 'Política de privacidad y protección de datos (RGPD y LOPDGDD) de Refugio en la Palabra. Descubre cómo recopilamos, usamos y protegemos tus datos personales.',
   openGraph: {
     title: 'Política de Privacidad | Refugio en la Palabra',
     description: 'Política de privacidad y protección de datos de Refugio en la Palabra.',
@@ -60,22 +60,14 @@ export default function PrivacyPage() {
             <strong>Última actualización:</strong> {new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}
           </p>
 
-          <div className="bg-amber-50 border-l-4 border-amber-500 p-4 mb-8">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <span className="text-2xl">⚠️</span>
-              </div>
-              <div className="ml-3">
-                <h4 className="text-sm font-semibold text-amber-800 mb-1">
-                  ACCIÓN REQUERIDA - Cumplimiento RGPD
-                </h4>
-                <p className="text-sm text-amber-700">
-                  Para ejercer tus derechos, contacta con nosotros en info@refugioenlapalabra.com
-                  según el artículo 13 del RGPD y la LOPDGDD. Las sanciones por incumplimiento pueden alcanzar
-                  hasta 20 millones de euros o el 4% de la facturación global anual.
-                </p>
-              </div>
-            </div>
+          <div className="bg-azul/5 border-l-4 border-azul/40 p-4 mb-8">
+            <h4 className="text-sm font-semibold text-azul mb-1">
+              Ejercicio de derechos (RGPD)
+            </h4>
+            <p className="text-sm text-texto/80">
+              Para ejercer tus derechos, contacta con nosotros en info@refugioenlapalabra.com
+              conforme al artículo 13 del RGPD y la LOPDGDD.
+            </p>
           </div>
 
           {/* SECCIÓN 1: RESPONSABLE DEL TRATAMIENTO */}
@@ -211,7 +203,7 @@ export default function PrivacyPage() {
               <ul className="list-disc pl-6 text-sm text-blue-800 mt-2 space-y-1">
                 <li>Cláusulas contractuales tipo aprobadas por la Comisión Europea</li>
                 <li>Decisiones de adecuación para países que garantizan un nivel adecuado de protección</li>
-                <li>Certificaciones como Privacy Shield (cuando aplique) o medidas de seguridad equivalentes</li>
+                <li>Cláusulas Contractuales Tipo (SCC) aprobadas por la Comisión Europea y/o el marco EU-US Data Privacy Framework, según el proveedor</li>
               </ul>
               <p className="text-sm text-blue-800 mt-3">
                 Puedes solicitar más información sobre las garantías aplicadas enviándonos un email.
@@ -392,7 +384,7 @@ export default function PrivacyPage() {
 
       {/* Footer */}
       <footer className="py-8 px-6 text-center border-t border-azul/10">
-        <p className="text-xs text-texto/50">
+        <p className="text-xs text-texto/70">
           © {new Date().getFullYear()} Refugio en la Palabra. Todos los derechos reservados.
         </p>
         <div className="mt-2 space-x-4 text-xs">

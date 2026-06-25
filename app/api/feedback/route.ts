@@ -1,7 +1,18 @@
 import { NextResponse } from 'next/server';
+import crypto from 'crypto';
 import { supabase } from '@/lib/supabase';
 import { sendFeedbackNotification } from '@/lib/resend';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
+
+// Comparación constant-time para evitar timing attacks. Iguala longitudes
+// antes de comparar para que timingSafeEqual no lance por buffers de
+// distinto tamaño; si difieren en longitud, no hay match.
+function safeEqual(a: string, b: string): boolean {
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  if (bufA.length !== bufB.length) return false;
+  return crypto.timingSafeEqual(bufA, bufB);
+}
 
 export async function POST(request: Request) {
   try {
@@ -111,7 +122,8 @@ export async function GET(request: Request) {
   try {
     // Verificar Authorization header (no query string)
     const authHeader = request.headers.get('authorization');
-    if (!authHeader || authHeader !== `Bearer ${process.env.ADMIN_SECRET_KEY}`) {
+    const apiKey = process.env.ADMIN_SECRET_KEY;
+    if (!authHeader || !apiKey || !safeEqual(authHeader, `Bearer ${apiKey}`)) {
       return NextResponse.json(
         { error: 'No autorizado' },
         { status: 401 }

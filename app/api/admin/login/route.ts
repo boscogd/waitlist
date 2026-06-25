@@ -1,11 +1,22 @@
 import { NextResponse } from 'next/server';
+import crypto from 'crypto';
+
+// Comparación constant-time para evitar timing attacks. Iguala longitudes
+// antes de comparar para que timingSafeEqual no lance por buffers de
+// distinto tamaño; si difieren en longitud, no hay match.
+function safeEqual(a: string, b: string): boolean {
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  if (bufA.length !== bufB.length) return false;
+  return crypto.timingSafeEqual(bufA, bufB);
+}
 
 export async function POST(request: Request) {
   try {
     const { key } = await request.json();
     const adminKey = process.env.ADMIN_SECRET_KEY;
 
-    if (!adminKey || key !== adminKey) {
+    if (!adminKey || typeof key !== 'string' || !safeEqual(key, adminKey)) {
       return NextResponse.json(
         { error: 'No autorizado' },
         { status: 401 }

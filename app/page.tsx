@@ -10,6 +10,63 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 export default function Home() {
+  // FAQ JSON-LD: refleja exactamente las 6 preguntas y respuestas de la sección #faq.
+  // Se incluye aquí porque el FAQPage se retira del layout global.
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: '¿Cómo descargo la aplicación?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Es muy sencillo. Ve a la página de descarga y sigue las instrucciones según tu dispositivo. En iPhone/iPad, abre Safari y añade la app a tu pantalla de inicio. En Android, Chrome te ofrecerá instalarla directamente.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: '¿Es compatible con mi dispositivo?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Refugio en la Palabra funciona en cualquier dispositivo moderno: iPhone, Android, tablet u ordenador. Solo necesitas un navegador actualizado como Safari, Chrome o Firefox.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: '¿Por qué no está en la App Store o Google Play?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Refugio es una Progressive Web App (PWA). Esto significa que funciona como una app nativa pero se instala directamente desde el navegador. No necesitas pasar por las tiendas, se actualiza automáticamente y ocupa menos espacio en tu dispositivo.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: '¿Cómo funciona el Compañero de fe?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Es un asistente de inteligencia artificial formado con fuentes católicas: el Catecismo, las Escrituras, documentos del Magisterio y enseñanzas de santos. Puede responder dudas sobre la fe, orientarte en situaciones difíciles y acompañarte en tu camino. No reemplaza a un sacerdote ni a la dirección espiritual, pero está disponible 24/7 para cuando necesites orientación.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: '¿Cuánto cuesta la aplicación?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Descargar y usar Refugio en la Palabra es gratis. Tienes acceso al Evangelio del día, Rosario, Lectio Divina y mucho más sin pagar nada. Algunas funciones avanzadas son de pago para ayudarnos a mantener el proyecto, pero siempre podrás rezar y crecer en tu fe sin coste.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: '¿Mis datos están seguros?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Absolutamente. Cumplimos con el RGPD y la normativa española de protección de datos. No vendemos ni compartimos tus datos con terceros. Tu vida espiritual es sagrada y merece la máxima privacidad.',
+        },
+      },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-marfil flex flex-col">
       {/* Header + interacciones de navegación */}
@@ -35,7 +92,7 @@ export default function Home() {
                 {/* Título principal */}
                 <h1 className="font-[family-name:var(--font-lora)] text-4xl sm:text-5xl lg:text-6xl font-semibold text-azul leading-tight tracking-tight animate-fade-in-up animation-delay-100">
                   Tu refugio diario para{' '}
-                  <span className="text-gradient-animated">
+                  <span className="text-[#8a6d1f]">
                     crecer en la fe
                   </span>
                 </h1>
@@ -46,16 +103,19 @@ export default function Home() {
                 </p>
 
                 {/* CTA Principal */}
-                <div className="flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-4 pt-2 animate-fade-in-up animation-delay-300">
+                <div className="flex flex-col items-center lg:items-start gap-2 pt-2 animate-fade-in-up animation-delay-300">
                   <Link
                     href="/descargar"
                     className="group bg-gradient-to-r from-azul to-azul-800 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:shadow-xl hover:shadow-azul/20 transition-all duration-300 flex items-center gap-2"
                   >
-                    Instalar gratis
+                    Empezar gratis
                     <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
                   </Link>
+                  <p className="text-xs text-texto/70">
+                    Se instala desde tu navegador en 30 s · Sin App Store ni Google Play
+                  </p>
                 </div>
 
                 {/* Prueba social rápida */}
@@ -148,7 +208,7 @@ export default function Home() {
           <div className="max-w-5xl mx-auto">
             <AnimateOnScroll>
               <div className="text-center mb-16">
-                <span className="text-albero font-medium text-sm uppercase tracking-wider">Características</span>
+                <span className="text-[#8a6d1f] font-medium text-sm uppercase tracking-wider">Características</span>
                 <h2 className="font-[family-name:var(--font-lora)] text-3xl sm:text-4xl font-semibold text-azul mt-3 mb-4">
                   Todo lo que necesitas para tu vida espiritual
                 </h2>
@@ -295,7 +355,7 @@ export default function Home() {
           <div className="max-w-5xl mx-auto">
             <AnimateOnScroll>
               <div className="text-center mb-16">
-                <span className="text-albero font-medium text-sm uppercase tracking-wider">Así de fácil</span>
+                <span className="text-[#8a6d1f] font-medium text-sm uppercase tracking-wider">Así de fácil</span>
                 <h2 className="font-[family-name:var(--font-lora)] text-3xl sm:text-4xl font-semibold text-azul mt-3 mb-4">
                   Empieza en 3 simples pasos
                 </h2>
@@ -350,7 +410,7 @@ export default function Home() {
           <div className="max-w-5xl mx-auto">
             <AnimateOnScroll>
               <div className="text-center mb-16">
-                <span className="text-albero font-medium text-sm uppercase tracking-wider">Único en su clase</span>
+                <span className="text-[#8a6d1f] font-medium text-sm uppercase tracking-wider">Único en su clase</span>
                 <h2 className="font-[family-name:var(--font-lora)] text-3xl sm:text-4xl font-semibold text-azul mt-3 mb-4">
                   ¿Qué nos hace diferentes?
                 </h2>
@@ -361,7 +421,7 @@ export default function Home() {
             </AnimateOnScroll>
 
             <div className="grid md:grid-cols-2 gap-6">
-              <div className="flex gap-4 p-6 bg-white/80 rounded-xl border border-azul/5">
+              <div className="flex gap-4 p-6 bg-white rounded-xl border border-azul/5 hover:border-albero/30 hover:shadow-xl hover:shadow-albero/5 transition-all duration-300">
                 <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
                   <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -373,7 +433,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="flex gap-4 p-6 bg-white/80 rounded-xl border border-azul/5">
+              <div className="flex gap-4 p-6 bg-white rounded-xl border border-azul/5 hover:border-albero/30 hover:shadow-xl hover:shadow-albero/5 transition-all duration-300">
                 <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
                   <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -385,7 +445,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="flex gap-4 p-6 bg-white/80 rounded-xl border border-azul/5">
+              <div className="flex gap-4 p-6 bg-white rounded-xl border border-azul/5 hover:border-albero/30 hover:shadow-xl hover:shadow-albero/5 transition-all duration-300">
                 <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
                   <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -393,11 +453,11 @@ export default function Home() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-azul mb-1">IA formada en doctrina</h3>
-                  <p className="text-sm text-texto/70">Nuestro consultor está entrenado con el Catecismo, Escrituras y documentos del Magisterio.</p>
+                  <p className="text-sm text-texto/70">El Compañero de fe está entrenado con el Catecismo, Escrituras y documentos del Magisterio.</p>
                 </div>
               </div>
 
-              <div className="flex gap-4 p-6 bg-white/80 rounded-xl border border-azul/5">
+              <div className="flex gap-4 p-6 bg-white rounded-xl border border-azul/5 hover:border-albero/30 hover:shadow-xl hover:shadow-albero/5 transition-all duration-300">
                 <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
                   <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -409,7 +469,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="flex gap-4 p-6 bg-white/80 rounded-xl border border-azul/5">
+              <div className="flex gap-4 p-6 bg-white rounded-xl border border-azul/5 hover:border-albero/30 hover:shadow-xl hover:shadow-albero/5 transition-all duration-300">
                 <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
                   <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -421,7 +481,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="flex gap-4 p-6 bg-white/80 rounded-xl border border-azul/5">
+              <div className="flex gap-4 p-6 bg-white rounded-xl border border-azul/5 hover:border-albero/30 hover:shadow-xl hover:shadow-albero/5 transition-all duration-300">
                 <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
                   <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -443,7 +503,7 @@ export default function Home() {
               {/* Texto */}
               <AnimateOnScroll>
                 <div className="space-y-6 text-center lg:text-left">
-                  <span className="text-albero font-medium text-sm uppercase tracking-wider">Comunidad</span>
+                  <span className="text-[#8a6d1f] font-medium text-sm uppercase tracking-wider">Comunidad</span>
                 <h2 className="font-[family-name:var(--font-lora)] text-3xl sm:text-4xl font-semibold text-azul">
                   No caminas solo
                 </h2>
@@ -481,7 +541,7 @@ export default function Home() {
                     <div className="bg-azul rounded-[2.5rem] p-2 shadow-2xl shadow-azul/30">
                       <Image
                         src="/comunidad.jpeg"
-                        alt="Comunidad de Refugio"
+                        alt="Pantalla de Comunidad de la app Refugio en la Palabra: buscador de comunidades, la lista 'Mis Comunidades' con los grupos Effetá San Vicente y Corpus Christi, y un calendario semanal de próximos eventos católicos."
                         width={260}
                         height={520}
                         className="rounded-[2rem] w-full"
@@ -548,7 +608,7 @@ export default function Home() {
           <div className="max-w-5xl mx-auto">
             <AnimateOnScroll>
               <div className="text-center mb-12">
-                <span className="text-albero font-medium text-sm uppercase tracking-wider">Testimonios</span>
+                <span className="text-[#8a6d1f] font-medium text-sm uppercase tracking-wider">Testimonios</span>
                 <h2 className="font-[family-name:var(--font-lora)] text-3xl sm:text-4xl font-semibold text-azul mt-3 mb-4">
                   Lo que dice nuestra comunidad
                 </h2>
@@ -574,7 +634,7 @@ export default function Home() {
                     </div>
                     <div>
                       <p className="text-sm font-medium text-azul">Mar&iacute;a G.</p>
-                      <p className="text-xs text-texto/50">Madrid</p>
+                      <p className="text-xs text-texto/70">Madrid</p>
                     </div>
                   </div>
                 </div>
@@ -598,7 +658,7 @@ export default function Home() {
                     </div>
                     <div>
                       <p className="text-sm font-medium text-azul">Javier R.</p>
-                      <p className="text-xs text-texto/50">Barcelona</p>
+                      <p className="text-xs text-texto/70">Barcelona</p>
                     </div>
                   </div>
                 </div>
@@ -622,7 +682,7 @@ export default function Home() {
                     </div>
                     <div>
                       <p className="text-sm font-medium text-azul">Ana L.</p>
-                      <p className="text-xs text-texto/50">Sevilla</p>
+                      <p className="text-xs text-texto/70">Sevilla</p>
                     </div>
                   </div>
                 </div>
@@ -666,7 +726,7 @@ export default function Home() {
                 </Link>
               </div>
 
-              <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-xs text-texto/50">
+              <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-xs text-texto/70">
                 <div className="flex items-center gap-1.5">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -683,7 +743,7 @@ export default function Home() {
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
                   </svg>
-                  iOS y Android
+                  Funciona en iPhone, Android y PC
                 </div>
               </div>
             </div>
@@ -695,7 +755,7 @@ export default function Home() {
           <div className="max-w-3xl mx-auto">
             <AnimateOnScroll>
               <div className="text-center mb-12">
-                <span className="text-albero font-medium text-sm uppercase tracking-wider">FAQ</span>
+                <span className="text-[#8a6d1f] font-medium text-sm uppercase tracking-wider">FAQ</span>
                 <h2 className="font-[family-name:var(--font-lora)] text-3xl sm:text-4xl font-semibold text-azul mt-3">
                   Preguntas frecuentes
                 </h2>
@@ -723,7 +783,7 @@ export default function Home() {
                   </svg>
                 </summary>
                 <div className="px-6 pb-6 text-texto/70">
-                  Refugio en la Palabra funciona en cualquier dispositivo moderno: iPhone, Android, tablet o computadora. Solo necesitas un navegador actualizado como Safari, Chrome o Firefox.
+                  Refugio en la Palabra funciona en cualquier dispositivo moderno: iPhone, Android, tablet u ordenador. Solo necesitas un navegador actualizado como Safari, Chrome o Firefox.
                 </div>
               </details>
 
@@ -776,6 +836,11 @@ export default function Home() {
               </details>
             </div>
           </div>
+          {/* FAQ structured data (JSON-LD) para rich results en buscadores */}
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+          />
         </section>
 
         {/* CTA Final */}
@@ -856,7 +921,7 @@ export default function Home() {
           </div>
 
           {/* Copyright */}
-          <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-white/50">
+          <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-white/70">
             <p>© {new Date().getFullYear()} Refugio en la Palabra. Todos los derechos reservados.</p>
             <p className="flex items-center gap-1">
               Hecho con

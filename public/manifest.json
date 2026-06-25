@@ -13,7 +13,7 @@
   "categories": ["lifestyle", "education", "books"],
   "icons": [
     {
-      "src": "/icon.png",
+      "src": "/logo-512-1.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"

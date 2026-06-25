@@ -1,7 +1,18 @@
 import { NextResponse } from 'next/server';
+import crypto from 'crypto';
 import { supabase } from '@/lib/supabase';
 import { sendDraftEmail } from '@/lib/resend';
 import type { EmailDraft, WaitlistEntry, TargetAudience } from '@/lib/types';
+
+// Comparación constant-time para evitar timing attacks. Iguala longitudes
+// antes de comparar para que timingSafeEqual no lance por buffers de
+// distinto tamaño; si difieren en longitud, no hay match.
+function safeEqual(a: string, b: string): boolean {
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  if (bufA.length !== bufB.length) return false;
+  return crypto.timingSafeEqual(bufA, bufB);
+}
 
 // =====================================================
 // API: Procesar emails programados (Cron Job)
@@ -18,13 +29,13 @@ function verifyCronAuth(request: Request): { authorized: boolean; error?: string
 
   // Verificar CRON_SECRET (para llamadas desde Vercel Cron)
   const cronSecret = process.env.CRON_SECRET;
-  if (cronSecret && authHeader === `Bearer ${cronSecret}`) {
+  if (authHeader && cronSecret && safeEqual(authHeader, `Bearer ${cronSecret}`)) {
     return { authorized: true };
   }
 
   // Verificar ADMIN_SECRET_KEY (para llamadas manuales desde admin)
   const adminKey = process.env.ADMIN_SECRET_KEY;
-  if (adminKey && authHeader === `Bearer ${adminKey}`) {
+  if (authHeader && adminKey && safeEqual(authHeader, `Bearer ${adminKey}`)) {
     return { authorized: true };
   }
 

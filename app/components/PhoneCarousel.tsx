@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 
 const PHONES = [
@@ -30,6 +30,19 @@ export default function PhoneCarousel() {
     velocity: 0,
     moved: false,
   });
+  // rAF para coalescer los setRotation de pointermove (mejora INP)
+  const rafId = useRef<number | null>(null);
+  const pendingRot = useRef<number | null>(null);
+
+  const cancelRaf = () => {
+    if (rafId.current !== null) {
+      cancelAnimationFrame(rafId.current);
+      rafId.current = null;
+    }
+    pendingRot.current = null;
+  };
+
+  useEffect(() => cancelRaf, []);
 
   const activeIndex =
     ((Math.round(-rotation / STEP) % PHONES.length) + PHONES.length) % PHONES.length;
@@ -57,15 +70,28 @@ export default function PhoneCarousel() {
     if (dt > 0) drag.current.velocity = (e.clientX - drag.current.lastX) / dt;
     drag.current.lastX = e.clientX;
     drag.current.lastT = now;
-    setRotation(drag.current.startRot + dx * 0.45);
+    // Coalescer: solo aplicamos el último valor en el próximo frame.
+    pendingRot.current = drag.current.startRot + dx * 0.45;
+    if (rafId.current === null) {
+      rafId.current = requestAnimationFrame(() => {
+        rafId.current = null;
+        if (pendingRot.current !== null) setRotation(pendingRot.current);
+      });
+    }
   };
   const onUp = () => {
     if (!drag.current.active) return;
+    // Recoge el último valor pendiente del frame coalescido antes de cancelar.
+    const flushed = pendingRot.current;
+    cancelRaf();
     drag.current.active = false;
     setAnimate(true);
     // Inercia: la velocidad al soltar añade giro extra antes de encajar.
     const extra = clamp(drag.current.velocity * 0.45 * 110, -2 * STEP, 2 * STEP);
-    setRotation((rot) => Math.round((rot + extra) / STEP) * STEP);
+    setRotation((rot) => {
+      const base = flushed ?? rot;
+      return Math.round((base + extra) / STEP) * STEP;
+    });
   };
   const go = (dir: number) => {
     setAnimate(true);
@@ -121,6 +147,7 @@ export default function PhoneCarousel() {
               <div
                 key={p.src}
                 className="absolute left-1/2 top-1/2"
+                aria-hidden={!isFront}
                 onClick={() => {
                   if (!drag.current.moved) goTo(i);
                 }}
@@ -177,9 +204,14 @@ export default function PhoneCarousel() {
         </button>
       </div>
 
-      {/* Etiqueta de la pantalla del centro */}
+      {/* Región estable que anuncia el cambio a lectores de pantalla */}
+      <span role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+        {PHONES[activeIndex].label}
+      </span>
+      {/* Etiqueta visible de la pantalla del centro (aria-hidden: ya se anuncia arriba) */}
       <p
         key={activeIndex}
+        aria-hidden="true"
         className="animate-fade-in text-center text-sm font-medium text-texto/70 mt-3"
       >
         {PHONES[activeIndex].label}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -15,6 +15,7 @@ export default function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState('');
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   // Header gana sombra al bajar
   useEffect(() => {
@@ -41,6 +42,28 @@ export default function SiteHeader() {
     return () => observer.disconnect();
   }, []);
 
+  // Cierra el menú móvil con Escape y devuelve el foco al botón
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setOpen(false);
+        menuButtonRef.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [open]);
+
+  // Sube al inicio de forma fiable respetando prefers-reduced-motion
+  const scrollToTop = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const reduce =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+  };
+
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 bg-marfil/95 backdrop-blur-md transition-shadow duration-300 ${
@@ -49,7 +72,12 @@ export default function SiteHeader() {
     >
       <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
         {/* Logo → arriba del todo */}
-        <a href="#top" className="flex items-center gap-3" aria-label="Inicio">
+        <a
+          href="#top"
+          onClick={scrollToTop}
+          className="flex items-center gap-3"
+          aria-label="Inicio"
+        >
           <Image
             src="/logo-512-1.png"
             alt="Refugio en la Palabra"
@@ -68,6 +96,7 @@ export default function SiteHeader() {
             <a
               key={id}
               href={`#${id}`}
+              aria-current={active === id ? 'true' : undefined}
               className={`text-sm transition-colors ${
                 active === id ? 'text-azul font-medium' : 'text-texto/70 hover:text-azul'
               }`}
@@ -86,10 +115,12 @@ export default function SiteHeader() {
             Instalar gratis
           </Link>
           <button
+            ref={menuButtonRef}
             type="button"
             onClick={() => setOpen((v) => !v)}
             aria-label={open ? 'Cerrar menú' : 'Abrir menú'}
             aria-expanded={open}
+            aria-controls="mobile-menu"
             className="md:hidden w-10 h-10 flex items-center justify-center rounded-lg text-azul hover:bg-azul/5 transition-colors"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -105,6 +136,8 @@ export default function SiteHeader() {
 
       {/* Menú desplegable móvil */}
       <div
+        id="mobile-menu"
+        inert={!open}
         className={`md:hidden overflow-hidden border-t border-azul/5 transition-all duration-300 ease-out ${
           open ? 'max-h-72 opacity-100' : 'max-h-0 opacity-0'
         }`}
@@ -115,6 +148,8 @@ export default function SiteHeader() {
               key={id}
               href={`#${id}`}
               onClick={() => setOpen(false)}
+              tabIndex={open ? undefined : -1}
+              aria-current={active === id ? 'true' : undefined}
               className={`py-3 text-base border-b border-azul/5 last:border-0 transition-colors ${
                 active === id ? 'text-azul font-medium' : 'text-texto/80 hover:text-azul'
               }`}

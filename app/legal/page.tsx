@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Información Legal',
-  description: 'Términos y condiciones, aviso legal y políticas de Refugio en la Palabra',
+  description: 'Términos y condiciones de uso, aviso legal (LSSI-CE) y política de cookies de Refugio en la Palabra, la app católica de oración. Consulta aquí tus derechos.',
   openGraph: {
     title: 'Información Legal | Refugio en la Palabra',
     description: 'Términos y condiciones, aviso legal y políticas de Refugio en la Palabra.',
@@ -82,14 +82,14 @@ export default function LegalPage() {
               </a>
             </li>
             <li>
-              <Link href="/privacidad" className="text-azul hover:text-albero transition-colors">
-                4. Política de Privacidad →
-              </Link>
+              <a href="#contacto" className="text-azul hover:text-albero transition-colors">
+                4. Información de Contacto
+              </a>
             </li>
             <li>
-              <a href="#contacto" className="text-azul hover:text-albero transition-colors">
-                5. Información de Contacto
-              </a>
+              <Link href="/privacidad" className="text-azul hover:text-albero transition-colors">
+                Política de Privacidad (documento aparte) →
+              </Link>
             </li>
           </ul>
         </nav>
@@ -329,20 +329,10 @@ export default function LegalPage() {
                   </div>
                 </div>
 
-                <div className="bg-amber-50 border-l-4 border-amber-500 p-4 mt-4">
-                  <div className="flex">
-                    <div className="flex-shrink-0">
-                      <span className="text-2xl">⚠️</span>
-                    </div>
-                    <div className="ml-3">
-                      <h4 className="text-sm font-semibold text-amber-800 mb-1">
-                        ACCIÓN REQUERIDA - Cumplimiento LSSI
-                      </h4>
-                      <p className="text-sm text-amber-700">
-                        <strong>Contacto:</strong> Para cualquier consulta legal, escríbenos a info@refugioenlapalabra.com
-                      </p>
-                    </div>
-                  </div>
+                <div className="bg-azul/5 border-l-4 border-azul/40 p-4 mt-4">
+                  <p className="text-sm text-texto/80">
+                    <strong>Contacto:</strong> Para cualquier consulta legal, escríbenos a info@refugioenlapalabra.com
+                  </p>
                 </div>
               </div>
 
@@ -506,7 +496,7 @@ export default function LegalPage() {
 
                 <div className="bg-albero/10 border border-albero/30 rounded-lg p-6 mt-4">
                   <p className="font-semibold text-azul mb-2">
-                    ❌ NO utilizamos:
+                    NO utilizamos:
                   </p>
                   <ul className="list-disc pl-6 text-sm space-y-1">
                     <li>Cookies de análisis o seguimiento de terceros</li>
@@ -556,7 +546,7 @@ export default function LegalPage() {
                 <div className="bg-white/50 backdrop-blur-sm rounded-lg p-4 border border-azul/10 text-sm">
                   <ul className="space-y-1">
                     <li><strong>Cookies de sesión:</strong> Se eliminan al cerrar el navegador</li>
-                    <li><strong>Cookies de autenticación:</strong> 30 días</li>
+                    <li><strong>Cookies de autenticación:</strong> 24 horas</li>
                     <li><strong>Cookies de preferencias:</strong> 365 días</li>
                   </ul>
                 </div>
@@ -578,7 +568,7 @@ export default function LegalPage() {
           {/* CONTACTO */}
           <section id="contacto" className="scroll-mt-24">
             <h2 className="font-[family-name:var(--font-lora)] text-3xl font-semibold text-azul mb-8">
-              5. Información de Contacto
+              4. Información de Contacto
             </h2>
 
             <div className="space-y-6">
@@ -636,7 +626,7 @@ export default function LegalPage() {
                 href="/privacidad"
                 className="block bg-white/50 backdrop-blur-sm rounded-lg p-6 border border-azul/10 hover:border-albero/30 transition-all"
               >
-                <h4 className="font-semibold text-azul mb-2">📄 Política de Privacidad</h4>
+                <h4 className="font-semibold text-azul mb-2">Política de Privacidad</h4>
                 <p className="text-sm text-texto/70">
                   Información detallada sobre cómo recopilamos, usamos y protegemos tus datos personales.
                 </p>
@@ -646,7 +636,7 @@ export default function LegalPage() {
                 href="#terminos"
                 className="block bg-white/50 backdrop-blur-sm rounded-lg p-6 border border-azul/10 hover:border-albero/30 transition-all"
               >
-                <h4 className="font-semibold text-azul mb-2">📋 Términos y Condiciones</h4>
+                <h4 className="font-semibold text-azul mb-2">Términos y Condiciones</h4>
                 <p className="text-sm text-texto/70">
                   Condiciones de uso de la aplicación y derechos y responsabilidades.
                 </p>
@@ -678,7 +668,7 @@ export default function LegalPage() {
 
       {/* Footer */}
       <footer className="py-8 px-6 text-center border-t border-azul/10">
-        <p className="text-xs text-texto/50">
+        <p className="text-xs text-texto/70">
           © {new Date().getFullYear()} Refugio en la Palabra. Todos los derechos reservados.
         </p>
         <div className="mt-2 space-x-4 text-xs">

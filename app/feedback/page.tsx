@@ -65,9 +65,20 @@ export default function FeedbackPage() {
               Tu opinión nos importa
             </h1>
             <p className="font-[family-name:var(--font-inter)] text-lg text-texto/80 max-w-2xl mx-auto leading-relaxed">
-              Estamos en la fase MVP y tu feedback es fundamental para crear la mejor experiencia posible.
-              Comparte tu opinión de forma totalmente anónima.
+              Refugio ya está en marcha, pero no deja de crecer. Tu opinión anónima
+              nos ayuda a mejorarla semana a semana.
             </p>
+            <div className="pt-2">
+              <Link
+                href="/descargar"
+                className="inline-flex items-center gap-2 text-sm font-medium text-azul/80 hover:text-azul transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16" />
+                </svg>
+                Volver a la app · Instalar Refugio
+              </Link>
+            </div>
           </div>
 
           {/* Beneficio de participar */}
@@ -78,11 +89,11 @@ export default function FeedbackPage() {
               </div>
               <div className="space-y-1">
                 <h3 className="font-[family-name:var(--font-lora)] text-lg font-semibold text-azul">
-                  Ayúdanos a mejorar
+                  Ayúdanos a seguir creciendo
                 </h3>
                 <p className="text-texto/70 text-sm leading-relaxed">
-                  Tu feedback anónimo nos ayudará a priorizar las funcionalidades más importantes
-                  y crear una app que realmente satisfaga tus necesidades espirituales.
+                  Tu feedback anónimo nos ayuda a priorizar las próximas mejoras y a hacer
+                  de Refugio una compañía cada vez mejor para tu vida de oración.
                 </p>
               </div>
             </div>

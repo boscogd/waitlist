@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import crypto from 'crypto';
 import { supabase } from '@/lib/supabase';
 import { sendDraftEmail } from '@/lib/resend';
 import type { EmailDraft } from '@/lib/types';
@@ -6,6 +7,16 @@ import type { EmailDraft } from '@/lib/types';
 // =====================================================
 // MIDDLEWARE: Verificar autenticación admin
 // =====================================================
+
+// Comparación constant-time para evitar timing attacks. Iguala longitudes
+// antes de comparar para que timingSafeEqual no lance por buffers de
+// distinto tamaño; si difieren en longitud, no hay match.
+function safeEqual(a: string, b: string): boolean {
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  if (bufA.length !== bufB.length) return false;
+  return crypto.timingSafeEqual(bufA, bufB);
+}
 
 function verifyAdminAuth(request: Request): { authorized: boolean; error?: string } {
   const authHeader = request.headers.get('authorization');
@@ -15,7 +26,7 @@ function verifyAdminAuth(request: Request): { authorized: boolean; error?: strin
     return { authorized: false, error: 'API key no configurada en el servidor' };
   }
 
-  if (!authHeader || authHeader !== `Bearer ${apiKey}`) {
+  if (!authHeader || !safeEqual(authHeader, `Bearer ${apiKey}`)) {
     return { authorized: false, error: 'No autorizado' };
   }
 
