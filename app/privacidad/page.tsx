@@ -70,7 +70,7 @@ export default function PrivacyPage() {
                   ACCIÓN REQUERIDA - Cumplimiento RGPD
                 </h4>
                 <p className="text-sm text-amber-700">
-                  Para ejercer tus derechos, contacta con nosotros en contacto@refugioenlapalabra.com
+                  Para ejercer tus derechos, contacta con nosotros en info@refugioenlapalabra.com
                   según el artículo 13 del RGPD y la LOPDGDD. Las sanciones por incumplimiento pueden alcanzar
                   hasta 20 millones de euros o el 4% de la facturación global anual.
                 </p>
@@ -88,7 +88,7 @@ export default function PrivacyPage() {
                 <li><strong>Identidad:</strong> Refugio en la Palabra</li>
                 <li><strong>NIF/CIF:</strong> Disponible bajo solicitud</li>
                 <li><strong>Dirección postal:</strong> Disponible bajo solicitud</li>
-                <li><strong>Correo electrónico:</strong> contacto@refugioenlapalabra.com</li>
+                <li><strong>Correo electrónico:</strong> info@refugioenlapalabra.com</li>
                 <li><strong>Teléfono:</strong> Disponible bajo solicitud</li>
               </ul>
             </div>
@@ -246,7 +246,7 @@ export default function PrivacyPage() {
                 Para ejercer cualquiera de estos derechos, puedes contactarnos a través de:
               </p>
               <ul className="text-sm space-y-1">
-                <li>• Correo electrónico: contacto@refugioenlapalabra.com</li>
+                <li>• Correo electrónico: info@refugioenlapalabra.com</li>
                 <li>• Dirección postal: Disponible bajo solicitud</li>
               </ul>
               <p className="text-sm leading-relaxed mt-3">
@@ -363,7 +363,7 @@ export default function PrivacyPage() {
             </p>
             <div className="bg-white/50 backdrop-blur-sm rounded-lg p-6 border border-azul/10">
               <ul className="space-y-2">
-                <li><strong>Correo electrónico:</strong> contacto@refugioenlapalabra.com</li>
+                <li><strong>Correo electrónico:</strong> info@refugioenlapalabra.com</li>
                 <li><strong>Dirección postal:</strong> Disponible bajo solicitud</li>
                 <li><strong>Teléfono:</strong> Disponible bajo solicitud</li>
               </ul>

@@ -355,7 +355,7 @@ VALUES
 
             <p style="margin-bottom: 0; margin-top: 40px;">
                 Con cariño,<br>
-                <span style="color: #8B7355;">— Aida y Bosco · Refugio en la Palabra</span>
+                <span style="color: #8B7355;">— El equipo de Refugio en la Palabra</span>
             </p>
         </div>
 
@@ -428,7 +428,7 @@ VALUES
 
             <p style="margin-bottom: 0; margin-top: 40px;">
                 Un abrazo,<br>
-                <span style="color: #8B7355;">— Aida y Bosco · Refugio en la Palabra</span>
+                <span style="color: #8B7355;">— El equipo de Refugio en la Palabra</span>
             </p>
         </div>
 
@@ -497,7 +497,7 @@ VALUES
 
             <p style="margin-bottom: 0; margin-top: 40px;">
                 Con cariño,<br>
-                <span style="color: #8B7355;">— Aida y Bosco · Refugio en la Palabra</span>
+                <span style="color: #8B7355;">— El equipo de Refugio en la Palabra</span>
             </p>
 
             <p style="margin-top: 30px; font-size: 15px; color: #8B7355; font-style: italic;">

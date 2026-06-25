@@ -316,7 +316,7 @@ export default function LegalPage() {
                     <li><strong>Denominación social:</strong> Refugio en la Palabra</li>
                     <li><strong>NIF/CIF:</strong> Disponible bajo solicitud</li>
                     <li><strong>Domicilio social:</strong> Disponible bajo solicitud</li>
-                    <li><strong>Correo electrónico:</strong> contacto@refugioenlapalabra.com</li>
+                    <li><strong>Correo electrónico:</strong> info@refugioenlapalabra.com</li>
                     <li><strong>Teléfono:</strong> Disponible bajo solicitud</li>
                     <li><strong>Dominio:</strong> www.refugioenlapalabra.com</li>
                     <li><strong>Actividad:</strong> Plataforma digital de acompañamiento espiritual católico</li>
@@ -339,7 +339,7 @@ export default function LegalPage() {
                         ACCIÓN REQUERIDA - Cumplimiento LSSI
                       </h4>
                       <p className="text-sm text-amber-700">
-                        <strong>Contacto:</strong> Para cualquier consulta legal, escríbenos a contacto@refugioenlapalabra.com
+                        <strong>Contacto:</strong> Para cualquier consulta legal, escríbenos a info@refugioenlapalabra.com
                       </p>
                     </div>
                   </div>

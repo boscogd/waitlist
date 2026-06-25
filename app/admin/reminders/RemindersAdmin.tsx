@@ -109,8 +109,7 @@ export default function RemindersAdmin() {
         <p style="color: #1F2937; font-size: 16px; line-height: 1.6; margin-bottom: 0;">
           ¿Tienes alguna duda? Responde a este email y te ayudamos.<br><br>
           Un abrazo,<br>
-          <strong>Aida y Bosco</strong><br>
-          <span style="color: #6B7280; font-size: 14px;">Creadores de Refugio en la Palabra</span>
+          <strong>El equipo de Refugio en la Palabra</strong>
         </p>
       </div>
 

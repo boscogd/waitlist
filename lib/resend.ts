@@ -7,7 +7,7 @@ export const resend = new Resend(process.env.RESEND_API_KEY);
 // =====================================================
 // Buzón al que llegan las respuestas (la copia promete "responde y te
 // lee una persona"). Configurable; por defecto el contacto público.
-const REPLY_TO = process.env.RESEND_REPLY_TO || 'contacto@refugioenlapalabra.com';
+const REPLY_TO = process.env.RESEND_REPLY_TO || 'info@refugioenlapalabra.com';
 // Identificación del remitente para el pie (LSSI/RGPD). Pon tu dirección
 // postal/fiscal en EMAIL_SENDER_ADDRESS para cumplimiento pleno.
 const SENDER_IDENTITY = process.env.EMAIL_SENDER_IDENTITY || 'Refugio en la Palabra';
@@ -651,8 +651,7 @@ function getCodeReminderTemplate(name: string, code: string): string {
             <p style="color: #1F2937; font-size: 16px; line-height: 1.6; margin-bottom: 0;">
               ¿Tienes alguna duda? Responde a este email y te ayudamos.<br><br>
               Un abrazo,<br>
-              <strong>Aida y Bosco</strong><br>
-              <span style="color: #6B7280; font-size: 14px;">Creadores de Refugio en la Palabra</span>
+              <strong>El equipo de Refugio en la Palabra</strong>
             </p>
           </div>
 

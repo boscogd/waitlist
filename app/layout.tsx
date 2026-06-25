@@ -113,7 +113,7 @@ const jsonLd = [
     logo: "https://refugioenlapalabra.com/logo-512-1.png",
     description:
       "App católica de oración y crecimiento en la fe: Rosario guiado con audio, Evangelio del día comentado y compañero de fe disponible 24/7.",
-    email: "contacto@refugioenlapalabra.com",
+    email: "info@refugioenlapalabra.com",
     sameAs: ["https://www.instagram.com/refugioenlapalabra_"],
   },
   {
