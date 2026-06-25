@@ -95,6 +95,20 @@ CREATE TABLE IF NOT EXISTS email_logs (
 CREATE INDEX IF NOT EXISTS idx_email_logs_sent_at ON email_logs(sent_at);
 CREATE INDEX IF NOT EXISTS idx_email_logs_email_to ON email_logs(email_to);
 
+-- RLS: la app usa la anon key. Si email_templates tiene RLS activado sin
+-- política, loadTemplates() recibe [] aunque las plantillas existan. Damos
+-- a anon lectura de plantillas y lectura/escritura de logs (no son datos
+-- sensibles). Idempotente.
+ALTER TABLE public.email_templates ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "templates_anon_read" ON public.email_templates;
+CREATE POLICY "templates_anon_read" ON public.email_templates
+  FOR SELECT TO anon, authenticated USING (true);
+
+ALTER TABLE public.email_logs ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "logs_anon_rw" ON public.email_logs;
+CREATE POLICY "logs_anon_rw" ON public.email_logs
+  FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+
 -- =====================================================
 -- 2. RPC: get_unredeemed_users
 -- =====================================================
