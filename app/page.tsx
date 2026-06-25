@@ -5,7 +5,7 @@ import Parallax from './components/Parallax';
 import SiteHeader from './components/SiteHeader';
 import ScrollProgress from './components/ScrollProgress';
 import BackToTop from './components/BackToTop';
-import PhoneCarousel from './components/PhoneCarousel';
+import DraggablePhones from './components/DraggablePhones';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -88,8 +88,100 @@ export default function Home() {
                   {/* Glow effect */}
                   <div className="absolute inset-0 bg-gradient-to-br from-albero/20 to-dorado/20 rounded-[3rem] blur-3xl scale-110"></div>
 
-                  {/* Carrusel circular de móviles (arrastrable + giro) */}
-                  <PhoneCarousel />
+                  {/* Móviles del hero (aspecto original, arrastrables) */}
+                  <DraggablePhones>
+                    {/* Phone mockups - Desktop */}
+                    <div className="relative hidden sm:flex items-center justify-center">
+                      {/* Teléfono trasero izquierdo */}
+                      <div className="absolute -left-8 top-8 w-48 opacity-60 -rotate-6 animate-float animation-delay-200">
+                        <div className="bg-azul rounded-[2rem] p-2 shadow-2xl">
+                          <Image
+                            src="/calendario.jpeg"
+                            alt="Calendario litúrgico"
+                            width={200}
+                            height={400}
+                            className="rounded-[1.5rem] w-full pointer-events-none"
+                            draggable={false}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Teléfono principal central */}
+                      <div className="relative z-10 w-64 animate-float">
+                        <div className="bg-azul rounded-[2.5rem] p-2 shadow-2xl shadow-azul/30">
+                          <Image
+                            src="/home.jpeg"
+                            alt="Pantalla principal de Refugio"
+                            width={260}
+                            height={520}
+                            className="rounded-[2rem] w-full pointer-events-none"
+                            priority
+                            draggable={false}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Teléfono trasero derecho */}
+                      <div className="absolute -right-8 top-8 w-48 opacity-60 rotate-6 animate-float animation-delay-400">
+                        <div className="bg-azul rounded-[2rem] p-2 shadow-2xl">
+                          <Image
+                            src="/logros.jpeg"
+                            alt="Sistema de logros"
+                            width={200}
+                            height={400}
+                            className="rounded-[1.5rem] w-full pointer-events-none"
+                            draggable={false}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Phone mockups - Mobile (3 phones stacked) */}
+                    <div className="sm:hidden relative flex items-center justify-center h-80">
+                      {/* Teléfono izquierdo */}
+                      <div className="absolute left-4 top-4 w-28 opacity-70 -rotate-6 animate-float animation-delay-200">
+                        <div className="bg-azul rounded-[1.5rem] p-1.5 shadow-xl">
+                          <Image
+                            src="/calendario.jpeg"
+                            alt="Calendario litúrgico"
+                            width={200}
+                            height={400}
+                            className="rounded-[1.2rem] w-full pointer-events-none"
+                            draggable={false}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Teléfono central (principal) */}
+                      <div className="relative z-10 w-36 animate-float">
+                        <div className="bg-azul rounded-[2rem] p-1.5 shadow-2xl shadow-azul/30">
+                          <Image
+                            src="/home.jpeg"
+                            alt="Pantalla principal de Refugio"
+                            width={260}
+                            height={520}
+                            className="rounded-[1.5rem] w-full pointer-events-none"
+                            priority
+                            draggable={false}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Teléfono derecho */}
+                      <div className="absolute right-4 top-4 w-28 opacity-70 rotate-6 animate-float animation-delay-400">
+                        <div className="bg-azul rounded-[1.5rem] p-1.5 shadow-xl">
+                          <Image
+                            src="/logros.jpeg"
+                            alt="Sistema de logros"
+                            width={200}
+                            height={400}
+                            className="rounded-[1.2rem] w-full pointer-events-none"
+                            draggable={false}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </DraggablePhones>
                 </Parallax>
               </div>
 
