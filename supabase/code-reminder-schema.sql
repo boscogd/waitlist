@@ -296,6 +296,12 @@ GRANT EXECUTE ON FUNCTION public.code_reminder_stats() TO anon;
 -- la vida pesa y recuerda que el mes premium gratis sigue ahí.
 -- Placeholders: {{name}}, {{code}}, {{app_url}}, {{unsubscribe_url}}
 
+-- Borramos cualquier versión previa (incl. inserciones parciales) y
+-- reinsertamos en limpio. SIN ON CONFLICT, para no depender de que exista
+-- la restricción única en template_key (que era la causa del fallo).
+DELETE FROM email_templates
+WHERE template_key IN ('code_reminder_1', 'code_reminder_2', 'code_reminder_3');
+
 INSERT INTO email_templates (template_key, name, description, email_type, sequence_step, subject, preview_text, html_content)
 VALUES
 
@@ -505,15 +511,7 @@ VALUES
         </div>
     </div>
 </body>
-</html>')
-
-ON CONFLICT (template_key) DO UPDATE SET
-    name = EXCLUDED.name,
-    description = EXCLUDED.description,
-    subject = EXCLUDED.subject,
-    preview_text = EXCLUDED.preview_text,
-    html_content = EXCLUDED.html_content,
-    updated_at = NOW();
+</html>');
 
 -- =====================================================
 -- 8. RPC: suppress_email — baja automática por rebote/queja
