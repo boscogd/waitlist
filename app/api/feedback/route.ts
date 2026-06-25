@@ -18,7 +18,7 @@ export async function POST(request: Request) {
   try {
     // Rate limiting: 5 feedbacks por IP cada 15 minutos
     const ip = getClientIp(request);
-    const { allowed } = checkRateLimit(`feedback:${ip}`, 5, 15 * 60 * 1000);
+    const { allowed } = await checkRateLimit(`feedback:${ip}`, 5, 15 * 60 * 1000);
     if (!allowed) {
       return NextResponse.json(
         { error: 'Demasiadas solicitudes. Inténtalo en unos minutos.' },

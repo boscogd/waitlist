@@ -14,18 +14,21 @@ const nextConfig: NextConfig & {
     ignoreBuildErrors: false,
   },
   async headers() {
-    // Política CSP en modo SOLO-REPORTE: el navegador reporta violaciones
-    // pero NO bloquea nada, así que no puede romper Next. Permite el inline
-    // necesario (JSON-LD, estilos inline de Next) y las conexiones a Supabase
-    // y Resend. Cuando se confirme que no genera falsos positivos, se puede
-    // migrar a `Content-Security-Policy` (enforcing) en otra iteración.
-    const cspReportOnly = [
+    // Política CSP en modo BLOQUEANTE. Permite el inline que necesita Next
+    // (JSON-LD, estilos inline) y las conexiones a Supabase y Resend. El
+    // siguiente nivel de endurecimiento sería sustituir 'unsafe-inline' por
+    // nonces/hashes.
+    const csp = [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline'",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https:",
       "font-src 'self' data:",
       "connect-src 'self' https://*.supabase.co https://api.resend.com",
+      "media-src 'self'",
+      "worker-src 'self' blob:",
+      "manifest-src 'self'",
+      "object-src 'none'",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",
@@ -43,7 +46,7 @@ const nextConfig: NextConfig & {
           },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'Permissions-Policy', value: 'geolocation=(), microphone=(), camera=()' },
-          { key: 'Content-Security-Policy-Report-Only', value: cspReportOnly },
+          { key: 'Content-Security-Policy', value: csp },
         ],
       },
     ];

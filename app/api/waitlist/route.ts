@@ -8,7 +8,7 @@ export async function POST(request: Request) {
   try {
     // Rate limiting: 3 registros por IP cada 15 minutos
     const ip = getClientIp(request);
-    const { allowed } = checkRateLimit(`waitlist:${ip}`, 3, 15 * 60 * 1000);
+    const { allowed } = await checkRateLimit(`waitlist:${ip}`, 3, 15 * 60 * 1000);
     if (!allowed) {
       return NextResponse.json(
         { error: 'Demasiadas solicitudes. Inténtalo en unos minutos.' },
