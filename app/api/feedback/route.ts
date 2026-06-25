@@ -66,9 +66,9 @@ export async function POST(request: Request) {
     }
 
     // Insertar en la base de datos
-    // @ts-ignore - Supabase types will be generated after creating the feedback table
     const { data: newFeedback, error: insertError } = await supabase
       .from('feedback')
+      // @ts-expect-error - Supabase types will be generated after creating the feedback table
       .insert({
         what_you_like: whatYouLike?.trim() || null,
         what_you_dont_like: whatYouDontLike?.trim() || null,

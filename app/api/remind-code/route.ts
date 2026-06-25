@@ -56,7 +56,7 @@ export async function POST(request: Request) {
         .from('waitlist')
         .select('*')
         .eq('email', testEmail)
-        .single();
+        .single() as { data: WaitlistUser | null };
 
       // Si el usuario existe, usar sus datos reales; si no, usar datos de ejemplo
       const userData = testUser

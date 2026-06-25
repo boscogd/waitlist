@@ -1,11 +1,19 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import AnimateOnScroll from '../components/AnimateOnScroll';
 
 type Platform = 'android' | 'ios';
+
+type Step = {
+  number: number;
+  title: string;
+  description: string;
+  icon: ReactNode;
+  important?: boolean;
+};
 
 export default function DescargarPage() {
   const [platform, setPlatform] = useState<Platform>('android');
@@ -23,7 +31,7 @@ export default function DescargarPage() {
     }
   }, []);
 
-  const androidSteps = [
+  const androidSteps: Step[] = [
     {
       number: 1,
       title: 'Abre la app en Chrome',
@@ -66,7 +74,7 @@ export default function DescargarPage() {
     },
   ];
 
-  const iosSteps = [
+  const iosSteps: Step[] = [
     {
       number: 1,
       title: 'Abre la app en Safari',

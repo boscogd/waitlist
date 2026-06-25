@@ -1,11 +1,17 @@
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
+// La clave `eslint` es válida en runtime (Next 16 la sigue leyendo) pero ya
+// no está declarada en el tipo `NextConfig`. La añadimos vía intersección para
+// conservar el chequeo de tipos del resto de la config sin un cast amplio.
+const nextConfig: NextConfig & {
+  eslint?: { ignoreDuringBuilds?: boolean };
+} = {
   eslint: {
     ignoreDuringBuilds: true,
   },
   typescript: {
-    ignoreBuildErrors: true,
+    // Tipado limpio (tsc --noEmit pasa): el build vigila regresiones de tipos.
+    ignoreBuildErrors: false,
   },
   async headers() {
     // Política CSP en modo SOLO-REPORTE: el navegador reporta violaciones
