@@ -324,6 +324,7 @@ VALUES
 <body style="margin: 0; padding: 0; font-family: Georgia, ''Times New Roman'', serif; background-color: #FAF7F0;">
     <div style="max-width: 580px; margin: 0 auto; padding: 40px 20px;">
         <div style="text-align: center; margin-bottom: 50px; padding-bottom: 30px; border-bottom: 1px solid #E5E0D5;">
+            <img src="https://refugioenlapalabra.com/logo-512-1.png" alt="Refugio en la Palabra" width="60" height="60" style="display: block; margin: 0 auto 14px; border-radius: 14px;">
             <span style="font-size: 14px; letter-spacing: 3px; color: #8B7355; text-transform: uppercase;">Refugio en la Palabra</span>
         </div>
 
@@ -348,7 +349,7 @@ VALUES
             </p>
 
             <div style="text-align: center; margin: 45px 0 35px 0;">
-                <a href="{{app_url}}/bienvenida?code={{code}}" style="display: inline-block; background-color: #1F3A5F; color: white; text-decoration: none; padding: 16px 36px; border-radius: 10px; font-size: 17px; font-weight: bold;">
+                <a href="{{app_url}}" style="display: inline-block; background-color: #1F3A5F; color: white; text-decoration: none; padding: 16px 36px; border-radius: 10px; font-size: 17px; font-weight: bold;">
                     Activar mi mes gratis
                 </a>
             </div>
@@ -386,6 +387,7 @@ VALUES
 <body style="margin: 0; padding: 0; font-family: Georgia, ''Times New Roman'', serif; background-color: #FAF7F0;">
     <div style="max-width: 580px; margin: 0 auto; padding: 40px 20px;">
         <div style="text-align: center; margin-bottom: 50px; padding-bottom: 30px; border-bottom: 1px solid #E5E0D5;">
+            <img src="https://refugioenlapalabra.com/logo-512-1.png" alt="Refugio en la Palabra" width="60" height="60" style="display: block; margin: 0 auto 14px; border-radius: 14px;">
             <span style="font-size: 14px; letter-spacing: 3px; color: #8B7355; text-transform: uppercase;">Refugio en la Palabra</span>
         </div>
 
@@ -417,7 +419,7 @@ VALUES
             </p>
 
             <div style="text-align: center; margin: 45px 0 35px 0;">
-                <a href="{{app_url}}/bienvenida?code={{code}}" style="display: inline-block; background-color: #1F3A5F; color: white; text-decoration: none; padding: 16px 36px; border-radius: 10px; font-size: 17px; font-weight: bold;">
+                <a href="{{app_url}}" style="display: inline-block; background-color: #1F3A5F; color: white; text-decoration: none; padding: 16px 36px; border-radius: 10px; font-size: 17px; font-weight: bold;">
                     Activar mi mes gratis
                 </a>
             </div>
@@ -459,6 +461,7 @@ VALUES
 <body style="margin: 0; padding: 0; font-family: Georgia, ''Times New Roman'', serif; background-color: #FAF7F0;">
     <div style="max-width: 580px; margin: 0 auto; padding: 40px 20px;">
         <div style="text-align: center; margin-bottom: 50px; padding-bottom: 30px; border-bottom: 1px solid #E5E0D5;">
+            <img src="https://refugioenlapalabra.com/logo-512-1.png" alt="Refugio en la Palabra" width="60" height="60" style="display: block; margin: 0 auto 14px; border-radius: 14px;">
             <span style="font-size: 14px; letter-spacing: 3px; color: #8B7355; text-transform: uppercase;">Refugio en la Palabra</span>
         </div>
 
@@ -486,7 +489,7 @@ VALUES
             </div>
 
             <div style="text-align: center; margin: 45px 0 35px 0;">
-                <a href="{{app_url}}/bienvenida?code={{code}}" style="display: inline-block; color: #1F3A5F; text-decoration: none; padding: 14px 32px; border: 1px solid #1F3A5F; border-radius: 8px; font-size: 16px;">
+                <a href="{{app_url}}" style="display: inline-block; color: #1F3A5F; text-decoration: none; padding: 14px 32px; border: 1px solid #1F3A5F; border-radius: 8px; font-size: 16px;">
                     Activar mi mes gratis
                 </a>
             </div>
