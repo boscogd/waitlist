@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export default function FeedbackForm() {
   const [formData, setFormData] = useState({
@@ -13,6 +13,14 @@ export default function FeedbackForm() {
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
+  const statusRef = useRef<HTMLDivElement>(null);
+
+  // Mueve el foco al banner de estado tras enviar para anunciarlo a lectores de pantalla
+  useEffect(() => {
+    if (status !== 'idle') {
+      statusRef.current?.focus();
+    }
+  }, [status, message]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,7 +73,11 @@ export default function FeedbackForm() {
       {/* Success/Error Message */}
       {status !== 'idle' && (
         <div
-          className={`mb-6 p-4 rounded-lg text-sm ${
+          ref={statusRef}
+          tabIndex={-1}
+          role={status === 'success' ? 'status' : 'alert'}
+          aria-live={status === 'success' ? 'polite' : 'assertive'}
+          className={`mb-6 p-4 rounded-lg text-sm outline-none focus:ring-2 focus:ring-albero focus:ring-offset-2 ${
             status === 'success'
               ? 'bg-albero/10 text-azul border border-albero/30'
               : 'bg-red-50 text-red-800 border border-red-200'
@@ -86,22 +98,29 @@ export default function FeedbackForm() {
               Selecciona una puntuación del 1 al 5
             </p>
           </div>
-          <div className="flex gap-3 justify-center pt-2">
+          <div
+            role="radiogroup"
+            aria-label="Puntuación de tu experiencia, del 1 al 5"
+            className="flex gap-3 justify-center pt-2"
+          >
             {[1, 2, 3, 4, 5].map((star) => (
               <button
                 key={star}
                 type="button"
+                role="radio"
+                aria-checked={formData.rating === star}
+                aria-pressed={formData.rating >= star}
                 onClick={() => handleRatingClick(star)}
-                className={`text-4xl transition-all hover:scale-110 ${
+                className={`text-4xl transition-all hover:scale-110 focus:outline-none focus:ring-2 focus:ring-albero focus:ring-offset-2 rounded ${
                   formData.rating >= star ? 'text-dorado' : 'text-texto/20'
                 }`}
-                aria-label={`Calificar ${star} estrellas`}
+                aria-label={`Calificar ${star} estrella${star > 1 ? 's' : ''} de 5`}
               >
-                ★
+                <span aria-hidden="true">★</span>
               </button>
             ))}
           </div>
-          <p className="text-center text-sm text-texto/60">
+          <p className="text-center text-sm text-texto/60" aria-live="polite">
             {formData.rating > 0 && `Has seleccionado ${formData.rating} estrella${formData.rating > 1 ? 's' : ''}`}
           </p>
         </div>

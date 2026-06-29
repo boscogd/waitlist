@@ -1,5 +1,43 @@
+import type { Metadata } from 'next';
 import FeedbackForm from './FeedbackForm';
 import Link from 'next/link';
+
+export const metadata: Metadata = {
+  title: 'Envía tu opinión',
+  description:
+    'Comparte tu opinión, sugerencias o reporta un problema sobre Refugio en la Palabra. Tu feedback nos ayuda a mejorar la app católica de oración.',
+  openGraph: {
+    title: 'Envía tu opinión | Refugio en la Palabra',
+    description:
+      'Comparte tu opinión, sugerencias o reporta un problema sobre Refugio en la Palabra. Tu feedback moldea el producto.',
+    type: 'website',
+    locale: 'es_ES',
+    url: 'https://refugioenlapalabra.com/feedback',
+    siteName: 'Refugio en la Palabra',
+    images: [
+      {
+        url: '/opengraph-image',
+        width: 1200,
+        height: 630,
+        alt: 'Refugio en la Palabra - App Católica de Oración',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Envía tu opinión | Refugio en la Palabra',
+    description:
+      'Comparte tu opinión, sugerencias o reporta un problema sobre Refugio en la Palabra.',
+    images: ['/opengraph-image'],
+  },
+  alternates: {
+    canonical: 'https://refugioenlapalabra.com/feedback',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
 
 export default function FeedbackPage() {
   return (
@@ -27,9 +65,20 @@ export default function FeedbackPage() {
               Tu opinión nos importa
             </h1>
             <p className="font-[family-name:var(--font-inter)] text-lg text-texto/80 max-w-2xl mx-auto leading-relaxed">
-              Estamos en la fase MVP y tu feedback es fundamental para crear la mejor experiencia posible.
-              Comparte tu opinión de forma totalmente anónima.
+              Refugio ya está en marcha, pero no deja de crecer. Tu opinión anónima
+              nos ayuda a mejorarla semana a semana.
             </p>
+            <div className="pt-2">
+              <Link
+                href="/descargar"
+                className="inline-flex items-center gap-2 text-sm font-medium text-azul/80 hover:text-azul transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16" />
+                </svg>
+                Volver a la app · Instalar Refugio
+              </Link>
+            </div>
           </div>
 
           {/* Beneficio de participar */}
@@ -40,11 +89,11 @@ export default function FeedbackPage() {
               </div>
               <div className="space-y-1">
                 <h3 className="font-[family-name:var(--font-lora)] text-lg font-semibold text-azul">
-                  Ayúdanos a mejorar
+                  Ayúdanos a seguir creciendo
                 </h3>
                 <p className="text-texto/70 text-sm leading-relaxed">
-                  Tu feedback anónimo nos ayudará a priorizar las funcionalidades más importantes
-                  y crear una app que realmente satisfaga tus necesidades espirituales.
+                  Tu feedback anónimo nos ayuda a priorizar las próximas mejoras y a hacer
+                  de Refugio una compañía cada vez mejor para tu vida de oración.
                 </p>
               </div>
             </div>

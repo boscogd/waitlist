@@ -1,0 +1,28 @@
+{
+  "name": "Refugio en la Palabra",
+  "short_name": "Refugio",
+  "description": "Tu espacio diario para orar y crecer en la fe: Rosario guiado con audio, Evangelio del día comentado y compañero de fe disponible 24/7.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#1F3A5F",
+  "background_color": "#FAF7F0",
+  "lang": "es",
+  "dir": "ltr",
+  "categories": ["lifestyle", "education", "books"],
+  "icons": [
+    {
+      "src": "/logo-512-1.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo-512-1.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

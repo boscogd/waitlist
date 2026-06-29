@@ -2,6 +2,81 @@ import { Resend } from 'resend';
 
 export const resend = new Resend(process.env.RESEND_API_KEY);
 
+// =====================================================
+// Utilidades comunes de email (profesionalización)
+// =====================================================
+// Buzón al que llegan las respuestas (la copia promete "responde y te
+// lee una persona"). Configurable; por defecto el contacto público.
+const REPLY_TO = process.env.RESEND_REPLY_TO || 'info@refugioenlapalabra.com';
+// Identificación del remitente para el pie (LSSI/RGPD). Pon tu dirección
+// postal/fiscal en EMAIL_SENDER_ADDRESS para cumplimiento pleno.
+const SENDER_IDENTITY = process.env.EMAIL_SENDER_IDENTITY || 'Refugio en la Palabra';
+const SENDER_ADDRESS = process.env.EMAIL_SENDER_ADDRESS || '';
+
+/** Pie legal con identificación del remitente, contacto y baja. */
+function legalFooterHtml(unsubscribeUrl: string): string {
+  const addr = SENDER_ADDRESS ? ` · ${SENDER_ADDRESS}` : '';
+  const unsub = unsubscribeUrl
+    ? ` Puedes <a href="${unsubscribeUrl}" style="color:#A09A92;">darte de baja</a> cuando quieras.`
+    : '';
+  return `<div style="max-width:580px;margin:0 auto;padding:8px 20px 32px;font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#A09A92;text-align:center;line-height:1.7;">
+  ${SENDER_IDENTITY}${addr} · <a href="mailto:${REPLY_TO}" style="color:#A09A92;">${REPLY_TO}</a><br>
+  Recibes este correo porque te registraste en Refugio en la Palabra.${unsub}
+</div>`;
+}
+
+/** Inserta el pie legal antes de </body> (o al final si no existe). */
+function withLegalFooter(html: string, unsubscribeUrl: string): string {
+  const footer = legalFooterHtml(unsubscribeUrl);
+  return html.includes('</body>')
+    ? html.replace('</body>', `${footer}\n</body>`)
+    : html + footer;
+}
+
+/** Inserta un preheader oculto (texto de preview del inbox) tras <body>. */
+function withPreheader(html: string, preview: string): string {
+  if (!preview) return html;
+  const ph = `<div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all;">${preview}</div>`;
+  return /<body[^>]*>/i.test(html)
+    ? html.replace(/(<body[^>]*>)/i, `$1\n${ph}`)
+    : ph + html;
+}
+
+/**
+ * Decora un HTML de email exactamente igual que en el envío real
+ * (preheader + pie legal). Útil para vistas previa que muestran el
+ * email tal cual lo recibe el usuario, sin enviar nada.
+ */
+export function decorateEmailHtml(
+  html: string,
+  previewText: string,
+  unsubscribeUrl: string
+): string {
+  return withPreheader(withLegalFooter(html, unsubscribeUrl), previewText);
+}
+
+/** Versión texto plano básica a partir del HTML, para enviar multipart. */
+function htmlToText(html: string): string {
+  return html
+    .replace(/<head[\s\S]*?<\/head>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<a [^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, '$2 ($1)')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/(p|div|tr|h[1-6])>/gi, '\n')
+    .replace(/<li[^>]*>/gi, '• ')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&ldquo;|&rdquo;|&laquo;|&raquo;/g, '"')
+    .replace(/&aacute;/g, 'á').replace(/&eacute;/g, 'é').replace(/&iacute;/g, 'í')
+    .replace(/&oacute;/g, 'ó').replace(/&uacute;/g, 'ú').replace(/&ntilde;/g, 'ñ')
+    .replace(/&[a-z]+;/gi, '')
+    .replace(/[ \t]+/g, ' ')
+    .replace(/ *\n */g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 /**
  * Enviar email genérico desde un borrador
  */
@@ -119,6 +194,7 @@ function getWaitlistEmailTemplate(name: string, code: string): string {
         <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
           <!-- Header -->
           <div style="text-align: center; margin-bottom: 40px;">
+            <img src="https://refugioenlapalabra.com/logo-512-1.png" alt="Refugio en la Palabra" width="64" height="64" style="display: block; margin: 0 auto 16px; border-radius: 14px;">
             <h1 style="font-family: 'Lora', Georgia, serif; color: #1F3A5F; font-size: 32px; margin: 0;">
               Refugio en la Palabra
             </h1>
@@ -131,27 +207,31 @@ function getWaitlistEmailTemplate(name: string, code: string): string {
             </h2>
 
             <p style="color: #1F2937; font-size: 16px; line-height: 1.6;">
-              Gracias por unirte a la lista de espera de <strong>Refugio en la Palabra</strong>.
+              Gracias por unirte a <strong>Refugio en la Palabra</strong>.
             </p>
 
             <p style="color: #1F2937; font-size: 16px; line-height: 1.6;">
-              Hemos guardado tu código de acceso anticipado. Cuando lancemos la aplicación,
-              recibirás un email con tu código personalizado para acceder antes que nadie.
+              La app ya está disponible. Aquí tienes tu código para disfrutar de
+              un mes de Premium gratis: úsalo al descargarla.
             </p>
 
             <!-- Code Box -->
             <div style="background-color: #FAF7F0; border: 2px dashed #E1B955; border-radius: 8px; padding: 20px; margin: 30px 0; text-align: center;">
               <p style="color: #1F2937; font-size: 14px; margin: 0 0 10px 0;">
-                Tu código de acceso:
+                Tu código de mes gratis:
               </p>
               <p style="color: #1F3A5F; font-size: 24px; font-weight: bold; margin: 0; letter-spacing: 2px;">
                 ${code}
               </p>
             </div>
 
-            <p style="color: #1F2937; font-size: 16px; line-height: 1.6;">
-              Mientras tanto, te mantendremos informado sobre el desarrollo del proyecto.
-            </p>
+            <!-- CTA -->
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://refugio-en-la-palabra.netlify.app'}/bienvenida?code=${code}"
+                 style="display: inline-block; background-color: #1F3A5F; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 500;">
+                Descargar y empezar gratis
+              </a>
+            </div>
 
             <p style="color: #1F2937; font-size: 16px; line-height: 1.6; margin-bottom: 0;">
               Con gratitud,<br>
@@ -172,6 +252,167 @@ function getWaitlistEmailTemplate(name: string, code: string): string {
       </body>
     </html>
   `;
+}
+
+/**
+ * Email de win-back para usuarios dormidos de la app.
+ * Reemplaza {{name}}, {{app_url}} y {{unsubscribe_url}} en
+ * subject y html antes de enviar.
+ */
+export async function sendWinbackEmail({
+  to,
+  name,
+  subject,
+  htmlContent,
+  previewText,
+  appUrl,
+  unsubscribeUrl,
+}: {
+  to: string;
+  name: string;
+  subject: string;
+  htmlContent: string;
+  previewText?: string;
+  appUrl: string;
+  unsubscribeUrl: string;
+}) {
+  const replacements: Record<string, string> = {
+    '{{name}}': name,
+    '{{app_url}}': appUrl,
+    '{{unsubscribe_url}}': unsubscribeUrl,
+  };
+
+  const apply = (s: string) =>
+    Object.entries(replacements).reduce(
+      (acc, [token, value]) => acc.split(token).join(value),
+      s
+    );
+
+  const finalHtml = withPreheader(
+    withLegalFooter(apply(htmlContent), unsubscribeUrl),
+    apply(previewText || '')
+  );
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL || 'Refugio en la Palabra <onboarding@resend.dev>',
+      to,
+      replyTo: REPLY_TO,
+      subject: apply(subject),
+      html: finalHtml,
+      text: htmlToText(finalHtml),
+      headers: {
+        'List-Unsubscribe': `<${unsubscribeUrl}>`,
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+      },
+    });
+
+    if (error) {
+      console.error('Error enviando winback:', error);
+      const errorMessage = error.message || JSON.stringify(error);
+      return { success: false, error: errorMessage, resendId: null };
+    }
+
+    return { success: true, data, resendId: data?.id || null };
+  } catch (error) {
+    console.error('Error en sendWinbackEmail:', error);
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
+    return { success: false, error: errorMessage, resendId: null };
+  }
+}
+
+/**
+ * Email de recordatorio de código para usuarios de la waitlist que NO
+ * han canjeado su código (mes premium gratis). Secuencia automática.
+ * Reemplaza {{name}}, {{code}}, {{app_url}} y {{unsubscribe_url}} en
+ * subject y html antes de enviar.
+ */
+export async function sendCodeReminderCampaign({
+  to,
+  name,
+  code,
+  subject,
+  htmlContent,
+  previewText,
+  appUrl,
+  unsubscribeUrl,
+}: {
+  to: string;
+  name: string;
+  code: string;
+  subject: string;
+  htmlContent: string;
+  previewText?: string;
+  appUrl: string;
+  unsubscribeUrl: string;
+}) {
+  const replacements: Record<string, string> = {
+    '{{name}}': name,
+    '{{code}}': code,
+    '{{app_url}}': appUrl,
+    '{{unsubscribe_url}}': unsubscribeUrl,
+  };
+
+  const apply = (s: string) =>
+    Object.entries(replacements).reduce(
+      (acc, [token, value]) => acc.split(token).join(value),
+      s
+    );
+
+  const finalHtml = withPreheader(
+    withLegalFooter(apply(htmlContent), unsubscribeUrl),
+    apply(previewText || '')
+  );
+  const payload = {
+    from: process.env.RESEND_FROM_EMAIL || 'Refugio en la Palabra <onboarding@resend.dev>',
+    to,
+    replyTo: REPLY_TO,
+    subject: apply(subject),
+    html: finalHtml,
+    text: htmlToText(finalHtml),
+    headers: {
+      'List-Unsubscribe': `<${unsubscribeUrl}>`,
+      'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+    },
+  };
+
+  // El rate limit de Resend (2 req/s por defecto) es independiente del plan.
+  // Reintentamos con backoff si nos lo devuelve, para auto-recuperarnos.
+  const MAX_ATTEMPTS = 3;
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      const { data, error } = await resend.emails.send(payload);
+
+      if (error) {
+        const statusCode = (error as { statusCode?: number }).statusCode;
+        const isRateLimit =
+          statusCode === 429 ||
+          /rate.?limit|too many requests/i.test(error.name || '') ||
+          /rate.?limit|too many requests/i.test(error.message || '');
+
+        if (isRateLimit && attempt < MAX_ATTEMPTS) {
+          await new Promise((r) => setTimeout(r, attempt * 1000));
+          continue;
+        }
+
+        console.error('Error enviando recordatorio de código:', error);
+        const errorMessage = error.message || JSON.stringify(error);
+        return { success: false, error: errorMessage, resendId: null };
+      }
+
+      return { success: true, data, resendId: data?.id || null };
+    } catch (error) {
+      if (attempt < MAX_ATTEMPTS) {
+        await new Promise((r) => setTimeout(r, attempt * 1000));
+        continue;
+      }
+      console.error('Error en sendCodeReminderCampaign:', error);
+      const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
+      return { success: false, error: errorMessage, resendId: null };
+    }
+  }
+
+  return { success: false, error: 'No se pudo enviar tras varios intentos', resendId: null };
 }
 
 /**
@@ -242,6 +483,7 @@ function getLaunchEmailTemplate(name: string, code: string): string {
         <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
           <!-- Header -->
           <div style="text-align: center; margin-bottom: 40px;">
+            <img src="https://refugioenlapalabra.com/logo-512-1.png" alt="Refugio en la Palabra" width="64" height="64" style="display: block; margin: 0 auto 16px; border-radius: 14px;">
             <h1 style="font-family: 'Lora', Georgia, serif; color: #1F3A5F; font-size: 32px; margin: 0;">
               Refugio en la Palabra
             </h1>
@@ -358,6 +600,7 @@ function getCodeReminderTemplate(name: string, code: string): string {
         <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
           <!-- Header -->
           <div style="text-align: center; margin-bottom: 40px;">
+            <img src="https://refugioenlapalabra.com/logo-512-1.png" alt="Refugio en la Palabra" width="64" height="64" style="display: block; margin: 0 auto 16px; border-radius: 14px;">
             <h1 style="font-family: 'Lora', Georgia, serif; color: #1F3A5F; font-size: 32px; margin: 0;">
               Refugio en la Palabra
             </h1>
@@ -411,8 +654,7 @@ function getCodeReminderTemplate(name: string, code: string): string {
             <p style="color: #1F2937; font-size: 16px; line-height: 1.6; margin-bottom: 0;">
               ¿Tienes alguna duda? Responde a este email y te ayudamos.<br><br>
               Un abrazo,<br>
-              <strong>Aida y Bosco</strong><br>
-              <span style="color: #6B7280; font-size: 14px;">Creadores de Refugio en la Palabra</span>
+              <strong>El equipo de Refugio en la Palabra</strong>
             </p>
           </div>
 
@@ -422,9 +664,7 @@ function getCodeReminderTemplate(name: string, code: string): string {
               © ${new Date().getFullYear()} Refugio en la Palabra. Todos los derechos reservados.
             </p>
             <p style="margin: 5px 0;">
-              <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://refugioenlapalabra.com'}/unsubscribe?email=${encodeURIComponent('{{email}}')}}" style="color: #6B7280;">
-                Darse de baja
-              </a>
+              Si no quieres recibir más recordatorios, responde a este email y te damos de baja.
             </p>
           </div>
         </div>

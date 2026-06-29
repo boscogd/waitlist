@@ -1,20 +1,41 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import AnimateOnScroll from '../components/AnimateOnScroll';
 
 type Platform = 'android' | 'ios';
 
+type Step = {
+  number: number;
+  title: string;
+  description: string;
+  icon: ReactNode;
+  important?: boolean;
+};
+
 export default function DescargarPage() {
   const [platform, setPlatform] = useState<Platform>('android');
 
-  const androidSteps = [
+  // Autodetección de plataforma tras montar (evita mismatch de hidratación:
+  // el render inicial siempre usa 'android', y aquí lo ajustamos en el cliente).
+  useEffect(() => {
+    const ua = navigator.userAgent || '';
+    const isIOS =
+      /iPad|iPhone|iPod/.test(ua) ||
+      // iPadOS 13+ se identifica como Mac con pantalla táctil
+      (/Macintosh/.test(ua) && typeof document !== 'undefined' && 'ontouchend' in document);
+    if (isIOS) {
+      setPlatform('ios');
+    }
+  }, []);
+
+  const androidSteps: Step[] = [
     {
       number: 1,
       title: 'Abre la app en Chrome',
-      description: 'Pulsa el botón "Acceder a la app" de arriba. Se abrirá en Chrome u otro navegador.',
+      description: 'Pulsa el botón "Abrir la app e instalar" que aparece debajo del vídeo. Se abrirá en Chrome u otro navegador.',
       icon: (
         <svg className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 0C8.21 0 4.831 1.757 2.632 4.501l3.953 6.848A5.454 5.454 0 0 1 12 6.545h10.691A12 12 0 0 0 12 0zM1.931 5.47A11.943 11.943 0 0 0 0 12c0 6.012 4.42 10.991 10.189 11.864l3.953-6.847a5.45 5.45 0 0 1-6.865-2.29zm13.342 2.166a5.446 5.446 0 0 1 1.45 7.09l.002.001h-.002l-3.952 6.848a12.014 12.014 0 0 0 9.921-9.718zm-3.218 2.31a2.182 2.182 0 1 0 0 4.364 2.182 2.182 0 0 0 0-4.364z"/>
@@ -53,11 +74,11 @@ export default function DescargarPage() {
     },
   ];
 
-  const iosSteps = [
+  const iosSteps: Step[] = [
     {
       number: 1,
       title: 'Abre la app en Safari',
-      description: 'Pulsa el botón "Acceder a la app" de arriba. Si estás en Chrome u otro navegador, abre Safari y vuelve a esta página. Solo Safari permite instalar apps en iPhone.',
+      description: 'Pulsa el botón "Abrir la app e instalar" que aparece debajo del vídeo. Si estás en Chrome u otro navegador, abre Safari y vuelve a esta página. Solo Safari permite instalar apps en iPhone.',
       icon: (
         <svg className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 2.182a9.818 9.818 0 110 19.636 9.818 9.818 0 010-19.636zm4.034 4.352l-5.72 2.674-2.673 5.72 5.72-2.674zm-3.352 3.42a1.364 1.364 0 100 2.728 1.364 1.364 0 000-2.728z"/>
@@ -125,7 +146,7 @@ export default function DescargarPage() {
         </svg>
       ),
       title: 'Notificaciones',
-      description: 'Recibe recordatorios para tu oración diaria (cuando las actives).',
+      description: 'Recordatorios suaves para no perder tu momento de oración.',
     },
     {
       icon: (
@@ -165,8 +186,48 @@ export default function DescargarPage() {
     },
   ];
 
+  // Datos estructurados: HowTo (pasos de instalación de la plataforma activa)
+  // y FAQPage (las 6 dudas frecuentes de esta página). Texto idéntico al visible.
+  const howToJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name:
+      platform === 'android'
+        ? 'Instalación en Android'
+        : 'Instalación en iPhone',
+    description:
+      'Sigue estos sencillos pasos para tener Refugio en tu pantalla de inicio',
+    step: steps.map((step) => ({
+      '@type': 'HowToStep',
+      position: step.number,
+      name: step.title,
+      text: step.description,
+    })),
+  };
+
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer,
+      },
+    })),
+  };
+
   return (
     <div className="min-h-screen bg-marfil flex flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(howToJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
       {/* Header simplificado */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-marfil/95 backdrop-blur-md border-b border-azul/5">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -228,9 +289,15 @@ export default function DescargarPage() {
 
             {/* Platform selector */}
             <AnimateOnScroll delay={300}>
-              <div className="inline-flex bg-white rounded-2xl p-1.5 shadow-lg shadow-azul/5 border border-azul/5">
+              <div
+                className="inline-flex bg-white rounded-2xl p-1.5 shadow-lg shadow-azul/5 border border-azul/5"
+                role="group"
+                aria-label="Elige tu plataforma para ver las instrucciones"
+              >
                 <button
+                  type="button"
                   onClick={() => setPlatform('android')}
+                  aria-pressed={platform === 'android'}
                   className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-medium transition-all duration-300 ${
                     platform === 'android'
                       ? 'bg-gradient-to-r from-azul to-azul-800 text-white shadow-md'
@@ -243,7 +310,9 @@ export default function DescargarPage() {
                   Android
                 </button>
                 <button
+                  type="button"
                   onClick={() => setPlatform('ios')}
+                  aria-pressed={platform === 'ios'}
                   className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-medium transition-all duration-300 ${
                     platform === 'ios'
                       ? 'bg-gradient-to-r from-azul to-azul-800 text-white shadow-md'
@@ -286,7 +355,7 @@ export default function DescargarPage() {
             {/* Título del video */}
             <AnimateOnScroll delay={350}>
               <div className="text-center mb-4">
-                <div className="inline-flex items-center gap-2 bg-albero/10 text-albero px-4 py-2 rounded-full text-sm font-medium">
+                <div className="inline-flex items-center gap-2 bg-albero/10 text-[#8a6d1f] px-4 py-2 rounded-full text-sm font-medium">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -354,7 +423,13 @@ export default function DescargarPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
                 </a>
-                <p className="text-sm text-texto/50 mt-3">
+                <p className="text-sm text-texto/70 mt-3 flex items-center justify-center gap-1.5">
+                  <svg className="w-4 h-4 text-[#8a6d1f] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                  Te llevamos a la app oficial de Refugio
+                </p>
+                <p className="text-sm text-texto/70 mt-2">
                   Se abrirá en una nueva pestaña. Sigue los pasos del video para instalarla.
                 </p>
               </div>
@@ -362,7 +437,7 @@ export default function DescargarPage() {
 
             {/* Enlace a pasos escritos */}
             <AnimateOnScroll delay={550}>
-              <p className="text-center text-sm text-texto/50 mt-6">
+              <p className="text-center text-sm text-texto/70 mt-6">
                 <a href="#pasos" className="text-azul hover:text-azul-800 underline underline-offset-2">
                   ¿Prefieres leer los pasos? Haz clic aquí
                 </a>
@@ -376,7 +451,7 @@ export default function DescargarPage() {
           <div className="max-w-4xl mx-auto">
             <AnimateOnScroll>
               <div className="text-center mb-12">
-                <span className="text-albero font-medium text-sm uppercase tracking-wider">Paso a paso (versión escrita)</span>
+                <span className="text-[#8a6d1f] font-medium text-sm uppercase tracking-wider">Paso a paso (versión escrita)</span>
                 <h2 className="font-[family-name:var(--font-lora)] text-3xl sm:text-4xl font-semibold text-azul mt-3 mb-4">
                   {platform === 'android' ? 'Instalación en Android' : 'Instalación en iPhone'}
                 </h2>
@@ -462,7 +537,7 @@ export default function DescargarPage() {
           <div className="max-w-5xl mx-auto">
             <AnimateOnScroll>
               <div className="text-center mb-12">
-                <span className="text-albero font-medium text-sm uppercase tracking-wider">Ventajas</span>
+                <span className="text-[#8a6d1f] font-medium text-sm uppercase tracking-wider">Ventajas</span>
                 <h2 className="font-[family-name:var(--font-lora)] text-3xl sm:text-4xl font-semibold text-azul mt-3 mb-4">
                   ¿Por qué instalar la app?
                 </h2>
@@ -535,7 +610,7 @@ export default function DescargarPage() {
           <div className="max-w-3xl mx-auto">
             <AnimateOnScroll>
               <div className="text-center mb-12">
-                <span className="text-albero font-medium text-sm uppercase tracking-wider">Dudas frecuentes</span>
+                <span className="text-[#8a6d1f] font-medium text-sm uppercase tracking-wider">Dudas frecuentes</span>
                 <h2 className="font-[family-name:var(--font-lora)] text-3xl sm:text-4xl font-semibold text-azul mt-3">
                   Preguntas sobre la instalación
                 </h2>

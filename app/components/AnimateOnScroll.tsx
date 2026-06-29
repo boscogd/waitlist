@@ -17,10 +17,11 @@ export default function AnimateOnScroll({
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout>;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setTimeout(() => {
+          timeoutId = setTimeout(() => {
             setIsVisible(true);
           }, delay);
           observer.unobserve(entry.target);
@@ -36,7 +37,10 @@ export default function AnimateOnScroll({
       observer.observe(ref.current);
     }
 
-    return () => observer.disconnect();
+    return () => {
+      clearTimeout(timeoutId);
+      observer.disconnect();
+    };
   }, [delay]);
 
   return (
