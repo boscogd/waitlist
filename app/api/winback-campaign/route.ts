@@ -34,6 +34,10 @@ const STEP_TEMPLATE: Record<number, string> = {
 
 const MAX_DORMANT_DAYS = 90; // no insistir más allá
 
+// Tope de envíos por ejecución del cron. Evita timeouts (maxDuration=300s) y
+// reparte el envío en varios días, lo que protege la reputación del dominio.
+const MAX_PER_RUN = Number(process.env.WINBACK_MAX_PER_RUN) || 100;
+
 type DormantUser = {
   user_id: string;
   email: string;
@@ -129,6 +133,54 @@ export async function POST(request: Request) {
   if (!auth.authorized) {
     return NextResponse.json({ error: auth.error }, { status: 401 });
   }
+
+  const body = (await request.json().catch(() => ({}))) as {
+    testMode?: boolean;
+    testEmail?: string;
+    step?: number;
+    name?: string;
+  };
+
+  // Modo prueba: envía UN email de muestra a testEmail SIN tocar la base de
+  // datos ni a ningún usuario real. Para previsualizar antes de activar.
+  if (body.testMode) {
+    if (!body.testEmail) {
+      return NextResponse.json(
+        { error: 'testEmail es requerido en modo prueba' },
+        { status: 400 }
+      );
+    }
+    const stepRaw = Number(body.step) || 1;
+    const step = [1, 2, 3].includes(stepRaw) ? stepRaw : 1;
+    try {
+      const templates = await loadTemplates();
+      const template = templates[STEP_TEMPLATE[step]];
+      if (!template) {
+        return NextResponse.json(
+          { error: `Plantilla ${STEP_TEMPLATE[step]} no encontrada. Ejecuta winback-schema.sql.` },
+          { status: 500 }
+        );
+      }
+      const appUrl =
+        process.env.NEXT_PUBLIC_APP_URL || 'https://refugio-en-la-palabra.netlify.app';
+      const sendResult = await sendWinbackEmail({
+        to: body.testEmail,
+        name: body.name || 'Prueba',
+        subject: template.subject,
+        htmlContent: template.html_content,
+        previewText: template.preview_text || undefined,
+        appUrl,
+        unsubscribeUrl: buildUnsubscribeUrl('00000000-0000-0000-0000-000000000000'),
+      });
+      return NextResponse.json({ success: sendResult.success, testMode: true, step, result: sendResult });
+    } catch (error) {
+      return NextResponse.json(
+        { error: error instanceof Error ? error.message : 'Error en modo prueba' },
+        { status: 500 }
+      );
+    }
+  }
+
   return runWinback();
 }
 
@@ -139,7 +191,7 @@ export async function POST(request: Request) {
 async function runWinback() {
   console.log('[Winback] Iniciando procesamiento…');
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://app.refugioenlapalabra.com';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://refugio-en-la-palabra.netlify.app';
   const result = {
     processed: 0,
     sent: 0,
@@ -189,6 +241,12 @@ async function runWinback() {
     );
 
     for (const user of dormantUsers) {
+      // Tope por ejecución: enviados MAX_PER_RUN, paramos; el resto continúa
+      // en la próxima pasada del cron (mañana).
+      if (result.sent >= MAX_PER_RUN) {
+        console.log(`[Winback] Tope de ${MAX_PER_RUN} envíos alcanzado; el resto continúa mañana.`);
+        break;
+      }
       result.processed++;
 
       // ¿Volvió tras el último email? Sí → resetear y dejar fuera de esta ronda.
