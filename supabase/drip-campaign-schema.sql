@@ -788,7 +788,7 @@ VALUES
             </div>
 
             <div style="text-align: center; margin: 40px 0;">
-                <a href="https://refugioenlapalabra.com/acceso" style="display: inline-block; background: linear-gradient(135deg, #E1B955 0%, #D4A84A 100%); color: #1F3A5F; text-decoration: none; padding: 18px 40px; border-radius: 12px; font-size: 18px; font-weight: bold; box-shadow: 0 4px 15px rgba(225,185,85,0.4);">
+                <a href="https://www.refugioenlapalabra.com/acceso" style="display: inline-block; background: linear-gradient(135deg, #E1B955 0%, #D4A84A 100%); color: #1F3A5F; text-decoration: none; padding: 18px 40px; border-radius: 12px; font-size: 18px; font-weight: bold; box-shadow: 0 4px 15px rgba(225,185,85,0.4);">
                     Entrar a Refugio →
                 </a>
             </div>

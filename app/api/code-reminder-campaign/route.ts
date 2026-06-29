@@ -89,7 +89,7 @@ function buildUnsubscribeUrl(id: string): string {
   const base =
     process.env.NEXT_PUBLIC_SITE_URL ||
     process.env.NEXT_PUBLIC_APP_URL ||
-    'https://refugioenlapalabra.com';
+    'https://www.refugioenlapalabra.com';
   return `${base.replace(/\/$/, '')}/api/code-reminder/unsubscribe?u=${id}`;
 }
 

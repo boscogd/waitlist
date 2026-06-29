@@ -30,7 +30,7 @@ ADMIN_EMAIL=tu-email@ejemplo.com
 ADMIN_SECRET_KEY=tu_clave_secreta_aqui_cambiar
 
 # URL del sitio (opcional, para los enlaces en los emails)
-NEXT_PUBLIC_SITE_URL=https://refugioenlapalabra.com
+NEXT_PUBLIC_SITE_URL=https://www.refugioenlapalabra.com
 ```
 
 **Importante:**
@@ -52,7 +52,7 @@ RESEND_FROM_EMAIL=tu_email_verificado_en_resend
 
 ### Para los usuarios del MVP
 
-1. Comparte el link: `https://refugioenlapalabra.com/feedback`
+1. Comparte el link: `https://www.refugioenlapalabra.com/feedback`
 2. Los usuarios pueden:
    - Dar una calificación de 1-5 estrellas
    - Decir qué les gusta
@@ -65,7 +65,7 @@ RESEND_FROM_EMAIL=tu_email_verificado_en_resend
 
 #### Ver feedbacks en el panel
 
-1. Ve a `https://refugioenlapalabra.com/admin/feedback`
+1. Ve a `https://www.refugioenlapalabra.com/admin/feedback`
 2. Ingresa la clave secreta (la que configuraste en `ADMIN_SECRET_KEY`)
 3. Verás:
    - Total de feedbacks recibidos
@@ -103,8 +103,8 @@ Puedes modificar estos campos directamente desde Supabase si quieres llevar un m
 
 ## 🎯 URLs importantes
 
-- **Formulario de feedback**: `https://refugioenlapalabra.com/feedback`
-- **Panel de administración**: `https://refugioenlapalabra.com/admin/feedback`
+- **Formulario de feedback**: `https://www.refugioenlapalabra.com/feedback`
+- **Panel de administración**: `https://www.refugioenlapalabra.com/admin/feedback`
 
 ## 🆘 Solución de problemas
 

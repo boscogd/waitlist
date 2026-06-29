@@ -12,7 +12,7 @@ export const metadata: Metadata = {
       'Comparte tu opinión, sugerencias o reporta un problema sobre Refugio en la Palabra. Tu feedback moldea el producto.',
     type: 'website',
     locale: 'es_ES',
-    url: 'https://refugioenlapalabra.com/feedback',
+    url: 'https://www.refugioenlapalabra.com/feedback',
     siteName: 'Refugio en la Palabra',
     images: [
       {
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     images: ['/opengraph-image'],
   },
   alternates: {
-    canonical: 'https://refugioenlapalabra.com/feedback',
+    canonical: 'https://www.refugioenlapalabra.com/feedback',
   },
   robots: {
     index: true,

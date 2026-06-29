@@ -4,4 +4,4 @@ Disallow: /admin
 Disallow: /admin/*
 Disallow: /api/*
 
-Sitemap: https://refugioenlapalabra.com/sitemap.xml
+Sitemap: https://www.refugioenlapalabra.com/sitemap.xml

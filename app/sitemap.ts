@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const BASE_URL = "https://refugioenlapalabra.com";
+const BASE_URL = "https://www.refugioenlapalabra.com";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date();

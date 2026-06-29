@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     description: 'Términos y condiciones, aviso legal y políticas de Refugio en la Palabra.',
     type: 'website',
     locale: 'es_ES',
-    url: 'https://refugioenlapalabra.com/legal',
+    url: 'https://www.refugioenlapalabra.com/legal',
     siteName: 'Refugio en la Palabra',
     images: [
       {
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     images: ['/opengraph-image'],
   },
   alternates: {
-    canonical: 'https://refugioenlapalabra.com/legal',
+    canonical: 'https://www.refugioenlapalabra.com/legal',
   },
 };
 

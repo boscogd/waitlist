@@ -71,7 +71,7 @@ function buildUnsubscribeUrl(userId: string): string {
   const base =
     process.env.NEXT_PUBLIC_SITE_URL ||
     process.env.NEXT_PUBLIC_APP_URL ||
-    'https://refugioenlapalabra.com';
+    'https://www.refugioenlapalabra.com';
   return `${base.replace(/\/$/, '')}/api/winback/unsubscribe?u=${userId}`;
 }
 
