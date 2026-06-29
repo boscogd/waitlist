@@ -119,7 +119,7 @@ export default function RemindersAdmin() {
           © 2025 Refugio en la Palabra. Todos los derechos reservados.
         </p>
         <p style="margin: 5px 0;">
-          <a href="https://refugioenlapalabra.com/unsubscribe" style="color: #6B7280;">
+          <a href="https://www.refugioenlapalabra.com/unsubscribe" style="color: #6B7280;">
             Darse de baja
           </a>
         </p>

@@ -19,7 +19,7 @@ export const metadata: Metadata = {
       "Añade Refugio en la Palabra a tu pantalla de inicio en 30 segundos. Tutorial para Android e iPhone.",
     type: "website",
     locale: "es_ES",
-    url: "https://refugioenlapalabra.com/descargar",
+    url: "https://www.refugioenlapalabra.com/descargar",
     siteName: "Refugio en la Palabra",
     images: [
       {
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     images: ["/opengraph-image"],
   },
   alternates: {
-    canonical: "https://refugioenlapalabra.com/descargar",
+    canonical: "https://www.refugioenlapalabra.com/descargar",
   },
   robots: {
     index: true,

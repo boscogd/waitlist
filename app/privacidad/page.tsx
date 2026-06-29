@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     description: 'Política de privacidad y protección de datos de Refugio en la Palabra.',
     type: 'website',
     locale: 'es_ES',
-    url: 'https://refugioenlapalabra.com/privacidad',
+    url: 'https://www.refugioenlapalabra.com/privacidad',
     siteName: 'Refugio en la Palabra',
     images: [
       {
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     images: ['/opengraph-image'],
   },
   alternates: {
-    canonical: 'https://refugioenlapalabra.com/privacidad',
+    canonical: 'https://www.refugioenlapalabra.com/privacidad',
   },
 };
 

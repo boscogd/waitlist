@@ -21,7 +21,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://refugioenlapalabra.com"),
+  metadataBase: new URL("https://www.refugioenlapalabra.com"),
   title: {
     default: "Refugio en la Palabra | App Católica de Oración y Crecimiento en la Fe",
     template: "%s | Refugio en la Palabra",
@@ -67,7 +67,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "es_ES",
-    url: "https://refugioenlapalabra.com",
+    url: "https://www.refugioenlapalabra.com",
     siteName: "Refugio en la Palabra",
     title: "Refugio en la Palabra | App Católica de Oración",
     description:
@@ -90,7 +90,7 @@ export const metadata: Metadata = {
     creator: "@refugioenlapalabra",
   },
   alternates: {
-    canonical: "https://refugioenlapalabra.com",
+    canonical: "https://www.refugioenlapalabra.com",
   },
   manifest: "/manifest.json",
   category: "Religion & Spirituality",
@@ -103,8 +103,8 @@ const jsonLd = [
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "Refugio en la Palabra",
-    url: "https://refugioenlapalabra.com",
-    logo: "https://refugioenlapalabra.com/logo-512-1.png",
+    url: "https://www.refugioenlapalabra.com",
+    logo: "https://www.refugioenlapalabra.com/logo-512-1.png",
     description:
       "App católica de oración y crecimiento en la fe: Rosario guiado con audio, Evangelio del día comentado y compañero de fe disponible 24/7.",
     email: "info@refugioenlapalabra.com",
@@ -114,13 +114,13 @@ const jsonLd = [
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: "Refugio en la Palabra",
-    url: "https://refugioenlapalabra.com",
+    url: "https://www.refugioenlapalabra.com",
   },
   {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     name: "Refugio en la Palabra",
-    url: "https://refugioenlapalabra.com",
+    url: "https://www.refugioenlapalabra.com",
     applicationCategory: "ReligionApplication",
     operatingSystem: "iOS, Android, Web",
     offers: {
@@ -133,7 +133,7 @@ const jsonLd = [
     author: {
       "@type": "Organization",
       name: "Refugio en la Palabra",
-      url: "https://refugioenlapalabra.com",
+      url: "https://www.refugioenlapalabra.com",
     },
   },
 ];
