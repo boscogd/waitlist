@@ -1,3 +1,5 @@
 {
-  "crons": []
+  "crons": [
+    { "path": "/api/winback-campaign", "schedule": "0 10 * * *" }
+  ]
 }
