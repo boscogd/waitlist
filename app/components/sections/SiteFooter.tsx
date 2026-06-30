@@ -36,10 +36,10 @@ export default function SiteFooter() {
           <div className="space-y-4">
             <h3 className="font-semibold">Navegación</h3>
             <ul className="space-y-3 text-sm text-white/70">
-              <li><a href="#caracteristicas" className="hover:text-white transition-colors">Características</a></li>
-              <li><a href="#como-funciona" className="hover:text-white transition-colors">Cómo funciona</a></li>
-              <li><a href="#nosotros" className="hover:text-white transition-colors">Quiénes somos</a></li>
-              <li><a href="#faq" className="hover:text-white transition-colors">Preguntas frecuentes</a></li>
+              <li><a href="/#caracteristicas" className="hover:text-white transition-colors">Características</a></li>
+              <li><a href="/#como-funciona" className="hover:text-white transition-colors">Cómo funciona</a></li>
+              <li><a href="/#nosotros" className="hover:text-white transition-colors">Quiénes somos</a></li>
+              <li><a href="/#faq" className="hover:text-white transition-colors">Preguntas frecuentes</a></li>
               <li><Link href="/descargar" className="hover:text-white transition-colors">Instalar la app</Link></li>
             </ul>
           </div>
