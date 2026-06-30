@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { NEWS_QUERIES, NEWS_EDITIONS, buildGoogleNewsRssUrl } from '@/lib/news/sources';
 
@@ -18,6 +19,17 @@ const MAX_CANDIDATES = 30; // titulares que mandamos a la IA por ejecución
 // Acceso laxo a tablas/RPC aún no presentes en los tipos generados de Supabase.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;
+
+// Cliente service-role SOLO para ESCRITURA. Esta clave se salta RLS de forma
+// controlada y vive únicamente en el servidor (nunca es NEXT_PUBLIC_, nunca
+// llega al navegador). Es la ÚNICA vía con permiso para escribir noticias.
+function getAdminClient() {
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!key) throw new Error('SUPABASE_SERVICE_ROLE_KEY no configurada');
+  return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, key, {
+    auth: { persistSession: false },
+  });
+}
 
 interface Candidate {
   title: string;
@@ -136,7 +148,7 @@ Responde ÚNICAMENTE con un JSON válido (sin markdown, sin \`\`\`), con esta fo
 {"items": [{"i": 0, "titulo": "...", "resumen": "...", "pais": "..."}]}`;
 
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -191,6 +203,9 @@ async function runRefresh(dryRun = false) {
 
   let saved = 0;
   if (!dryRun) {
+    // Escritura SOLO con service-role (servidor). El cliente anon no puede
+    // tocar la tabla (RLS), así que no hay vía pública para inyectar noticias.
+    const admin = getAdminClient();
     for (const it of curated) {
       const c = candidates[it.i];
       let publishedIso: string;
@@ -200,14 +215,18 @@ async function runRefresh(dryRun = false) {
         publishedIso = new Date().toISOString();
       }
 
-      const { error } = await db.rpc('upsert_news_item', {
-        p_title: it.titulo.trim(),
-        p_summary: it.resumen.trim(),
-        p_source_name: c.source,
-        p_source_url: c.link,
-        p_country: (it.pais || 'Internacional').trim(),
-        p_published_at: publishedIso,
-      });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error } = await (admin as any).from('news_items').upsert(
+        {
+          title: it.titulo.trim(),
+          summary: it.resumen.trim(),
+          source_name: c.source,
+          source_url: c.link,
+          country: (it.pais || 'Internacional').trim(),
+          published_at: publishedIso,
+        },
+        { onConflict: 'source_url' }
+      );
       if (error) {
         console.error('[News] Error guardando:', error.message);
       } else {

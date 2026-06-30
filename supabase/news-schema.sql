@@ -7,9 +7,11 @@
 -- fuente). NO guardamos el texto completo de los medios: solo un resumen
 -- escrito por nosotros y un enlace al original → sin problemas de copyright.
 --
--- La curación la hace `app/api/news-refresh`: lee RSS de Google News,
--- filtra con IA (Gemini) solo las noticias buenas/esperanzadoras y escribe
--- un resumen breve con el tono de Refugio.
+-- SEGURIDAD:
+-- - anon (clave pública del navegador) SOLO puede LEER noticias publicadas.
+-- - La ESCRITURA la hace exclusivamente el servidor con la SERVICE_ROLE key
+--   (clave secreta que nunca viaja al navegador). No existe ninguna vía
+--   pública para insertar/editar noticias → nadie puede inyectar contenido.
 
 -- =====================================================
 -- 1. Tabla
@@ -31,7 +33,7 @@ CREATE INDEX IF NOT EXISTS idx_news_items_published
   ON public.news_items(is_published, published_at DESC NULLS LAST);
 
 -- =====================================================
--- 2. RLS: anon solo LEE las publicadas
+-- 2. RLS: anon SOLO lee las publicadas (ni escribe ni ve borradores)
 -- =====================================================
 
 ALTER TABLE public.news_items ENABLE ROW LEVEL SECURITY;
@@ -41,41 +43,18 @@ CREATE POLICY news_anon_read ON public.news_items
   FOR SELECT TO anon
   USING (is_published = TRUE);
 
--- (No hay policy de escritura para anon: la inserción va por el RPC
---  SECURITY DEFINER de abajo, que sí puede saltarse RLS de forma controlada.)
+-- No hay ninguna policy de escritura para anon: con RLS activado y sin policy
+-- de INSERT/UPDATE/DELETE, el cliente anon NO puede modificar la tabla.
 
 -- =====================================================
--- 3. RPC: upsert_news_item (escritura controlada)
+-- 3. Escritura: SOLO service-role (servidor), NUNCA anon
 -- =====================================================
+-- La service-role key se salta RLS de forma controlada y solo se usa en el
+-- servidor (app/api/news-refresh). Por seguridad eliminamos cualquier RPC de
+-- escritura que pudiera ser accesible por anon, para que no exista ninguna
+-- puerta pública hacia la tabla.
 
-CREATE OR REPLACE FUNCTION public.upsert_news_item(
-  p_title        TEXT,
-  p_summary      TEXT,
-  p_source_name  TEXT,
-  p_source_url   TEXT,
-  p_country      TEXT,
-  p_published_at TIMESTAMP WITH TIME ZONE
-)
-RETURNS VOID
-LANGUAGE sql
-SECURITY DEFINER
-SET search_path = public
-AS $$
-  INSERT INTO public.news_items
-    (title, summary, source_name, source_url, country, published_at)
-  VALUES
-    (p_title, p_summary, p_source_name, p_source_url, p_country, p_published_at)
-  ON CONFLICT (source_url) DO UPDATE SET
-    title        = EXCLUDED.title,
-    summary      = EXCLUDED.summary,
-    source_name  = EXCLUDED.source_name,
-    country      = EXCLUDED.country,
-    published_at = EXCLUDED.published_at;
-$$;
-
-REVOKE ALL ON FUNCTION public.upsert_news_item(TEXT, TEXT, TEXT, TEXT, TEXT, TIMESTAMP WITH TIME ZONE) FROM public;
--- Solo el endpoint server-side (anon key) lo llama.
-GRANT EXECUTE ON FUNCTION public.upsert_news_item(TEXT, TEXT, TEXT, TEXT, TEXT, TIMESTAMP WITH TIME ZONE) TO anon;
+DROP FUNCTION IF EXISTS public.upsert_news_item(TEXT, TEXT, TEXT, TEXT, TEXT, TIMESTAMP WITH TIME ZONE);
 
 -- =====================================================
 -- FIN
