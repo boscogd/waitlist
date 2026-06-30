@@ -104,6 +104,12 @@ export default function SiteHeader() {
               {label}
             </a>
           ))}
+          <Link
+            href="/actualidad"
+            className="text-sm text-texto/70 hover:text-azul transition-colors"
+          >
+            Actualidad
+          </Link>
         </nav>
 
         {/* CTA + hamburguesa */}
@@ -157,6 +163,14 @@ export default function SiteHeader() {
               {label}
             </a>
           ))}
+          <Link
+            href="/actualidad"
+            onClick={() => setOpen(false)}
+            tabIndex={open ? undefined : -1}
+            className="py-3 text-base border-b border-azul/5 last:border-0 text-texto/80 hover:text-azul transition-colors"
+          >
+            Actualidad
+          </Link>
         </nav>
       </div>
     </header>
