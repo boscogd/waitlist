@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -16,6 +17,10 @@ export default function SiteHeader() {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState('');
   const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const pathname = usePathname();
+  const isHome = pathname === '/';
+  // Desde una subpágina (p. ej. /actualidad) los anclas deben llevar a la home.
+  const sectionHref = (id: string) => (isHome ? `#${id}` : `/#${id}`);
 
   // Header gana sombra al bajar
   useEffect(() => {
@@ -73,8 +78,8 @@ export default function SiteHeader() {
       <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
         {/* Logo → arriba del todo */}
         <a
-          href="#top"
-          onClick={scrollToTop}
+          href={isHome ? '#top' : '/'}
+          onClick={isHome ? scrollToTop : undefined}
           className="flex items-center gap-3"
           aria-label="Inicio"
         >
@@ -95,7 +100,7 @@ export default function SiteHeader() {
           {NAV.map(({ id, label }) => (
             <a
               key={id}
-              href={`#${id}`}
+              href={sectionHref(id)}
               aria-current={active === id ? 'true' : undefined}
               className={`text-sm transition-colors ${
                 active === id ? 'text-azul font-medium' : 'text-texto/70 hover:text-azul'
@@ -152,7 +157,7 @@ export default function SiteHeader() {
           {NAV.map(({ id, label }) => (
             <a
               key={id}
-              href={`#${id}`}
+              href={sectionHref(id)}
               onClick={() => setOpen(false)}
               tabIndex={open ? undefined : -1}
               aria-current={active === id ? 'true' : undefined}
