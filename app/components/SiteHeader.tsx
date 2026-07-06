@@ -78,7 +78,7 @@ export default function SiteHeader() {
       <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
         {/* Logo → arriba del todo */}
         <a
-          href={isHome ? '#top' : '/'}
+          href={isHome ? '#main' : '/'}
           onClick={isHome ? scrollToTop : undefined}
           className="flex items-center gap-3"
           aria-label="Inicio"

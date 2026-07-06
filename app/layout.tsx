@@ -152,6 +152,13 @@ export default function RootLayout({
         />
       </head>
       <body className={`${lora.variable} ${inter.variable} antialiased`}>
+        {/* Skip link (WCAG 2.4.1): visible solo al recibir foco con teclado */}
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:bg-azul focus:text-white focus:px-4 focus:py-2 focus:rounded-lg"
+        >
+          Saltar al contenido
+        </a>
         {children}
       </body>
     </html>

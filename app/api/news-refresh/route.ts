@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { createClient } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
+import { verifyCampaignAuth } from '@/lib/api-auth';
 import { NEWS_QUERIES, NEWS_EDITIONS, buildGoogleNewsRssUrl } from '@/lib/news/sources';
 
 // =====================================================
@@ -38,20 +40,23 @@ interface Candidate {
   pubDate: string;
 }
 
-function verifyAuth(request: Request): { authorized: boolean; isCron: boolean; error?: string } {
-  const authHeader = request.headers.get('authorization');
-  if (process.env.CRON_SECRET && authHeader === `Bearer ${process.env.CRON_SECRET}`) {
-    return { authorized: true, isCron: true };
-  }
-  if (process.env.ADMIN_SECRET_KEY && authHeader === `Bearer ${process.env.ADMIN_SECRET_KEY}`) {
-    return { authorized: true, isCron: false };
-  }
-  return { authorized: false, isCron: false, error: 'No autorizado' };
-}
-
 // =====================================================
 // 1. Recoger titulares candidatos de los RSS
 // =====================================================
+
+// Decodifica las entidades HTML habituales de los RSS ("&amp;", "&#39;"…)
+// para que los titulares y fuentes se guarden como texto plano legible.
+function decodeHtmlEntities(text: string): string {
+  return text
+    .replace(/&#(\d+);/g, (_, code) => String.fromCodePoint(Number(code)))
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCodePoint(parseInt(hex, 16)))
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&'); // &amp; el último para no decodificar dos veces
+}
 
 function parseRssItems(xml: string): Candidate[] {
   const items: Candidate[] = [];
@@ -68,9 +73,11 @@ function parseRssItems(xml: string): Candidate[] {
 
     if (titleMatch && linkMatch) {
       items.push({
-        title: titleMatch[1].replace(/<!\[CDATA\[|\]\]>/g, '').trim(),
+        title: decodeHtmlEntities(titleMatch[1].replace(/<!\[CDATA\[|\]\]>/g, '').trim()),
         link: linkMatch[1].trim(),
-        source: sourceMatch ? sourceMatch[1].replace(/<!\[CDATA\[|\]\]>/g, '').trim() : 'Google News',
+        source: sourceMatch
+          ? decodeHtmlEntities(sourceMatch[1].replace(/<!\[CDATA\[|\]\]>/g, '').trim())
+          : 'Google News',
         pubDate: pubDateMatch ? pubDateMatch[1].trim() : new Date().toISOString(),
       });
     }
@@ -235,6 +242,16 @@ async function runRefresh(dryRun = false) {
     }
   }
 
+  // La página /actualidad es estática (ISR): si hemos guardado noticias nuevas,
+  // invalidamos su caché para que se vean al momento sin esperar al revalidate.
+  if (!dryRun && saved > 0) {
+    try {
+      revalidatePath('/actualidad');
+    } catch (e) {
+      console.error('[News] Error revalidando /actualidad:', e);
+    }
+  }
+
   return {
     fetched: candidates.length,
     curated: curated.length,
@@ -249,7 +266,7 @@ async function runRefresh(dryRun = false) {
 // =====================================================
 
 export async function GET(request: Request) {
-  const auth = verifyAuth(request);
+  const auth = verifyCampaignAuth(request);
   if (!auth.authorized) {
     return NextResponse.json({ error: auth.error }, { status: 401 });
   }
@@ -279,7 +296,7 @@ export async function GET(request: Request) {
 // =====================================================
 
 export async function POST(request: Request) {
-  const auth = verifyAuth(request);
+  const auth = verifyCampaignAuth(request);
   if (!auth.authorized) {
     return NextResponse.json({ error: auth.error }, { status: 401 });
   }

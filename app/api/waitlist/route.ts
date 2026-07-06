@@ -43,12 +43,13 @@ export async function POST(request: Request) {
       );
     }
 
-    // Verificar si el email ya existe
+    // Verificar si el email ya existe (fast-path; la red de seguridad real
+    // es el manejo del error 23505 en el insert, por si hay carrera)
     const { data: existingUser } = await supabase
       .from('waitlist')
       .select('email')
       .eq('email', email.toLowerCase().trim())
-      .single();
+      .maybeSingle();
 
     if (existingUser) {
       return NextResponse.json(
@@ -68,7 +69,7 @@ export async function POST(request: Request) {
         .from('waitlist')
         .select('code')
         .eq('code', code)
-        .single();
+        .maybeSingle();
 
       if (!data) {
         codeExists = false;
@@ -99,6 +100,15 @@ export async function POST(request: Request) {
       .single();
 
     if (insertError) {
+      // Red de seguridad contra carreras: si dos peticiones con el mismo email
+      // pasan el check previo a la vez, el UNIQUE de la BD devuelve 23505.
+      // Respondemos igual que el check de existencia (409), no un 500 genérico.
+      if (insertError.code === '23505') {
+        return NextResponse.json(
+          { error: 'Este email ya está registrado en la waitlist' },
+          { status: 409 }
+        );
+      }
       console.error('Error insertando en waitlist:', insertError);
       return NextResponse.json(
         { error: 'Error al registrarse en la waitlist' },
@@ -154,17 +164,20 @@ export async function GET(request: Request) {
       .from('waitlist')
       .select('email')
       .eq('email', email.toLowerCase().trim())
-      .single();
+      .maybeSingle();
 
-    if (error || !data) {
+    // Con maybeSingle, "no encontrado" es data=null SIN error; si hay error
+    // es un fallo real de la BD y no debemos responder como si no existiera.
+    if (error) {
+      console.error('Error consultando waitlist:', error);
       return NextResponse.json(
-        { exists: false },
-        { status: 200 }
+        { error: 'Error interno del servidor' },
+        { status: 500 }
       );
     }
 
     return NextResponse.json(
-      { exists: true },
+      { exists: !!data },
       { status: 200 }
     );
   } catch (error) {

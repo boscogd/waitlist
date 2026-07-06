@@ -21,7 +21,7 @@ export default function HowItWorksSection() {
           <div className="hidden md:block absolute top-16 left-1/6 right-1/6 h-0.5 bg-gradient-to-r from-albero/20 via-albero to-albero/20"></div>
 
           <div className="text-center space-y-4 relative">
-            <div className="w-16 h-16 bg-gradient-to-br from-albero to-dorado text-white rounded-2xl flex items-center justify-center text-2xl font-bold mx-auto relative z-10 shadow-lg shadow-albero/20">
+            <div className="w-16 h-16 bg-gradient-to-br from-albero to-dorado text-azul-800 rounded-2xl flex items-center justify-center text-2xl font-bold mx-auto relative z-10 shadow-lg shadow-albero/20">
               1
             </div>
             <h3 className="font-[family-name:var(--font-lora)] text-xl font-semibold text-azul">
@@ -33,7 +33,7 @@ export default function HowItWorksSection() {
           </div>
 
           <div className="text-center space-y-4 relative">
-            <div className="w-16 h-16 bg-gradient-to-br from-albero to-dorado text-white rounded-2xl flex items-center justify-center text-2xl font-bold mx-auto relative z-10 shadow-lg shadow-albero/20">
+            <div className="w-16 h-16 bg-gradient-to-br from-albero to-dorado text-azul-800 rounded-2xl flex items-center justify-center text-2xl font-bold mx-auto relative z-10 shadow-lg shadow-albero/20">
               2
             </div>
             <h3 className="font-[family-name:var(--font-lora)] text-xl font-semibold text-azul">
@@ -45,7 +45,7 @@ export default function HowItWorksSection() {
           </div>
 
           <div className="text-center space-y-4 relative">
-            <div className="w-16 h-16 bg-gradient-to-br from-albero to-dorado text-white rounded-2xl flex items-center justify-center text-2xl font-bold mx-auto relative z-10 shadow-lg shadow-albero/20">
+            <div className="w-16 h-16 bg-gradient-to-br from-albero to-dorado text-azul-800 rounded-2xl flex items-center justify-center text-2xl font-bold mx-auto relative z-10 shadow-lg shadow-albero/20">
               3
             </div>
             <h3 className="font-[family-name:var(--font-lora)] text-xl font-semibold text-azul">

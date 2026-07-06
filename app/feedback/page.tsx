@@ -56,7 +56,7 @@ export default function FeedbackPage() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 px-6 py-12 sm:py-16">
+      <main id="main" className="flex-1 px-6 py-12 sm:py-16">
         <div className="w-full max-w-3xl mx-auto space-y-8">
 
           {/* Hero Section */}

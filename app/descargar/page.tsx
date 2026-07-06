@@ -256,7 +256,7 @@ export default function DescargarPage() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 pt-20">
+      <main id="main" className="flex-1 pt-20">
 
         {/* Hero Section */}
         <section className="px-6 py-12 sm:py-16 lg:py-20">
@@ -470,7 +470,7 @@ export default function DescargarPage() {
                   }`}>
                     <div className="flex gap-6 items-start">
                       {/* Number */}
-                      <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-albero to-dorado text-white rounded-2xl flex items-center justify-center text-2xl font-bold flex-shrink-0 shadow-lg shadow-albero/20">
+                      <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-albero to-dorado text-azul-800 rounded-2xl flex items-center justify-center text-2xl font-bold flex-shrink-0 shadow-lg shadow-albero/20">
                         {step.number}
                       </div>
 

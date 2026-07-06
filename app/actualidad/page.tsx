@@ -6,9 +6,10 @@ import BackToTop from '../components/BackToTop';
 import AnimateOnScroll from '../components/AnimateOnScroll';
 import SiteFooter from '../components/sections/SiteFooter';
 
-// Render dinámico: leemos las noticias frescas en cada visita y evitamos
-// prerender en build (la tabla podría no existir todavía).
-export const dynamic = 'force-dynamic';
+// ISR: las noticias se curan on-demand, así que la página se sirve cacheada
+// y se revalida cada 15 minutos. El try/catch de getNews() ya protege el
+// build si la tabla todavía no existe.
+export const revalidate = 900;
 
 export const metadata: Metadata = {
   title: 'Actualidad — Buenas noticias de la Iglesia',
@@ -69,8 +70,44 @@ function formatDate(iso: string | null): string {
 export default async function ActualidadPage() {
   const news = await getNews();
 
+  // Structured data (JSON-LD): página de colección con la lista de noticias
+  const collectionJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Actualidad — Buenas noticias de la Iglesia',
+    url: 'https://www.refugioenlapalabra.com/actualidad',
+    inLanguage: 'es',
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: news.map((n, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        name: n.title,
+        url: n.source_url,
+      })),
+    },
+  };
+
+  // Migas de pan (Inicio → Actualidad) para buscadores
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://www.refugioenlapalabra.com' },
+      { '@type': 'ListItem', position: 2, name: 'Actualidad', item: 'https://www.refugioenlapalabra.com/actualidad' },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-marfil flex flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       <ScrollProgress />
       <SiteHeader />
       <BackToTop />

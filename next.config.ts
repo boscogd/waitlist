@@ -13,6 +13,11 @@ const nextConfig: NextConfig & {
     // Tipado limpio (tsc --noEmit pasa): el build vigila regresiones de tipos.
     ignoreBuildErrors: false,
   },
+  images: {
+    // Servir AVIF (y WebP como fallback) cuando el navegador lo soporte:
+    // mismas imágenes con bastante menos peso.
+    formats: ['image/avif', 'image/webp'],
+  },
   async headers() {
     // Política CSP en modo BLOQUEANTE. Permite el inline que necesita Next
     // (JSON-LD, estilos inline) y las conexiones a Supabase y Resend. El
