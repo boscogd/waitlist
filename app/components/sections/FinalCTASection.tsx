@@ -14,7 +14,7 @@ export default function FinalCTASection() {
         </p>
         <Link
           href="/descargar"
-          className="inline-flex items-center gap-2 bg-gradient-to-r from-albero to-dorado text-white px-8 py-4 rounded-xl text-lg font-semibold hover:shadow-xl hover:shadow-albero/20 transition-all duration-300"
+          className="inline-flex items-center gap-2 bg-gradient-to-r from-albero to-dorado text-azul-800 px-8 py-4 rounded-xl text-lg font-semibold hover:shadow-xl hover:shadow-albero/20 transition-all duration-300"
         >
           Instalar gratis
           <IconArrowRight className="w-5 h-5" />

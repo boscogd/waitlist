@@ -226,10 +226,15 @@ export default function PhoneCarousel() {
             onClick={() => goTo(k)}
             aria-label={`Ir a ${p.label}`}
             aria-current={k === activeIndex}
-            className={`h-2 rounded-full transition-all duration-300 ${
-              k === activeIndex ? 'w-6 bg-azul' : 'w-2 bg-azul/25 hover:bg-azul/40'
-            }`}
-          />
+            // Área táctil ≥24×24px (WCAG 2.5.8); el indicador visual va dentro
+            className="min-w-6 min-h-6 flex items-center justify-center"
+          >
+            <span
+              className={`h-2 rounded-full transition-all duration-300 ${
+                k === activeIndex ? 'w-6 bg-azul' : 'w-2 bg-azul/25 hover:bg-azul/40'
+              }`}
+            />
+          </button>
         ))}
       </div>
     </div>

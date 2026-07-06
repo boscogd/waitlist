@@ -22,7 +22,8 @@ export default function TestimonialsSection() {
           {testimonials.map((testimonial) => (
             <AnimateOnScroll key={testimonial.name} delay={testimonial.delay}>
               <div className="bg-white rounded-2xl p-6 border border-azul/5 shadow-sm space-y-4">
-                <div className="flex gap-1">
+                {/* Las estrellas son decorativas; el conjunto se anuncia como una sola imagen */}
+                <div className="flex gap-1" role="img" aria-label="Valoración: 5 de 5">
                   {[1,2,3,4,5].map(i => (
                     <IconStar key={i} className="w-5 h-5 text-albero" />
                   ))}

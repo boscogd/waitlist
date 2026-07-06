@@ -1,18 +1,8 @@
 import { NextResponse } from 'next/server';
-import crypto from 'crypto';
 import { supabase } from '@/lib/supabase';
 import { sendCodeReminderCampaign } from '@/lib/resend';
+import { verifyCampaignAuth } from '@/lib/api-auth';
 import type { EmailTemplate } from '@/lib/types';
-
-// Comparación constant-time para evitar timing attacks. Iguala longitudes
-// antes de comparar para que timingSafeEqual no lance por buffers de
-// distinto tamaño; si difieren en longitud, no hay match.
-function safeEqual(a: string, b: string): boolean {
-  const bufA = Buffer.from(a);
-  const bufB = Buffer.from(b);
-  if (bufA.length !== bufB.length) return false;
-  return crypto.timingSafeEqual(bufA, bufB);
-}
 
 // =====================================================
 // CODE-REMINDER CAMPAIGN
@@ -65,18 +55,6 @@ type UnredeemedUser = {
   code_reminder_step: number;
   last_code_reminder_at: string | null;
 };
-
-function verifyAuth(request: Request): { authorized: boolean; isCron: boolean; error?: string } {
-  const authHeader = request.headers.get('authorization');
-  // Vercel inyecta `Authorization: Bearer <CRON_SECRET>` en las peticiones del cron.
-  if (authHeader && process.env.CRON_SECRET && safeEqual(authHeader, `Bearer ${process.env.CRON_SECRET}`)) {
-    return { authorized: true, isCron: true };
-  }
-  if (authHeader && process.env.ADMIN_SECRET_KEY && safeEqual(authHeader, `Bearer ${process.env.ADMIN_SECRET_KEY}`)) {
-    return { authorized: true, isCron: false };
-  }
-  return { authorized: false, isCron: false, error: 'No autorizado' };
-}
 
 function daysSince(dateString: string | null): number {
   if (!dateString) return Infinity;
@@ -149,11 +127,15 @@ async function processCampaign() {
   // campañas se solapen sobre la misma persona. Comparte email_logs con winback.
   const gapHours = Number(process.env.EMAIL_MIN_GAP_HOURS) || 72;
   const sinceIso = new Date(Date.now() - gapHours * 3600 * 1000).toISOString();
+  // .limit explícito: PostgREST corta en 1000 filas por defecto. Con los topes
+  // actuales (100 envíos/día × 2 campañas × 72h de ventana) caben ~600 filas,
+  // así que 5000 sobra de largo; si algún día se supera, habría que paginar.
   const { data: recentLogs } = await supabase
     .from('email_logs')
     .select('email_to')
     .eq('status', 'sent')
-    .gte('sent_at', sinceIso);
+    .gte('sent_at', sinceIso)
+    .limit(5000);
   const recentlyEmailed = new Set(
     ((recentLogs || []) as Array<{ email_to: string }>).map((r) => r.email_to.toLowerCase())
   );
@@ -259,7 +241,7 @@ async function getStats() {
 // =====================================================
 
 export async function GET(request: Request) {
-  const auth = verifyAuth(request);
+  const auth = verifyCampaignAuth(request);
   if (!auth.authorized) {
     return NextResponse.json({ error: auth.error }, { status: 401 });
   }
@@ -289,7 +271,7 @@ export async function GET(request: Request) {
 // =====================================================
 
 export async function POST(request: Request) {
-  const auth = verifyAuth(request);
+  const auth = verifyCampaignAuth(request);
   if (!auth.authorized) {
     return NextResponse.json({ error: auth.error }, { status: 401 });
   }

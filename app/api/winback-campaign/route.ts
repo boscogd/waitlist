@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { sendWinbackEmail } from '@/lib/resend';
+import { verifyCampaignAuth } from '@/lib/api-auth';
 import type { EmailTemplate } from '@/lib/types';
 
 // =====================================================
@@ -47,18 +48,6 @@ type DormantUser = {
   last_winback_at: string | null;
 };
 
-function verifyAuth(request: Request): { authorized: boolean; isCron: boolean; error?: string } {
-  const authHeader = request.headers.get('authorization');
-  // Vercel inyecta `Authorization: Bearer <CRON_SECRET>` en las peticiones del cron.
-  if (process.env.CRON_SECRET && authHeader === `Bearer ${process.env.CRON_SECRET}`) {
-    return { authorized: true, isCron: true };
-  }
-  if (process.env.ADMIN_SECRET_KEY && authHeader === `Bearer ${process.env.ADMIN_SECRET_KEY}`) {
-    return { authorized: true, isCron: false };
-  }
-  return { authorized: false, isCron: false, error: 'No autorizado' };
-}
-
 function daysSince(dateString: string | null): number {
   if (!dateString) return Infinity;
   const date = new Date(dateString);
@@ -98,7 +87,7 @@ async function loadTemplates(): Promise<Record<string, EmailTemplate>> {
 // =====================================================
 
 export async function GET(request: Request) {
-  const auth = verifyAuth(request);
+  const auth = verifyCampaignAuth(request);
   if (!auth.authorized) {
     return NextResponse.json({ error: auth.error }, { status: 401 });
   }
@@ -129,7 +118,7 @@ export async function GET(request: Request) {
 // =====================================================
 
 export async function POST(request: Request) {
-  const auth = verifyAuth(request);
+  const auth = verifyCampaignAuth(request);
   if (!auth.authorized) {
     return NextResponse.json({ error: auth.error }, { status: 401 });
   }
@@ -231,11 +220,15 @@ async function runWinback() {
     // que las campañas no se solapen sobre la misma persona.
     const gapHours = Number(process.env.EMAIL_MIN_GAP_HOURS) || 72;
     const sinceIso = new Date(Date.now() - gapHours * 3600 * 1000).toISOString();
+    // .limit explícito: PostgREST corta en 1000 filas por defecto. Con los topes
+    // actuales (100 envíos/día × 2 campañas × 72h de ventana) caben ~600 filas,
+    // así que 5000 sobra de largo; si algún día se supera, habría que paginar.
     const { data: recentLogs } = await supabase
       .from('email_logs')
       .select('email_to')
       .eq('status', 'sent')
-      .gte('sent_at', sinceIso);
+      .gte('sent_at', sinceIso)
+      .limit(5000);
     const recentlyEmailed = new Set(
       ((recentLogs || []) as Array<{ email_to: string }>).map((r) => r.email_to.toLowerCase())
     );
