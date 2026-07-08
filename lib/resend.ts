@@ -322,6 +322,88 @@ export async function sendWinbackEmail({
 }
 
 /**
+ * Email de difusión genérico (broadcast) del centro de correos del admin.
+ * Se envía a un segmento de usuarios de la app con un asunto y HTML libres.
+ *
+ * - Sustituye {{name}} en subject y html.
+ * - Decora igual que sendWinbackEmail: preheader + pie legal (que ya incluye
+ *   la info de baja) mediante decorateEmailHtml.
+ * - Como es genérico (no hay enlace de baja por-usuario), la cabecera
+ *   List-Unsubscribe apunta a un mailto genérico a info@refugioenlapalabra.com.
+ * - Multipart texto+html (htmlToText) y retry-on-429 como las otras campañas.
+ *
+ * Devuelve { success, resendId?, error? } con la misma forma que el resto.
+ */
+export async function sendBroadcastEmail({
+  to,
+  name,
+  subject,
+  html,
+}: {
+  to: string;
+  name: string;
+  subject: string;
+  html: string;
+}): Promise<{ success: boolean; resendId?: string | null; error?: string }> {
+  const apply = (s: string) => s.split('{{name}}').join(name);
+
+  // Baja genérica: no hay unsubscribe por-usuario en un broadcast puntual, así
+  // que reutilizamos el pie legal (sin enlace de baja específico) y ofrecemos
+  // la baja por respuesta al buzón de contacto vía cabecera List-Unsubscribe.
+  const unsubscribeMailto = `mailto:${REPLY_TO}?subject=baja`;
+  const finalHtml = decorateEmailHtml(apply(html), apply(subject), '');
+
+  const payload = {
+    from: process.env.RESEND_FROM_EMAIL || 'Refugio en la Palabra <onboarding@resend.dev>',
+    to,
+    replyTo: REPLY_TO,
+    subject: apply(subject),
+    html: finalHtml,
+    text: htmlToText(finalHtml),
+    headers: {
+      'List-Unsubscribe': `<${unsubscribeMailto}>`,
+    },
+  };
+
+  // Reintentos con backoff si Resend nos devuelve rate-limit (2 req/s por defecto).
+  const MAX_ATTEMPTS = 3;
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      const { data, error } = await resend.emails.send(payload);
+
+      if (error) {
+        const statusCode = (error as { statusCode?: number }).statusCode;
+        const isRateLimit =
+          statusCode === 429 ||
+          /rate.?limit|too many requests/i.test(error.name || '') ||
+          /rate.?limit|too many requests/i.test(error.message || '');
+
+        if (isRateLimit && attempt < MAX_ATTEMPTS) {
+          await new Promise((r) => setTimeout(r, attempt * 1000));
+          continue;
+        }
+
+        console.error('Error enviando broadcast:', error);
+        const errorMessage = error.message || JSON.stringify(error);
+        return { success: false, error: errorMessage, resendId: null };
+      }
+
+      return { success: true, resendId: data?.id || null };
+    } catch (error) {
+      if (attempt < MAX_ATTEMPTS) {
+        await new Promise((r) => setTimeout(r, attempt * 1000));
+        continue;
+      }
+      console.error('Error en sendBroadcastEmail:', error);
+      const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
+      return { success: false, error: errorMessage, resendId: null };
+    }
+  }
+
+  return { success: false, error: 'No se pudo enviar tras varios intentos', resendId: null };
+}
+
+/**
  * Email de recordatorio de código para usuarios de la waitlist que NO
  * han canjeado su código (mes premium gratis). Secuencia automática.
  * Reemplaza {{name}}, {{code}}, {{app_url}} y {{unsubscribe_url}} en

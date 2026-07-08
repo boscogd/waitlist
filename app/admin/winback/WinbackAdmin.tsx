@@ -22,8 +22,6 @@ interface RunResult {
   errors: Array<{ email: string; error: string }>;
 }
 
-const STORAGE_KEY = 'admin_winback_key';
-
 export default function WinbackAdmin() {
   const [apiKey, setApiKey] = useState('');
   const [authenticated, setAuthenticated] = useState(false);
@@ -34,13 +32,11 @@ export default function WinbackAdmin() {
   const [running, setRunning] = useState(false);
   const [lastRun, setLastRun] = useState<RunResult | null>(null);
 
-  const loadStats = useCallback(async (key?: string) => {
-    const k = key ?? apiKey;
-    if (!k) return;
+  const loadStats = useCallback(async () => {
     try {
-      const res = await fetch('/api/winback-campaign', {
-        headers: { Authorization: `Bearer ${k}` },
-      });
+      // ?mode=stats: pide solo métricas, nunca dispara la secuencia. La cookie
+      // httpOnly autoriza como admin en verifyCampaignAuth (same-origin).
+      const res = await fetch('/api/winback-campaign?mode=stats');
       if (res.status === 401) {
         setAuthenticated(false);
         return;
@@ -52,25 +48,18 @@ export default function WinbackAdmin() {
       console.error(e);
       setError('Error cargando estadísticas');
     }
-  }, [apiKey]);
+  }, []);
 
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      setApiKey(saved);
-      fetch('/api/winback-campaign', {
-        headers: { Authorization: `Bearer ${saved}` },
+    // Al montar, comprobamos la sesión con la cookie httpOnly.
+    fetch('/api/admin/login')
+      .then((r) => {
+        if (r.ok) {
+          setAuthenticated(true);
+          loadStats();
+        }
       })
-        .then((r) => {
-          if (r.ok) {
-            setAuthenticated(true);
-            loadStats(saved);
-          }
-        })
-        .finally(() => setLoading(false));
-    } else {
-      setLoading(false);
-    }
+      .finally(() => setLoading(false));
   }, [loadStats]);
 
   const handleAuth = async (e: React.FormEvent) => {
@@ -78,16 +67,20 @@ export default function WinbackAdmin() {
     setLoading(true);
     setError('');
     try {
-      const r = await fetch('/api/winback-campaign', {
-        headers: { Authorization: `Bearer ${apiKey}` },
+      // Validar la clave y establecer la cookie httpOnly de sesión.
+      const r = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: apiKey }),
       });
-      if (r.status === 401) {
+      if (!r.ok) {
         setError('Clave incorrecta');
         return;
       }
+      // Cookie puesta: ya no guardamos la clave en el navegador.
+      setApiKey('');
       setAuthenticated(true);
-      localStorage.setItem(STORAGE_KEY, apiKey);
-      await loadStats(apiKey);
+      await loadStats();
     } catch {
       setError('Error de conexión');
     } finally {
@@ -100,10 +93,8 @@ export default function WinbackAdmin() {
     setRunning(true);
     setLastRun(null);
     try {
-      const r = await fetch('/api/winback-campaign', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${apiKey}` },
-      });
+      // Ejecución manual: la cookie httpOnly autoriza como admin (isCron:false).
+      const r = await fetch('/api/winback-campaign', { method: 'POST' });
       const data = await r.json();
       if (r.ok && data.success) {
         setLastRun(data.result);

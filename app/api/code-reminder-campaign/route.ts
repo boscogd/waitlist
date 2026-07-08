@@ -241,7 +241,7 @@ async function getStats() {
 // =====================================================
 
 export async function GET(request: Request) {
-  const auth = verifyCampaignAuth(request);
+  const auth = await verifyCampaignAuth(request);
   if (!auth.authorized) {
     return NextResponse.json({ error: auth.error }, { status: 401 });
   }
@@ -271,7 +271,7 @@ export async function GET(request: Request) {
 // =====================================================
 
 export async function POST(request: Request) {
-  const auth = verifyCampaignAuth(request);
+  const auth = await verifyCampaignAuth(request);
   if (!auth.authorized) {
     return NextResponse.json({ error: auth.error }, { status: 401 });
   }

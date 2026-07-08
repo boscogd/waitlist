@@ -20,17 +20,15 @@ export default function FeedbackAdmin() {
   const [authenticated, setAuthenticated] = useState(false);
   const [averageRating, setAverageRating] = useState(0);
 
-  const fetchFeedbacks = async (key: string) => {
+  // Carga los feedbacks usando la cookie httpOnly de sesión (same-origin).
+  const fetchFeedbacks = async () => {
     try {
       setLoading(true);
       setError('');
 
-      const response = await fetch('/api/feedback', {
-        headers: { 'Authorization': `Bearer ${key}` },
-      });
+      const response = await fetch('/api/feedback');
 
       if (response.status === 401) {
-        setError('Clave de acceso incorrecta');
         setAuthenticated(false);
         return;
       }
@@ -43,9 +41,6 @@ export default function FeedbackAdmin() {
       setFeedbacks(data.feedbacks || []);
       setAverageRating(parseFloat(data.averageRating) || 0);
       setAuthenticated(true);
-
-      // Guardar la clave en localStorage para persistencia
-      localStorage.setItem('admin_key', key);
     } catch (err) {
       setError('Error al cargar los feedbacks');
       console.error(err);
@@ -54,20 +49,42 @@ export default function FeedbackAdmin() {
     }
   };
 
-  const handleAuth = (e: React.FormEvent) => {
+  const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    fetchFeedbacks(secretKey);
+    setLoading(true);
+    setError('');
+    try {
+      // Validar la clave y establecer la cookie httpOnly de sesión.
+      const loginRes = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: secretKey }),
+      });
+      if (!loginRes.ok) {
+        setError('Clave de acceso incorrecta');
+        setLoading(false);
+        return;
+      }
+      // Cookie puesta: ya no guardamos la clave en el navegador.
+      setSecretKey('');
+      await fetchFeedbacks();
+    } catch {
+      setError('Error de conexión');
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    // Intentar cargar la clave guardada
-    const savedKey = localStorage.getItem('admin_key');
-    if (savedKey) {
-      setSecretKey(savedKey);
-      fetchFeedbacks(savedKey);
-    } else {
-      setLoading(false);
-    }
+    // Al montar, comprobamos la sesión con la cookie httpOnly.
+    fetch('/api/admin/login')
+      .then((r) => {
+        if (r.ok) {
+          fetchFeedbacks();
+        } else {
+          setLoading(false);
+        }
+      })
+      .catch(() => setLoading(false));
   }, []);
 
   const renderStars = (rating: number) => {
