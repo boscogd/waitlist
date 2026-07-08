@@ -19,17 +19,13 @@ export default function AdminDashboard() {
   const [error, setError] = useState('');
   const [stats, setStats] = useState<DashboardStats | null>(null);
 
-  const fetchWithAuth = async (url: string) => {
-    return fetch(url, {
-      headers: { 'Authorization': `Bearer ${apiKey}` },
-    });
-  };
-
-  const loadStats = async (key: string) => {
+  const loadStats = async () => {
     try {
+      // Peticiones same-origin: la cookie httpOnly `admin-session` viaja sola,
+      // no hace falta cabecera Authorization.
       const [profilesRes, feedbackRes] = await Promise.allSettled([
         fetch('/api/profiles/count'),
-        fetch('/api/feedback', { headers: { 'Authorization': `Bearer ${key}` } }),
+        fetch('/api/feedback'),
       ]);
       // Embudos de las campañas (RPCs accesibles con la anon key)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -86,9 +82,10 @@ export default function AdminDashboard() {
         return;
       }
 
+      // Login OK: la cookie httpOnly ya está puesta. No guardamos la clave.
+      setApiKey('');
       setAuthenticated(true);
-      localStorage.setItem('admin_dashboard_key', apiKey);
-      await loadStats(apiKey);
+      await loadStats();
     } catch {
       setError('Error de conexión');
     } finally {
@@ -97,27 +94,17 @@ export default function AdminDashboard() {
   };
 
   useEffect(() => {
-    const savedKey = localStorage.getItem('admin_dashboard_key');
-    if (savedKey) {
-      setApiKey(savedKey);
-      // Verificar clave y renovar cookie de sesión
-      fetch('/api/admin/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key: savedKey }),
-      }).then(async (response) => {
+    // Al montar, comprobamos la sesión con la cookie httpOnly (no reenviamos
+    // la clave, que ya no vive en el navegador).
+    fetch('/api/admin/login')
+      .then(async (response) => {
         if (response.ok) {
           setAuthenticated(true);
-          setApiKey(savedKey);
-          await loadStats(savedKey);
-        } else {
-          localStorage.removeItem('admin_dashboard_key');
+          await loadStats();
         }
         setLoading(false);
-      }).catch(() => setLoading(false));
-    } else {
-      setLoading(false);
-    }
+      })
+      .catch(() => setLoading(false));
   }, []);
 
   const panels = [
@@ -273,8 +260,9 @@ export default function AdminDashboard() {
                 Web
               </Link>
               <button
-                onClick={() => {
-                  localStorage.removeItem('admin_dashboard_key');
+                onClick={async () => {
+                  // Logout: el backend borra la cookie httpOnly de sesión.
+                  await fetch('/api/admin/login', { method: 'DELETE' }).catch(() => {});
                   setAuthenticated(false);
                   setApiKey('');
                   setStats(null);

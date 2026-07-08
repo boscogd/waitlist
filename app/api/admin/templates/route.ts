@@ -1,36 +1,10 @@
 import { NextResponse } from 'next/server';
-import crypto from 'crypto';
 import { supabase } from '@/lib/supabase';
+import { verifyAdminAuth } from '@/lib/api-auth';
 import type { EmailTemplate } from '@/lib/types';
 
-// =====================================================
-// MIDDLEWARE: Verificar autenticación admin
-// =====================================================
-
-// Comparación constant-time para evitar timing attacks. Iguala longitudes
-// antes de comparar para que timingSafeEqual no lance por buffers de
-// distinto tamaño; si difieren en longitud, no hay match.
-function safeEqual(a: string, b: string): boolean {
-  const bufA = Buffer.from(a);
-  const bufB = Buffer.from(b);
-  if (bufA.length !== bufB.length) return false;
-  return crypto.timingSafeEqual(bufA, bufB);
-}
-
-function verifyAdminAuth(request: Request): { authorized: boolean; error?: string } {
-  const authHeader = request.headers.get('authorization');
-  const apiKey = process.env.ADMIN_SECRET_KEY;
-
-  if (!apiKey) {
-    return { authorized: false, error: 'API key no configurada en el servidor' };
-  }
-
-  if (!authHeader || !safeEqual(authHeader, `Bearer ${apiKey}`)) {
-    return { authorized: false, error: 'No autorizado' };
-  }
-
-  return { authorized: true };
-}
+// La autenticación admin (cookie httpOnly `admin-session` o Bearer legado)
+// vive en @/lib/api-auth para no duplicar código entre rutas.
 
 // =====================================================
 // GET /api/admin/templates - Listar plantillas
@@ -38,9 +12,8 @@ function verifyAdminAuth(request: Request): { authorized: boolean; error?: strin
 
 export async function GET(request: Request) {
   try {
-    const auth = verifyAdminAuth(request);
-    if (!auth.authorized) {
-      return NextResponse.json({ error: auth.error }, { status: auth.error?.includes('configurada') ? 500 : 401 });
+    if (!(await verifyAdminAuth(request))) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);

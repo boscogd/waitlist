@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
+import { verifyAdminAuth } from '@/lib/api-auth';
 
 // Comparación constant-time para evitar timing attacks. Iguala longitudes
 // antes de comparar para que timingSafeEqual no lance por buffers de
@@ -46,4 +47,21 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
+}
+
+// GET /api/admin/login — comprueba si la cookie de sesión es válida.
+// Lo usan los clientes admin al montar para saber si ya están autenticados
+// sin tener que reenviar la clave (que ya no se guarda en el navegador).
+export async function GET(request: Request) {
+  if (await verifyAdminAuth(request)) {
+    return NextResponse.json({ authenticated: true });
+  }
+  return NextResponse.json({ authenticated: false }, { status: 401 });
+}
+
+// DELETE /api/admin/login — logout: borra la cookie de sesión.
+export async function DELETE() {
+  const response = NextResponse.json({ success: true });
+  response.cookies.delete('admin-session');
+  return response;
 }
