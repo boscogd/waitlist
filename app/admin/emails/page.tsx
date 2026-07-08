@@ -10,10 +10,10 @@ export default function EmailsAdminPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="font-[family-name:var(--font-lora)] text-2xl font-semibold text-azul">
-                Gestión de Emails
+                Centro de correos
               </h1>
               <p className="text-sm text-texto/60 mt-1">
-                Drip Campaign y Borradores de Email
+                Envía correos, edita plantillas de campañas y consulta métricas
               </p>
             </div>
             <div className="flex items-center gap-4">
