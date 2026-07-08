@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { supabase } from '@/lib/supabase';
 
 interface DashboardStats {
-  totalUsers: number;
-  pendingReminder: number;
-  usedCode: number;
+  appUsers: number;
+  dormant: number;
+  pendingCode: number;
   totalFeedbacks: number;
   avgRating: number;
 }
@@ -26,36 +27,41 @@ export default function AdminDashboard() {
 
   const loadStats = async (key: string) => {
     try {
-      const [remindRes, feedbackRes, countRes] = await Promise.allSettled([
-        fetch('/api/remind-code', { headers: { 'Authorization': `Bearer ${key}` } }),
+      const [profilesRes, feedbackRes] = await Promise.allSettled([
+        fetch('/api/profiles/count'),
         fetch('/api/feedback', { headers: { 'Authorization': `Bearer ${key}` } }),
-        fetch('/api/waitlist/count'),
+      ]);
+      // Embudos de las campañas (RPCs accesibles con la anon key)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const sb = supabase as any;
+      const [wb, cr] = await Promise.allSettled([
+        sb.rpc('winback_stats'),
+        sb.rpc('code_reminder_stats'),
       ]);
 
-      let totalUsers = 0;
-      let pendingReminder = 0;
-      let usedCode = 0;
+      let appUsers = 0;
+      let dormant = 0;
+      let pendingCode = 0;
       let totalFeedbacks = 0;
       let avgRating = 0;
 
-      if (countRes.status === 'fulfilled' && countRes.value.ok) {
-        const data = await countRes.value.json();
-        totalUsers = data.count || 0;
+      if (profilesRes.status === 'fulfilled' && profilesRes.value.ok) {
+        const data = await profilesRes.value.json();
+        appUsers = data.count || 0;
       }
-
-      if (remindRes.status === 'fulfilled' && remindRes.value.ok) {
-        const data = await remindRes.value.json();
-        pendingReminder = data.summary?.pendingReminder || 0;
-        usedCode = data.summary?.alreadyUsedCode || 0;
+      if (wb.status === 'fulfilled' && !wb.value.error) {
+        dormant = wb.value.data?.dormant_14d || 0;
       }
-
+      if (cr.status === 'fulfilled' && !cr.value.error) {
+        pendingCode = cr.value.data?.pending || 0;
+      }
       if (feedbackRes.status === 'fulfilled' && feedbackRes.value.ok) {
         const data = await feedbackRes.value.json();
         totalFeedbacks = data.feedbacks?.length || 0;
         avgRating = parseFloat(data.averageRating) || 0;
       }
 
-      setStats({ totalUsers, pendingReminder, usedCode, totalFeedbacks, avgRating });
+      setStats({ appUsers, dormant, pendingCode, totalFeedbacks, avgRating });
     } catch {
       // Stats are optional, don't block the dashboard
     }
@@ -116,8 +122,8 @@ export default function AdminDashboard() {
 
   const panels = [
     {
-      title: 'Emails',
-      description: 'Borradores, plantillas, generar con IA y estadísticas de la campaña de emails.',
+      title: 'Correos',
+      description: 'Escribe y envía correos, gestiona las plantillas de las campañas y consulta métricas.',
       href: '/admin/emails',
       icon: (
         <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -130,32 +136,18 @@ export default function AdminDashboard() {
       textColor: 'text-blue-600',
     },
     {
-      title: 'Recordatorios',
-      description: 'Envía recordatorios a usuarios que no han activado su código de acceso.',
-      href: '/admin/reminders',
+      title: 'Win-back',
+      description: 'Campaña de recuperación de usuarios dormidos: embudo, estadísticas y ejecución manual.',
+      href: '/admin/winback',
       icon: (
         <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
         </svg>
       ),
       color: 'from-amber-500 to-amber-600',
       shadowColor: 'shadow-amber-500/20',
       bgLight: 'bg-amber-50',
       textColor: 'text-amber-600',
-    },
-    {
-      title: 'Lanzamiento',
-      description: 'Envía la notificación de lanzamiento a los usuarios de la lista de espera.',
-      href: '/admin/launch',
-      icon: (
-        <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
-        </svg>
-      ),
-      color: 'from-emerald-500 to-emerald-600',
-      shadowColor: 'shadow-emerald-500/20',
-      bgLight: 'bg-emerald-50',
-      textColor: 'text-emerald-600',
     },
     {
       title: 'Feedback',
@@ -304,16 +296,16 @@ export default function AdminDashboard() {
         {stats && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="bg-white rounded-xl p-4 border border-azul/10 shadow-sm">
-              <div className="text-sm text-texto/50">Usuarios totales</div>
-              <div className="text-2xl font-bold text-azul mt-1">{stats.totalUsers}</div>
+              <div className="text-sm text-texto/50">Usuarios de la app</div>
+              <div className="text-2xl font-bold text-azul mt-1">{stats.appUsers}</div>
             </div>
             <div className="bg-white rounded-xl p-4 border border-azul/10 shadow-sm">
-              <div className="text-sm text-texto/50">Código activado</div>
-              <div className="text-2xl font-bold text-emerald-600 mt-1">{stats.usedCode}</div>
+              <div className="text-sm text-texto/50">Dormidos (14d)</div>
+              <div className="text-2xl font-bold text-amber-600 mt-1">{stats.dormant}</div>
             </div>
             <div className="bg-white rounded-xl p-4 border border-azul/10 shadow-sm">
-              <div className="text-sm text-texto/50">Pendientes</div>
-              <div className="text-2xl font-bold text-amber-600 mt-1">{stats.pendingReminder}</div>
+              <div className="text-sm text-texto/50">Código sin canjear</div>
+              <div className="text-2xl font-bold text-emerald-600 mt-1">{stats.pendingCode}</div>
             </div>
             <div className="bg-white rounded-xl p-4 border border-azul/10 shadow-sm">
               <div className="text-sm text-texto/50">Feedbacks</div>
