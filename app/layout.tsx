@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Lora, Inter } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const lora = Lora({
@@ -160,6 +161,8 @@ export default function RootLayout({
           Saltar al contenido
         </a>
         {children}
+        {/* Analítica de Vercel: sin cookies, mismo dominio (no toca CSP ni RGPD). */}
+        <Analytics />
       </body>
     </html>
   );
