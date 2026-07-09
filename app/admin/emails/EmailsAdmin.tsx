@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { EMAIL_STARTERS } from '@/lib/email-starters';
 
 // ---------------------------------------------------------------------------
 // Tipos del contrato de API (consumidos por fetch, sin importar del backend).
@@ -202,7 +203,9 @@ function ComposeTab() {
   const [segmentsError, setSegmentsError] = useState('');
 
   const [subject, setSubject] = useState('');
-  const [html, setHtml] = useState('');
+  // Arranca con la primera estructura de marca (no en blanco): el redactor
+  // sustituye los textos de ejemplo y mantiene la estética de Refugio.
+  const [html, setHtml] = useState(EMAIL_STARTERS[0].html);
   const [segment, setSegment] = useState<Segment['id']>('all');
 
   const [testEmail, setTestEmail] = useState('');
@@ -330,6 +333,21 @@ function ComposeTab() {
             </div>
 
             <div>
+              <label className="block text-sm font-medium text-azul mb-1">Empieza desde una estructura</label>
+              <div className="flex flex-wrap gap-2 mb-4">
+                {EMAIL_STARTERS.map((s) => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => setHtml(s.html)}
+                    title={s.description}
+                    className="px-3 py-1.5 text-xs rounded-lg border border-azul/15 text-azul hover:bg-albero/10 hover:border-albero transition-colors"
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+
               <label className="block text-sm font-medium text-azul mb-1">Cuerpo (HTML)</label>
               <textarea
                 value={html}
