@@ -125,19 +125,27 @@ export default function BlockComposer({ html, onHtmlChange }: BlockComposerProps
 
       <label className="block text-sm font-medium text-azul mb-1">Cuerpo del correo</label>
 
-      {/* Paleta: añadir bloques */}
-      <div className="flex flex-wrap gap-2 mb-2">
-        {PALETTE.map((item) => (
-          <button
-            key={item.type}
-            type="button"
-            onClick={() => addBlock(item.type)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg border border-azul/15 text-azul hover:bg-albero/10 hover:border-albero transition-colors"
-          >
-            <span aria-hidden className="text-sm leading-none">{item.icon}</span>
-            {item.label}
-          </button>
-        ))}
+      {/* Paleta: añadir bloques. Barra clara y evidente, con encabezado. */}
+      <div className="rounded-xl border border-azul/15 bg-marfil/60 px-3 py-3 mb-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-sm font-semibold text-azul mr-1">Añadir al correo:</span>
+          {PALETTE.map((item) => (
+            <button
+              key={item.type}
+              type="button"
+              onClick={() => addBlock(item.type)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg border border-azul/20 bg-white text-azul font-medium hover:bg-albero/10 hover:border-albero transition-colors"
+            >
+              <span aria-hidden className="text-base leading-none">{item.icon}</span>
+              {item.label}
+            </button>
+          ))}
+        </div>
+        {/* Línea de ayuda breve bajo la paleta. */}
+        <p className="text-xs text-texto/60 mt-2">
+          Pulsa para añadir · arrastra el asa <span className="font-mono">☰</span> para reordenar · haz
+          clic sobre el texto para editarlo.
+        </p>
       </div>
 
       {/* Presets: cargar un correo completo de ejemplo */}
@@ -225,10 +233,8 @@ export default function BlockComposer({ html, onHtmlChange }: BlockComposerProps
       </div>
 
       <p className="text-xs text-texto/50 mt-2">
-        Haz clic sobre un texto para editarlo. Arrastra el asa{' '}
-        <span className="font-mono">☰</span> para reordenar.{' '}
         <code className="bg-azul/5 px-1 rounded">{'{{name}}'}</code> se sustituye por el nombre del
-        destinatario.
+        destinatario al enviar.
       </p>
     </div>
   );
@@ -271,8 +277,10 @@ function BlockRow({
         transition: 'opacity 0.15s',
       }}
     >
-      {/* Controles flotantes (aparecen al hacer hover sobre la fila) */}
-      <div className="absolute -left-4 sm:-left-9 top-1 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+      {/* Toolbar del bloque: SIEMPRE visible (discreta pero clara). El asa ☰
+          arrastra para reordenar; la × borra. Se apoya a la izquierda del
+          bloque; en móvil cae dentro para no salirse del lienzo. */}
+      <div className="absolute left-0 sm:-left-11 top-1 flex sm:flex-col gap-1 z-10">
         <button
           type="button"
           draggable
@@ -280,7 +288,8 @@ function BlockRow({
           onDragEnd={onDragEnd}
           title="Arrastra para reordenar"
           aria-label="Reordenar bloque"
-          className="w-6 h-6 flex items-center justify-center rounded bg-white border border-azul/15 text-texto/50 hover:text-azul cursor-grab active:cursor-grabbing text-xs shadow-sm"
+          className="w-7 h-7 flex items-center justify-center rounded-md bg-marfil border border-azul/20 text-azul/70 hover:text-azul hover:border-azul cursor-grab active:cursor-grabbing text-sm shadow-sm"
+          style={{ cursor: 'grab' }}
         >
           ☰
         </button>
@@ -289,13 +298,17 @@ function BlockRow({
           onClick={onRemove}
           title="Borrar bloque"
           aria-label="Borrar bloque"
-          className="w-6 h-6 flex items-center justify-center rounded bg-white border border-red-200 text-red-400 hover:text-red-600 hover:border-red-400 text-sm shadow-sm"
+          className="w-7 h-7 flex items-center justify-center rounded-md bg-white border border-red-200 text-red-400 hover:text-red-600 hover:border-red-400 text-base shadow-sm"
         >
           ×
         </button>
       </div>
 
-      <BlockEditor block={block} onUpdate={onUpdate} />
+      {/* Empujamos el contenido a la derecha en móvil para dejar hueco a la
+          toolbar interior (en desktop la toolbar va fuera del lienzo). */}
+      <div className="pl-16 sm:pl-0">
+        <BlockEditor block={block} onUpdate={onUpdate} />
+      </div>
     </div>
   );
 }
@@ -426,48 +439,7 @@ function BlockEditor({
       );
 
     case 'image':
-      return (
-        <div style={{ margin: '25px 0' }}>
-          {block.url.trim() ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={block.url}
-              alt={block.alt}
-              style={{ maxWidth: '100%', borderRadius: 8, display: 'block', margin: '0 auto 12px' }}
-            />
-          ) : (
-            <div
-              className="flex items-center justify-center text-sm"
-              style={{
-                height: 120,
-                borderRadius: 8,
-                border: '1px dashed #C9C1B4',
-                color: '#A09A92',
-                marginBottom: 12,
-                fontFamily: 'Georgia,serif',
-              }}
-            >
-              Pega la URL de una imagen abajo
-            </div>
-          )}
-          <div className="flex flex-col sm:flex-row gap-2">
-            <input
-              type="url"
-              value={block.url}
-              onChange={(e) => onUpdate({ url: e.target.value })}
-              placeholder="URL de la imagen (https://…)"
-              className="flex-1 px-3 py-2 border border-azul/15 rounded-lg text-sm text-texto focus:outline-none focus:border-azul bg-white font-mono"
-            />
-            <input
-              type="text"
-              value={block.alt}
-              onChange={(e) => onUpdate({ alt: e.target.value })}
-              placeholder="Texto alternativo"
-              className="flex-1 px-3 py-2 border border-azul/15 rounded-lg text-sm text-texto focus:outline-none focus:border-azul bg-white"
-            />
-          </div>
-        </div>
-      );
+      return <ImageEditor block={block} onUpdate={onUpdate} />;
 
     case 'divider':
       return <div style={{ height: 1, background: '#E5E0D5', margin: '35px 0' }} />;
@@ -478,6 +450,208 @@ function BlockEditor({
       return null;
     }
   }
+}
+
+// ===========================================================================
+// Editor del bloque de IMAGEN: vista previa + tres formas de poner la imagen:
+//   1) pegar un enlace (input URL),
+//   2) botón "Subir imagen" (abre el selector de archivos),
+//   3) arrastrar una imagen del ordenador y soltarla sobre el bloque.
+// Sube el archivo a /api/admin/upload y guarda la URL pública en block.url.
+// ===========================================================================
+function ImageEditor({
+  block,
+  onUpdate,
+}: {
+  block: { id: string; type: 'image'; url: string; alt: string };
+  onUpdate: (patch: Partial<Block>) => void;
+}) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  // Resalta la zona de soltar mientras se arrastra un archivo por encima.
+  const [dragActive, setDragActive] = useState(false);
+
+  // Sube un archivo al endpoint y, si va bien, actualiza block.url.
+  const uploadFile = async (file: File) => {
+    setError(null);
+
+    // Validación en cliente: debe ser imagen y pesar < 5 MB (el backend
+    // revalida, pero así damos feedback inmediato sin viaje de red).
+    if (!file.type.startsWith('image/')) {
+      setError('El archivo debe ser una imagen.');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setError('La imagen supera el límite de 5 MB.');
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      const data: { success: boolean; url?: string; error?: string } = await res.json();
+
+      if (!res.ok || !data.success || !data.url) {
+        // Mensaje amable cuando falta la clave de servicio en Vercel.
+        if (data.error?.includes('SUPABASE_SERVICE_ROLE_KEY')) {
+          setError(
+            'Para subir imágenes, falta configurar la clave de servicio en Vercel ' +
+              '(mientras tanto, puedes pegar un enlace de imagen).',
+          );
+        } else {
+          setError(data.error || 'No se pudo subir la imagen.');
+        }
+        return;
+      }
+
+      onUpdate({ url: data.url });
+    } catch {
+      setError('No se pudo conectar con el servidor. Inténtalo de nuevo.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // Selector de archivos (botón "Subir imagen").
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) void uploadFile(file);
+    // Reseteamos el input para poder volver a elegir el mismo archivo.
+    e.target.value = '';
+  };
+
+  // Soltar sobre el bloque. OJO: este mismo lienzo usa DnD nativo para
+  // REORDENAR bloques. Distinguimos por e.dataTransfer.files.length: si hay
+  // ficheros, es una imagen del ordenador → subimos; si no, es un bloque que
+  // se está reordenando → dejamos que el drop burbujee a la fila (BlockRow).
+  const handleDrop = (e: React.DragEvent) => {
+    if (e.dataTransfer.files.length > 0) {
+      e.preventDefault();
+      e.stopPropagation();
+      setDragActive(false);
+      void uploadFile(e.dataTransfer.files[0]);
+    }
+    // Si no hay ficheros: no hacemos nada y el evento sigue su curso normal
+    // (reordenado de bloques gestionado por BlockRow).
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    // Solo interceptamos cuando se arrastra un fichero (no un bloque).
+    if (Array.from(e.dataTransfer.types).includes('Files')) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!dragActive) setDragActive(true);
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    if (Array.from(e.dataTransfer.types).includes('Files')) {
+      setDragActive(false);
+    }
+  };
+
+  return (
+    <div style={{ margin: '25px 0' }}>
+      {/* Zona de imagen / soltar: vista previa si hay URL, si no un recuadro
+          punteado que invita a soltar o subir. */}
+      <div
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        style={{
+          borderRadius: 8,
+          border: dragActive ? '2px dashed #1F3A5F' : '1px dashed #C9C1B4',
+          backgroundColor: dragActive ? 'rgba(31,58,95,0.04)' : 'transparent',
+          marginBottom: 12,
+          transition: 'border-color 0.15s, background-color 0.15s',
+        }}
+      >
+        {block.url.trim() ? (
+          <div style={{ position: 'relative', padding: 8 }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={block.url}
+              alt={block.alt}
+              style={{ maxWidth: '100%', borderRadius: 6, display: 'block', margin: '0 auto' }}
+            />
+            {dragActive && (
+              <div
+                className="absolute inset-0 flex items-center justify-center text-sm font-medium"
+                style={{ color: '#1F3A5F', backgroundColor: 'rgba(250,247,240,0.85)', borderRadius: 6 }}
+              >
+                Suelta para reemplazar la imagen
+              </div>
+            )}
+          </div>
+        ) : (
+          <div
+            className="flex flex-col items-center justify-center text-sm text-center gap-1"
+            style={{ minHeight: 120, color: '#A09A92', fontFamily: 'Georgia,serif', padding: 16 }}
+          >
+            {uploading ? (
+              <span style={{ color: '#1F3A5F' }}>Subiendo…</span>
+            ) : (
+              <>
+                <span>Arrastra una imagen aquí</span>
+                <span style={{ fontSize: 12 }}>o usa los botones de abajo</span>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Controles: subir archivo + pegar enlace + texto alternativo. */}
+      <div className="flex flex-col gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            className="inline-flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg border border-azul/20 bg-azul text-white font-medium hover:bg-azul/90 disabled:opacity-60 transition-colors"
+          >
+            {uploading ? 'Subiendo…' : '⬆ Subir imagen'}
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="hidden"
+          />
+          <span className="text-xs text-texto/50">o pega un enlace de imagen:</span>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-2">
+          <input
+            type="url"
+            value={block.url}
+            onChange={(e) => onUpdate({ url: e.target.value })}
+            placeholder="Pegar enlace de imagen (https://…)"
+            className="flex-1 px-3 py-2 border border-azul/15 rounded-lg text-sm text-texto focus:outline-none focus:border-azul bg-white font-mono"
+          />
+          <input
+            type="text"
+            value={block.alt}
+            onChange={(e) => onUpdate({ alt: e.target.value })}
+            placeholder="Texto alternativo"
+            className="flex-1 px-3 py-2 border border-azul/15 rounded-lg text-sm text-texto focus:outline-none focus:border-azul bg-white"
+          />
+        </div>
+
+        {error && (
+          <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+            {error}
+          </p>
+        )}
+      </div>
+    </div>
+  );
 }
 
 // ===========================================================================
