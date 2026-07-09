@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { EMAIL_STARTERS } from '@/lib/email-starters';
+import { PRESETS, blocksToEmailHtml } from '@/lib/email-blocks';
+import BlockComposer from './BlockComposer';
 
 // ---------------------------------------------------------------------------
 // Tipos del contrato de API (consumidos por fetch, sin importar del backend).
@@ -203,9 +204,10 @@ function ComposeTab() {
   const [segmentsError, setSegmentsError] = useState('');
 
   const [subject, setSubject] = useState('');
-  // Arranca con la primera estructura de marca (no en blanco): el redactor
-  // sustituye los textos de ejemplo y mantiene la estética de Refugio.
-  const [html, setHtml] = useState(EMAIL_STARTERS[0].html);
+  // Arranca con el primer preset de bloques serializado a HTML de marca. El
+  // BlockComposer parte de ese mismo preset y sincroniza `html` en cada cambio,
+  // así que el estado inicial coincide con lo que ve el redactor.
+  const [html, setHtml] = useState(() => blocksToEmailHtml(PRESETS[0].blocks));
   const [segment, setSegment] = useState<Segment['id']>('all');
 
   const [testEmail, setTestEmail] = useState('');
@@ -332,34 +334,7 @@ function ComposeTab() {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-azul mb-1">Empieza desde una estructura</label>
-              <div className="flex flex-wrap gap-2 mb-4">
-                {EMAIL_STARTERS.map((s) => (
-                  <button
-                    key={s.id}
-                    type="button"
-                    onClick={() => setHtml(s.html)}
-                    title={s.description}
-                    className="px-3 py-1.5 text-xs rounded-lg border border-azul/15 text-azul hover:bg-albero/10 hover:border-albero transition-colors"
-                  >
-                    {s.label}
-                  </button>
-                ))}
-              </div>
-
-              <label className="block text-sm font-medium text-azul mb-1">Cuerpo (HTML)</label>
-              <textarea
-                value={html}
-                onChange={(e) => setHtml(e.target.value)}
-                rows={14}
-                placeholder="<p>Hola {{name}}, …</p>"
-                className="w-full px-4 py-3 border border-azul/15 rounded-xl focus:outline-none focus:border-azul font-mono text-sm text-texto resize-y"
-              />
-              <p className="text-xs text-texto/50 mt-1">
-                Puedes usar HTML. <code className="bg-azul/5 px-1 rounded">{'{{name}}'}</code> se sustituye por el nombre del destinatario.
-              </p>
-            </div>
+            <BlockComposer html={html} onHtmlChange={setHtml} />
           </div>
 
           {/* Selector de grupo */}
@@ -439,7 +414,7 @@ function ComposeTab() {
         {/* Vista previa */}
         <div className="lg:sticky lg:top-24 self-start">
           <div className="bg-white rounded-2xl border border-azul/10 shadow-sm p-6">
-            <h3 className="text-sm font-medium text-azul mb-3">Vista previa</h3>
+            <h3 className="text-sm font-medium text-azul mb-3">Cómo llegará al inbox</h3>
             <HtmlPreview html={html} />
           </div>
         </div>
