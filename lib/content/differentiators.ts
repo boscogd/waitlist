@@ -39,7 +39,7 @@ export const differentiators: Differentiator[] = [
     title: 'Web app universal',
     description: 'Funciona en cualquier dispositivo sin descargas. Accede desde móvil, tablet o PC.',
     icon: '/icons/mundo-icon.png',
-    iconAlt: 'Globo que representa el acceso desde cualquier dispositivo',
+    iconAlt: 'Paloma que representa una presencia constante en cualquier dispositivo',
   },
   {
     title: 'Comunidad cercana',

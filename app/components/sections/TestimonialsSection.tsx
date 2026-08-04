@@ -33,9 +33,8 @@ export default function TestimonialsSection() {
           {trustSeals.map((seal) => (
             <AnimateOnScroll key={seal.title} delay={seal.delay}>
               <div className="bg-white rounded-2xl p-6 border border-azul/5 shadow-sm space-y-4 h-full">
-                <div className="w-14 h-14 bg-gradient-to-br from-albero/30 to-dorado/30 rounded-xl flex items-center justify-center p-2">
-                  <Image src={seal.icon} alt={seal.iconAlt} width={40} height={40} />
-                </div>
+                {/* Icono suelto (sin caja) para homogeneizar con Problema, Caracteristicas y Diferenciadores */}
+                <Image src={seal.icon} alt={seal.iconAlt} width={56} height={56} />
                 <h3 className="font-semibold text-lg text-azul">{seal.title}</h3>
                 <p className="text-texto/70 text-sm leading-relaxed">
                   {seal.description}

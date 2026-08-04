@@ -39,7 +39,7 @@ export default function ProblemSection() {
           <AnimateOnScroll delay={300}>
             <div className="text-center space-y-4">
               <div className="flex items-center justify-center mx-auto">
-                <Image src="/icons/mundo-icon.png" alt="Globo terráqueo que simboliza las apps genéricas que no conectan con la fe católica" width={60} height={60} />
+                <Image src="/icons/mundo-icon.png" alt="Paloma que simboliza la fe que las apps genéricas no logran acompañar" width={60} height={60} />
               </div>
               <h3 className="font-semibold text-azul">Apps que no conectan</h3>
               <p className="text-sm text-texto/70">Las apps genéricas de meditación no entienden tu fe católica ni tus tradiciones.</p>

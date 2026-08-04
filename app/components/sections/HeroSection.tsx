@@ -43,15 +43,15 @@ export default function HeroSection() {
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-4 text-sm text-texto/60 animate-fade-in-up animation-delay-400">
               <WaitlistCounter />
               <div className="flex items-center gap-2">
-                <IconCheckCircle className="w-4 h-4 text-green-500" />
+                <IconCheckCircle className="w-4 h-4 text-albero" />
                 <span>Descarga gratis</span>
               </div>
               <div className="flex items-center gap-2">
-                <IconCheckCircle className="w-4 h-4 text-green-500" />
+                <IconCheckCircle className="w-4 h-4 text-albero" />
                 <span>Sin anuncios</span>
               </div>
               <div className="flex items-center gap-2">
-                <IconCheckCircle className="w-4 h-4 text-green-500" />
+                <IconCheckCircle className="w-4 h-4 text-albero" />
                 <span>Hecho en España</span>
               </div>
             </div>

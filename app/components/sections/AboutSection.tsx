@@ -41,8 +41,9 @@ export default function AboutSection() {
 
         <div className="grid md:grid-cols-3 gap-8">
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 space-y-4">
-            <div className="w-20 h-20 bg-gradient-to-br from-albero/30 to-dorado/30 rounded-xl flex items-center justify-center p-2">
-              <Image src="/icons/calendario-icon.png" alt="Calendario que representa el tiempo que Aida y Bosco dedican al proyecto" width={56} height={56} />
+            {/* Circulo claro tras el icono: da contraste a la ilustracion azul+dorado sobre el fondo azul */}
+            <div className="w-[72px] h-[72px] bg-marfil rounded-full flex items-center justify-center p-3">
+              <Image src="/icons/calendario-icon.png" alt="Calendario que representa el tiempo que Aida y Bosco dedican al proyecto" width={48} height={48} />
             </div>
             <h3 className="font-semibold text-lg">Sacamos tiempo de donde no lo hay</h3>
             <p className="text-white/80 text-sm leading-relaxed">
@@ -51,8 +52,9 @@ export default function AboutSection() {
           </div>
 
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 space-y-4">
-            <div className="w-20 h-20 bg-gradient-to-br from-albero/30 to-dorado/30 rounded-xl flex items-center justify-center p-2">
-              <Image src="/icons/comunidad-icon.png" alt="Icono de equipo que representa a Aida y Bosco trabajando juntos" width={56} height={56} />
+            {/* Circulo claro tras el icono: da contraste a la ilustracion azul+dorado sobre el fondo azul */}
+            <div className="w-[72px] h-[72px] bg-marfil rounded-full flex items-center justify-center p-3">
+              <Image src="/icons/comunidad-icon.png" alt="Icono de equipo que representa a Aida y Bosco trabajando juntos" width={48} height={48} />
             </div>
             <h3 className="font-semibold text-lg">Nos complementamos</h3>
             <p className="text-white/80 text-sm leading-relaxed">
@@ -61,8 +63,9 @@ export default function AboutSection() {
           </div>
 
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 space-y-4">
-            <div className="w-20 h-20 bg-gradient-to-br from-albero/30 to-dorado/30 rounded-xl flex items-center justify-center p-2">
-              <Image src="/icons/amor-icon.png" alt="Corazón que simboliza el propósito de ayudar a otros con la app" width={56} height={56} />
+            {/* Circulo claro tras el icono: da contraste a la ilustracion azul+dorado sobre el fondo azul */}
+            <div className="w-[72px] h-[72px] bg-marfil rounded-full flex items-center justify-center p-3">
+              <Image src="/icons/amor-icon.png" alt="Corazón que simboliza el propósito de ayudar a otros con la app" width={48} height={48} />
             </div>
             <h3 className="font-semibold text-lg">Hecho con propósito</h3>
             <p className="text-white/80 text-sm leading-relaxed">
