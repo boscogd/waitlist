@@ -242,7 +242,7 @@ VALUES
 <body style="margin: 0; padding: 0; font-family: Georgia, ''Times New Roman'', serif; background-color: #FAF7F0;">
     <div style="max-width: 580px; margin: 0 auto; padding: 40px 20px;">
         <div style="text-align: center; margin-bottom: 50px; padding-bottom: 30px; border-bottom: 1px solid #E5E0D5;">
-            <img src="https://www.refugioenlapalabra.com/logo-512-1.png" alt="Refugio en la Palabra" width="60" height="60" style="display: block; margin: 0 auto 14px; border-radius: 14px;">
+            <img src="https://www.refugioenlapalabra.com/logo-refugio.png" alt="Refugio en la Palabra" width="60" height="60" style="display: block; margin: 0 auto 14px; border-radius: 14px;">
             <span style="font-size: 14px; letter-spacing: 3px; color: #8B7355; text-transform: uppercase;">Refugio en la Palabra</span>
         </div>
 
@@ -305,7 +305,7 @@ VALUES
 <body style="margin: 0; padding: 0; font-family: Georgia, ''Times New Roman'', serif; background-color: #FAF7F0;">
     <div style="max-width: 580px; margin: 0 auto; padding: 40px 20px;">
         <div style="text-align: center; margin-bottom: 50px; padding-bottom: 30px; border-bottom: 1px solid #E5E0D5;">
-            <img src="https://www.refugioenlapalabra.com/logo-512-1.png" alt="Refugio en la Palabra" width="60" height="60" style="display: block; margin: 0 auto 14px; border-radius: 14px;">
+            <img src="https://www.refugioenlapalabra.com/logo-refugio.png" alt="Refugio en la Palabra" width="60" height="60" style="display: block; margin: 0 auto 14px; border-radius: 14px;">
             <span style="font-size: 14px; letter-spacing: 3px; color: #8B7355; text-transform: uppercase;">Refugio en la Palabra</span>
         </div>
 
@@ -387,7 +387,7 @@ VALUES
 <body style="margin: 0; padding: 0; font-family: Georgia, ''Times New Roman'', serif; background-color: #FAF7F0;">
     <div style="max-width: 580px; margin: 0 auto; padding: 40px 20px;">
         <div style="text-align: center; margin-bottom: 50px; padding-bottom: 30px; border-bottom: 1px solid #E5E0D5;">
-            <img src="https://www.refugioenlapalabra.com/logo-512-1.png" alt="Refugio en la Palabra" width="60" height="60" style="display: block; margin: 0 auto 14px; border-radius: 14px;">
+            <img src="https://www.refugioenlapalabra.com/logo-refugio.png" alt="Refugio en la Palabra" width="60" height="60" style="display: block; margin: 0 auto 14px; border-radius: 14px;">
             <span style="font-size: 14px; letter-spacing: 3px; color: #8B7355; text-transform: uppercase;">Refugio en la Palabra</span>
         </div>
 
