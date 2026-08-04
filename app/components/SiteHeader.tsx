@@ -84,10 +84,10 @@ export default function SiteHeader() {
           aria-label="Inicio"
         >
           <Image
-            src="/logo-512-1.png"
+            src="/logo-refugio.png"
             alt="Refugio en la Palabra"
             width={40}
-            height={40}
+            height={44}
             className="object-contain"
           />
           <span className="font-[family-name:var(--font-lora)] text-xl font-semibold text-azul hidden sm:block">

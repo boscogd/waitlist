@@ -1,24 +1,30 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import AnimateOnScroll from '../AnimateOnScroll';
-import { IconArrowRight } from '../icons';
 
 export default function FinalCTASection() {
   return (
-    <section className="px-6 py-20">
-      <AnimateOnScroll className="max-w-4xl mx-auto text-center space-y-8">
-        <h2 className="font-[family-name:var(--font-lora)] text-3xl sm:text-4xl lg:text-5xl font-semibold text-azul">
-          Tu camino espiritual comienza con un paso
-        </h2>
-        <p className="text-lg text-texto/70 max-w-2xl mx-auto">
-          Instala Refugio en la Palabra y empieza hoy tu camino de fe. El primer paso es el más importante.
+    <section className="px-6 pt-8 pb-24">
+      <AnimateOnScroll className="max-w-2xl mx-auto text-center space-y-6">
+        <Image
+          src="/logo-refugio.png"
+          alt="Refugio en la Palabra"
+          width={72}
+          height={72}
+          className="mx-auto object-contain opacity-95"
+        />
+        <p className="font-[family-name:var(--font-lora)] text-2xl sm:text-3xl font-medium text-azul leading-snug text-balance">
+          Que cada día encuentres aquí un refugio para descansar en Dios y crecer en la fe.
         </p>
-        <Link
-          href="/descargar"
-          className="inline-flex items-center gap-2 bg-gradient-to-r from-albero to-dorado text-azul-800 px-8 py-4 rounded-xl text-lg font-semibold hover:shadow-xl hover:shadow-albero/20 transition-all duration-300"
-        >
-          Instalar gratis
-          <IconArrowRight className="w-5 h-5" />
-        </Link>
+        <p className="text-base text-texto/60">
+          ¿Aún no lo has instalado?{' '}
+          <Link
+            href="/descargar"
+            className="text-azul font-medium underline decoration-albero/60 underline-offset-4 hover:decoration-albero transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-albero rounded-sm"
+          >
+            Empieza tu camino
+          </Link>
+        </p>
       </AnimateOnScroll>
     </section>
   );

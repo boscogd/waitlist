@@ -194,7 +194,7 @@ function getWaitlistEmailTemplate(name: string, code: string): string {
         <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
           <!-- Header -->
           <div style="text-align: center; margin-bottom: 40px;">
-            <img src="https://www.refugioenlapalabra.com/logo-512-1.png" alt="Refugio en la Palabra" width="64" height="64" style="display: block; margin: 0 auto 16px; border-radius: 14px;">
+            <img src="https://www.refugioenlapalabra.com/logo-refugio.png" alt="Refugio en la Palabra" width="64" height="64" style="display: block; margin: 0 auto 16px; border-radius: 14px;">
             <h1 style="font-family: 'Lora', Georgia, serif; color: #1F3A5F; font-size: 32px; margin: 0;">
               Refugio en la Palabra
             </h1>
@@ -565,7 +565,7 @@ function getLaunchEmailTemplate(name: string, code: string): string {
         <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
           <!-- Header -->
           <div style="text-align: center; margin-bottom: 40px;">
-            <img src="https://www.refugioenlapalabra.com/logo-512-1.png" alt="Refugio en la Palabra" width="64" height="64" style="display: block; margin: 0 auto 16px; border-radius: 14px;">
+            <img src="https://www.refugioenlapalabra.com/logo-refugio.png" alt="Refugio en la Palabra" width="64" height="64" style="display: block; margin: 0 auto 16px; border-radius: 14px;">
             <h1 style="font-family: 'Lora', Georgia, serif; color: #1F3A5F; font-size: 32px; margin: 0;">
               Refugio en la Palabra
             </h1>
@@ -682,7 +682,7 @@ function getCodeReminderTemplate(name: string, code: string): string {
         <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
           <!-- Header -->
           <div style="text-align: center; margin-bottom: 40px;">
-            <img src="https://www.refugioenlapalabra.com/logo-512-1.png" alt="Refugio en la Palabra" width="64" height="64" style="display: block; margin: 0 auto 16px; border-radius: 14px;">
+            <img src="https://www.refugioenlapalabra.com/logo-refugio.png" alt="Refugio en la Palabra" width="64" height="64" style="display: block; margin: 0 auto 16px; border-radius: 14px;">
             <h1 style="font-family: 'Lora', Georgia, serif; color: #1F3A5F; font-size: 32px; margin: 0;">
               Refugio en la Palabra
             </h1>

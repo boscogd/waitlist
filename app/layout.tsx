@@ -105,7 +105,7 @@ const jsonLd = [
     "@type": "Organization",
     name: "Refugio en la Palabra",
     url: "https://www.refugioenlapalabra.com",
-    logo: "https://www.refugioenlapalabra.com/logo-512-1.png",
+    logo: "https://www.refugioenlapalabra.com/logo-refugio.png",
     description:
       "App católica de oración y crecimiento en la fe: Rosario guiado con audio, Evangelio del día comentado y compañero de fe disponible 24/7.",
     email: "info@refugioenlapalabra.com",

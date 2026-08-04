@@ -233,10 +233,10 @@ export default function DescargarPage() {
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
             <Image
-              src="/logo-512-1.png"
+              src="/logo-refugio.png"
               alt="Refugio en la Palabra"
               width={40}
-              height={40}
+              height={44}
               className="object-contain"
             />
             <span className="font-[family-name:var(--font-lora)] text-xl font-semibold text-azul hidden sm:block">
@@ -262,7 +262,7 @@ export default function DescargarPage() {
         <section className="px-6 py-12 sm:py-16 lg:py-20">
           <div className="max-w-4xl mx-auto text-center">
             <AnimateOnScroll>
-              <div className="inline-flex items-center gap-2 bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
+              <div className="inline-flex items-center gap-2 bg-albero/15 text-[#8a6d1f] px-4 py-2 rounded-full text-sm font-medium mb-6">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
@@ -500,23 +500,23 @@ export default function DescargarPage() {
 
             {/* Success message */}
             <AnimateOnScroll delay={500}>
-              <div className="mt-8 bg-green-50 border border-green-200 rounded-2xl p-6 sm:p-8 text-center">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="mt-8 bg-albero/10 border border-albero/30 rounded-2xl p-6 sm:p-8 text-center">
+                <div className="w-16 h-16 bg-albero/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-[#8a6d1f]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <h3 className="font-[family-name:var(--font-lora)] text-xl font-semibold text-green-800 mb-2">
+                <h3 className="font-[family-name:var(--font-lora)] text-xl font-semibold text-azul mb-2">
                   ¡Ya está!
                 </h3>
-                <p className="text-green-700 mb-6">
+                <p className="text-texto/70 mb-6">
                   Refugio en la Palabra ya está en tu pantalla de inicio. Ábrela cuando quieras rezar.
                 </p>
                 <a
                   href="https://refugio-en-la-palabra.netlify.app"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-semibold shadow-md hover:shadow-lg transition-all duration-300"
+                  className="group inline-flex items-center gap-2 bg-azul hover:bg-azul-800 text-white px-6 py-3 rounded-xl font-semibold shadow-md hover:shadow-lg transition-all duration-300"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
@@ -582,19 +582,19 @@ export default function DescargarPage() {
                 </p>
                 <div className="flex flex-wrap justify-center gap-4 text-sm text-white/60">
                   <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
-                    <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-4 h-4 text-albero" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
                     Sin malware
                   </div>
                   <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
-                    <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-4 h-4 text-albero" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
                     Sin permisos extraños
                   </div>
                   <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
-                    <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-4 h-4 text-albero" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
                     Conexión segura HTTPS
@@ -679,11 +679,11 @@ export default function DescargarPage() {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-white/50">
             <div className="flex items-center gap-3">
               <Image
-                src="/logo-512-1.png"
+                src="/icon-refugio-192.png"
                 alt="Refugio en la Palabra"
                 width={32}
                 height={32}
-                className="object-contain"
+                className="rounded-lg"
               />
               <span className="text-white/70">Refugio en la Palabra</span>
             </div>

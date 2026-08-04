@@ -8,10 +8,11 @@ export default function DownloadCTASection() {
       <AnimateOnScroll className="max-w-2xl mx-auto">
         <div className="bg-gradient-to-br from-white to-marfil rounded-3xl p-8 sm:p-12 shadow-xl shadow-azul/5 border border-azul/5">
           <div className="text-center space-y-4 mb-8">
-            <div className="inline-flex items-center gap-2 bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-medium">
+            <div className="inline-flex items-center gap-2 bg-albero/15 text-[#8a6d1f] px-4 py-2 rounded-full text-sm font-medium">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                {/* Puntito dorado de marca (antes verde) */}
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-dorado opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-dorado"></span>
               </span>
               Ya disponible
             </div>

@@ -189,7 +189,7 @@ export default function BlockComposer({ html, onHtmlChange }: BlockComposerProps
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="https://www.refugioenlapalabra.com/logo-512-1.png"
+              src="https://www.refugioenlapalabra.com/logo-refugio.png"
               alt="Refugio en la Palabra"
               width={54}
               height={54}

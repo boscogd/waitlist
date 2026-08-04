@@ -1,44 +1,45 @@
-// Datos de la sección "Testimonios".
-// Mapeados en TestimonialsSection. Las comillas tipográficas (“ ”) y los
-// acentos se almacenan ya como caracteres Unicode; renderizan idénticos a
-// las entidades HTML que había inline (&ldquo;, &aacute;, …).
+// Datos de la sección de prueba social ("Por qué confían en Refugio").
+// IMPORTANTE: nada de testimonios inventados ni personas ficticias.
+// Solo sellos honestos y verificables sobre el proyecto. Las cifras vivas
+// (personas que ya rezan, seguidores de Instagram) las aportan los
+// componentes WaitlistCounter e InstagramBadge, no este archivo.
 
-export interface Testimonial {
-  /** Cita; incluye las comillas tipográficas de apertura/cierre. */
-  quote: string;
-  /** Nombre mostrado. */
-  name: string;
-  /** Ciudad. */
-  location: string;
-  /** Inicial mostrada en el avatar. */
-  initial: string;
+export interface TrustSeal {
+  /** Icono ilustrado de marca en public/icons. */
+  icon: string;
+  /** Texto alternativo del icono. */
+  iconAlt: string;
+  /** Título del sello. */
+  title: string;
+  /** Descripción breve y honesta. */
+  description: string;
   /** Delay de la animación de entrada (ms). */
   delay: number;
 }
 
-export const testimonials: Testimonial[] = [
+export const trustSeals: TrustSeal[] = [
   {
-    quote:
-      '“El rosario guiado me ha ayudado a mantener una rutina de oración que antes no tenía. Es como tener un compañero espiritual siempre disponible.”',
-    name: 'María G.',
-    location: 'Madrid',
-    initial: 'M',
+    icon: '/icons/cruz-icon.png',
+    iconAlt: 'Cruz que representa la fidelidad católica de Refugio',
+    title: '100% católico',
+    description:
+      'Contenido fiel al Magisterio de la Iglesia. Nada de sincretismo ni meditaciones genéricas.',
     delay: 100,
   },
   {
-    quote:
-      '“Lo que más me gusta es el Evangelio comentado cada día. Me ayuda a empezar la mañana con una reflexión que se queda conmigo todo el día.”',
-    name: 'Javier R.',
-    location: 'Barcelona',
-    initial: 'J',
+    icon: '/icons/comunidad-icon.png',
+    iconAlt: 'Dos personas que representan a los fundadores de Refugio',
+    title: 'Hecho en España por dos personas',
+    description:
+      'Aida y Bosco, una pareja que reza como tú. Sin grandes empresas detrás, solo dos manos y una fe.',
     delay: 200,
   },
   {
-    quote:
-      '“El compañero de fe es increíble. Puedo preguntar cualquier duda y me responde con citas del Catecismo. Muy útil para entender mejor mi fe.”',
-    name: 'Ana L.',
-    location: 'Sevilla',
-    initial: 'A',
+    icon: '/icons/confianza-icon.png',
+    iconAlt: 'Escudo que representa la privacidad y la ausencia de anuncios',
+    title: 'Sin anuncios ni tracking',
+    description:
+      'Tu vida espiritual es sagrada. No vendemos tus datos ni te interrumpimos con publicidad.',
     delay: 300,
   },
 ];

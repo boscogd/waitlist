@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import InstagramBadge from '../InstagramBadge';
 import WaitlistCounter from '../WaitlistCounter';
 import Parallax from '../Parallax';
 import PhoneCarousel from '../PhoneCarousel';
@@ -13,11 +12,6 @@ export default function HeroSection() {
 
           {/* Contenido izquierdo */}
           <div className="space-y-6 text-center lg:text-left">
-            {/* Badge de Instagram */}
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 animate-fade-in-up">
-              <InstagramBadge />
-            </div>
-
             {/* Título principal */}
             <h1 className="font-[family-name:var(--font-lora)] text-4xl sm:text-5xl lg:text-6xl font-semibold text-azul leading-tight tracking-tight animate-fade-in-up animation-delay-100">
               Tu refugio diario para{' '}
@@ -37,7 +31,7 @@ export default function HeroSection() {
                 href="/descargar"
                 className="group bg-gradient-to-r from-azul to-azul-800 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:shadow-xl hover:shadow-azul/20 transition-all duration-300 flex items-center gap-2"
               >
-                Empezar gratis
+                Instalar gratis
                 <IconArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
               <p className="text-xs text-texto/70">
@@ -49,15 +43,15 @@ export default function HeroSection() {
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-4 text-sm text-texto/60 animate-fade-in-up animation-delay-400">
               <WaitlistCounter />
               <div className="flex items-center gap-2">
-                <IconCheckCircle className="w-4 h-4 text-green-500" />
+                <IconCheckCircle className="w-4 h-4 text-albero" />
                 <span>Descarga gratis</span>
               </div>
               <div className="flex items-center gap-2">
-                <IconCheckCircle className="w-4 h-4 text-green-500" />
+                <IconCheckCircle className="w-4 h-4 text-albero" />
                 <span>Sin anuncios</span>
               </div>
               <div className="flex items-center gap-2">
-                <IconCheckCircle className="w-4 h-4 text-green-500" />
+                <IconCheckCircle className="w-4 h-4 text-albero" />
                 <span>Hecho en España</span>
               </div>
             </div>

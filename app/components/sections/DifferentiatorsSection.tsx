@@ -1,6 +1,6 @@
+import Image from 'next/image';
 import AnimateOnScroll from '../AnimateOnScroll';
 import SectionHeader from '../ui/SectionHeader';
-import { IconCheckStroke } from '../icons';
 import { differentiators } from '@/lib/content/differentiators';
 
 export default function DifferentiatorsSection() {
@@ -23,8 +23,8 @@ export default function DifferentiatorsSection() {
         <div className="grid md:grid-cols-2 gap-6">
           {differentiators.map((item) => (
             <div key={item.title} className="flex gap-4 p-6 bg-white rounded-xl border border-azul/5 hover:border-albero/30 hover:shadow-xl hover:shadow-albero/5 transition-all duration-300">
-              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                <IconCheckStroke className="w-6 h-6 text-green-600" />
+              <div className="flex-shrink-0 flex items-center justify-center">
+                <Image src={item.icon} alt={item.iconAlt} width={48} height={48} />
               </div>
               <div>
                 <h3 className="font-semibold text-azul mb-1">{item.title}</h3>
