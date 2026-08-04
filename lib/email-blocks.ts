@@ -33,7 +33,7 @@ export type Block =
 // ---------------------------------------------------------------------------
 
 const HEADER = `    <div style="text-align:center;margin-bottom:45px;padding-bottom:28px;border-bottom:1px solid #E5E0D5;">
-      <img src="https://www.refugioenlapalabra.com/logo-512-1.png" alt="Refugio en la Palabra" width="60" height="60" style="display:block;margin:0 auto 14px;border-radius:14px;">
+      <img src="https://www.refugioenlapalabra.com/logo-refugio.png" alt="Refugio en la Palabra" width="60" height="60" style="display:block;margin:0 auto 14px;border-radius:14px;">
       <span style="font-size:14px;letter-spacing:3px;color:#8B7355;text-transform:uppercase;font-family:Arial,Helvetica,sans-serif;">Refugio en la Palabra</span>
     </div>`;
 

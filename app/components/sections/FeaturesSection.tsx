@@ -24,8 +24,8 @@ export default function FeaturesSection() {
         <div className="grid md:grid-cols-2 gap-8">
           {features.map((feature) => (
             <div key={feature.title} className="group bg-white rounded-2xl p-8 space-y-4 border border-azul/5 hover:border-albero/30 hover:shadow-xl hover:shadow-albero/5 transition-all duration-300">
-              <div className="w-14 h-14 bg-gradient-to-br from-albero/20 to-dorado/20 rounded-xl flex items-center justify-center p-2 group-hover:scale-110 transition-transform">
-                <Image src={feature.icon} alt={feature.iconAlt} width={40} height={40} />
+              <div className="flex items-center justify-center w-16 h-16">
+                <Image src={feature.icon} alt={feature.iconAlt} width={60} height={60} className="group-hover:scale-110 transition-transform" />
               </div>
               <h3 className="font-[family-name:var(--font-lora)] text-xl font-semibold text-azul">
                 {feature.title}

@@ -12,11 +12,11 @@ export default function SiteFooter() {
           <div className="md:col-span-2 space-y-4">
             <div className="flex items-center gap-3">
               <Image
-                src="/logo-512-1.png"
+                src="/icon-refugio-192.png"
                 alt="Refugio en la Palabra"
                 width={48}
                 height={48}
-                className="object-contain"
+                className="rounded-xl"
               />
               <span className="font-[family-name:var(--font-lora)] text-xl font-semibold">
                 Refugio en la Palabra
