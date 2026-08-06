@@ -22,19 +22,14 @@ export default function AboutSection() {
           </AnimateOnScroll>
 
           <AnimateOnScroll delay={100}>
-            {/* TODO: sustituir por foto real de Aida y Bosco */}
-            {/* Cuando exista la foto: <Image src="/aida-bosco.jpg" alt="Aida y Bosco, fundadores de Refugio" fill className="object-cover" /> dentro de este contenedor */}
-            <div className="relative aspect-[4/3] w-full rounded-2xl bg-white/10 backdrop-blur-sm border border-white/10 overflow-hidden flex flex-col items-center justify-center gap-4">
-              <div className="w-24 h-24 rounded-full bg-white/10 flex items-center justify-center p-3">
-                <Image
-                  src="/logo-refugio.png"
-                  alt="Logo de Refugio en la Palabra"
-                  width={72}
-                  height={72}
-                  className="opacity-90"
-                />
-              </div>
-              <p className="text-white/50 text-sm">Foto de Aida y Bosco</p>
+            <div className="relative aspect-[4/5] w-full max-w-sm mx-auto rounded-2xl bg-white/10 border border-white/10 overflow-hidden shadow-2xl shadow-black/20">
+              <Image
+                src="/aida-bosco.jpg"
+                alt="Aida y Bosco, fundadores de Refugio en la Palabra, mostrando la app"
+                fill
+                sizes="(max-width: 768px) 90vw, 400px"
+                className="object-cover object-top"
+              />
             </div>
           </AnimateOnScroll>
         </div>
