@@ -121,6 +121,8 @@ export default function SiteHeader() {
         <div className="flex items-center gap-2">
           <Link
             href="/descargar"
+            data-track="cta_click"
+            data-track-where="header"
             className="bg-azul text-white px-4 sm:px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-azul-800 transition-colors shadow-sm"
           >
             Instalar gratis

@@ -57,6 +57,51 @@ export type Database = {
           last_code_reminder_at?: string;
         };
       };
+      site_events: {
+        Row: {
+          id: number;
+          created_at: string;
+          kind: 'pageview' | 'event';
+          name: string;
+          path: string;
+          is_entry: boolean;
+          referrer_host: string | null;
+          referrer: string | null;
+          utm_source: string | null;
+          utm_medium: string | null;
+          utm_campaign: string | null;
+          country: string | null;
+          region: string | null;
+          city: string | null;
+          device: string | null;
+          os: string | null;
+          browser: string | null;
+          visitor_hash: string;
+          props: Record<string, unknown> | null;
+        };
+        Insert: {
+          kind: 'pageview' | 'event';
+          name: string;
+          path: string;
+          is_entry?: boolean;
+          referrer_host?: string | null;
+          referrer?: string | null;
+          utm_source?: string | null;
+          utm_medium?: string | null;
+          utm_campaign?: string | null;
+          country?: string | null;
+          region?: string | null;
+          city?: string | null;
+          device?: string | null;
+          os?: string | null;
+          browser?: string | null;
+          visitor_hash: string;
+          props?: Record<string, unknown> | null;
+        };
+        Update: {
+          props?: Record<string, unknown> | null;
+        };
+      };
       email_drafts: {
         Row: {
           id: string;

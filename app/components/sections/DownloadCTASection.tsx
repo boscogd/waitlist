@@ -27,6 +27,8 @@ export default function DownloadCTASection() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/descargar"
+              data-track="cta_click"
+              data-track-where="descargar-cta"
               className="w-full sm:w-auto px-8 py-4 text-base font-medium text-white bg-azul rounded-lg
                        hover:bg-azul-800 focus:outline-none focus:ring-2 focus:ring-offset-2
                        focus:ring-albero transition-all duration-200 shadow-sm hover:shadow-md

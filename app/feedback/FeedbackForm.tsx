@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { trackEvent } from '@/lib/track';
 
 export default function FeedbackForm() {
   const [formData, setFormData] = useState({
@@ -41,6 +42,7 @@ export default function FeedbackForm() {
 
       if (response.ok) {
         setStatus('success');
+        trackEvent('feedback_sent');
         setMessage('¡Gracias por tu feedback! Tu opinión nos ayuda a mejorar.');
         // Reset form
         setFormData({

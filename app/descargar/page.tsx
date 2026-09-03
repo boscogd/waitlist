@@ -4,6 +4,8 @@ import { useState, useEffect, type ReactNode } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import AnimateOnScroll from '../components/AnimateOnScroll';
+import { APP_URL } from '@/lib/constants';
+import { buildAppUrl } from '@/lib/track';
 
 type Platform = 'android' | 'ios';
 
@@ -17,6 +19,12 @@ type Step = {
 
 export default function DescargarPage() {
   const [platform, setPlatform] = useState<Platform>('android');
+  // Enlace a la app con el origen de la visita (utm, referrer, página de
+  // entrada). Se calcula tras montar porque sale de sessionStorage.
+  const [appHref, setAppHref] = useState(`${APP_URL}/?src=web`);
+  useEffect(() => {
+    setAppHref(buildAppUrl());
+  }, []);
 
   // Autodetección de plataforma tras montar (evita mismatch de hidratación:
   // el render inicial siempre usa 'android', y aquí lo ajustamos en el cliente).
@@ -297,6 +305,8 @@ export default function DescargarPage() {
                 <button
                   type="button"
                   onClick={() => setPlatform('android')}
+                  data-track="platform_select"
+                  data-track-platform="android"
                   aria-pressed={platform === 'android'}
                   className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-medium transition-all duration-300 ${
                     platform === 'android'
@@ -312,6 +322,8 @@ export default function DescargarPage() {
                 <button
                   type="button"
                   onClick={() => setPlatform('ios')}
+                  data-track="platform_select"
+                  data-track-platform="ios"
                   aria-pressed={platform === 'ios'}
                   className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-medium transition-all duration-300 ${
                     platform === 'ios'
@@ -410,9 +422,11 @@ export default function DescargarPage() {
             <AnimateOnScroll delay={500}>
               <div className="mt-6 text-center">
                 <a
-                  href="https://refugio-en-la-palabra.netlify.app"
+                  href={`${appHref}&web_where=principal`}
                   target="_blank"
                   rel="noopener noreferrer"
+                  data-track="install_click"
+                  data-track-where="principal"
                   className="group inline-flex items-center gap-3 bg-gradient-to-r from-albero to-dorado text-azul-800 px-8 py-4 rounded-2xl text-lg font-semibold shadow-lg shadow-albero/25 hover:shadow-xl hover:shadow-albero/30 hover:scale-[1.02] transition-all duration-300"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -513,9 +527,11 @@ export default function DescargarPage() {
                   Refugio en la Palabra ya está en tu pantalla de inicio. Ábrela cuando quieras rezar.
                 </p>
                 <a
-                  href="https://refugio-en-la-palabra.netlify.app"
+                  href={`${appHref}&web_where=final`}
                   target="_blank"
                   rel="noopener noreferrer"
+                  data-track="install_click"
+                  data-track-where="final"
                   className="group inline-flex items-center gap-2 bg-azul hover:bg-azul-800 text-white px-6 py-3 rounded-xl font-semibold shadow-md hover:shadow-lg transition-all duration-300"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

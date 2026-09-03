@@ -71,6 +71,8 @@ export default function FeedbackPage() {
             <div className="pt-2">
               <Link
                 href="/descargar"
+                data-track="cta_click"
+                data-track-where="feedback"
                 className="inline-flex items-center gap-2 text-sm font-medium text-azul/80 hover:text-azul transition-colors"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">

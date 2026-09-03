@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Lora, Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import SiteTracker from "./components/SiteTracker";
 import "./globals.css";
 
 const lora = Lora({
@@ -161,6 +162,8 @@ export default function RootLayout({
           Saltar al contenido
         </a>
         {children}
+        {/* Analítica propia (páginas vistas + eventos data-track) → /api/track → Supabase. */}
+        <SiteTracker />
         {/* Analítica de Vercel: sin cookies, mismo dominio (no toca CSP ni RGPD). */}
         <Analytics />
       </body>

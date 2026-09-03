@@ -26,7 +26,7 @@ export default function SiteFooter() {
               Tu espacio diario para orar, comprender y avanzar con sentido. Una herramienta católica diseñada para fortalecer tu fe y acompañarte en tu camino espiritual.
             </p>
             <div className="flex gap-4 pt-2">
-              <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center hover:bg-white/20 transition-colors" aria-label="Instagram">
+              <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" data-track="instagram_click" data-track-where="footer" className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center hover:bg-white/20 transition-colors" aria-label="Instagram">
                 <IconInstagram className="w-5 h-5" />
               </a>
             </div>
@@ -41,7 +41,7 @@ export default function SiteFooter() {
               <li><a href="/#nosotros" className="hover:text-white transition-colors">Quiénes somos</a></li>
               <li><a href="/#faq" className="hover:text-white transition-colors">Preguntas frecuentes</a></li>
               <li><Link href="/actualidad" className="hover:text-white transition-colors">Actualidad</Link></li>
-              <li><Link href="/descargar" className="hover:text-white transition-colors">Instalar la app</Link></li>
+              <li><Link href="/descargar" data-track="cta_click" data-track-where="footer" className="hover:text-white transition-colors">Instalar la app</Link></li>
             </ul>
           </div>
 

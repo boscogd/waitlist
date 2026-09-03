@@ -20,6 +20,8 @@ export default function FinalCTASection() {
           ¿Aún no lo has instalado?{' '}
           <Link
             href="/descargar"
+            data-track="cta_click"
+            data-track-where="final"
             className="text-azul font-medium underline decoration-albero/60 underline-offset-4 hover:decoration-albero transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-albero rounded-sm"
           >
             Empieza tu camino
