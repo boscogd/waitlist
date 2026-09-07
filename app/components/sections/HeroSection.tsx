@@ -1,19 +1,40 @@
+import Image from 'next/image';
 import Link from 'next/link';
-import WaitlistCounter from '../WaitlistCounter';
-import Parallax from '../Parallax';
-import PhoneCarousel from '../PhoneCarousel';
+import HeroPhone from '../HeroPhone';
 import { IconArrowRight, IconCheckCircle } from '../icons';
 
 export default function HeroSection() {
   return (
-    <section className="px-6 py-12 sm:py-16 lg:py-20 overflow-hidden">
+    <section className="relative px-6 py-12 sm:py-16 lg:py-20 overflow-hidden">
+      {/* Fondo: luces suaves de marca + la cruz del logo como marca de agua */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
+        <div className="animate-aurora absolute -top-40 right-[-12%] h-[34rem] w-[34rem] rounded-full bg-albero/25 blur-3xl" />
+        <div className="animate-aurora-slow absolute bottom-[-10rem] left-[-14%] h-[30rem] w-[30rem] rounded-full bg-azul/10 blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 h-64 w-[40rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/60 blur-3xl" />
+        <Image
+          src="/brand/rp-mark.png"
+          alt=""
+          width={534}
+          height={572}
+          className="absolute right-[-3rem] top-[-2rem] w-[26rem] rotate-[8deg] opacity-[0.06] hidden lg:block"
+        />
+      </div>
+
       <div className="max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
 
           {/* Contenido izquierdo */}
           <div className="space-y-6 text-center lg:text-left">
+            <p className="inline-flex items-center gap-2 rounded-full border border-albero/40 bg-white/70 px-3.5 py-1.5 text-xs font-medium text-[#8a6d1f] animate-fade-in-up">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-dorado opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-dorado" />
+              </span>
+              App católica · Ya disponible
+            </p>
+
             {/* Título principal */}
-            <h1 className="font-[family-name:var(--font-lora)] text-4xl sm:text-5xl lg:text-6xl font-semibold text-azul leading-tight tracking-tight animate-fade-in-up animation-delay-100">
+            <h1 className="font-[family-name:var(--font-lora)] text-4xl sm:text-5xl lg:text-6xl font-semibold text-azul leading-tight tracking-tight text-balance animate-fade-in-up animation-delay-100">
               Tu refugio diario para{' '}
               <span className="text-[#8a6d1f]">
                 crecer en la fe
@@ -29,7 +50,9 @@ export default function HeroSection() {
             <div className="flex flex-col items-center lg:items-start gap-2 pt-2 animate-fade-in-up animation-delay-300">
               <Link
                 href="/descargar"
-                className="group bg-gradient-to-r from-azul to-azul-800 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:shadow-xl hover:shadow-azul/20 transition-all duration-300 flex items-center gap-2"
+                data-track="cta_click"
+                data-track-where="hero"
+                className="group bg-gradient-to-r from-azul to-azul-800 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:shadow-xl hover:shadow-azul/20 hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-2"
               >
                 Instalar gratis
                 <IconArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -39,12 +62,11 @@ export default function HeroSection() {
               </p>
             </div>
 
-            {/* Prueba social rápida */}
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-4 text-sm text-texto/60 animate-fade-in-up animation-delay-400">
-              <WaitlistCounter />
+            {/* Garantías rápidas (las cifras van en la franja de debajo) */}
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-5 gap-y-2 pt-2 text-sm text-texto/60 animate-fade-in-up animation-delay-400">
               <div className="flex items-center gap-2">
                 <IconCheckCircle className="w-4 h-4 text-albero" />
-                <span>Descarga gratis</span>
+                <span>Gratis</span>
               </div>
               <div className="flex items-center gap-2">
                 <IconCheckCircle className="w-4 h-4 text-albero" />
@@ -57,15 +79,9 @@ export default function HeroSection() {
             </div>
           </div>
 
-          {/* Mockups derecha */}
-          <div className="relative flex justify-center lg:justify-end animate-fade-in-up animation-delay-200">
-            <Parallax className="relative w-full max-w-md lg:max-w-lg">
-              {/* Glow effect */}
-              <div className="absolute inset-0 bg-gradient-to-br from-albero/20 to-dorado/20 rounded-[3rem] blur-3xl scale-110"></div>
-
-              {/* Carrusel circular de móviles (en redondo, arrastrable) */}
-              <PhoneCarousel />
-            </Parallax>
+          {/* La app en movimiento */}
+          <div className="relative animate-fade-in-up animation-delay-200">
+            <HeroPhone />
           </div>
 
         </div>

@@ -1,14 +1,14 @@
 import SiteHeader from './components/SiteHeader';
 import ScrollProgress from './components/ScrollProgress';
 import BackToTop from './components/BackToTop';
+import StatsBand from './components/StatsBand';
 import HeroSection from './components/sections/HeroSection';
 import ProblemSection from './components/sections/ProblemSection';
-import FeaturesSection from './components/sections/FeaturesSection';
+import FeatureShowcase from './components/sections/FeatureShowcase';
 import HowItWorksSection from './components/sections/HowItWorksSection';
-import DifferentiatorsSection from './components/sections/DifferentiatorsSection';
 import CommunitySection from './components/sections/CommunitySection';
+import WhySection from './components/sections/WhySection';
 import AboutSection from './components/sections/AboutSection';
-import TestimonialsSection from './components/sections/TestimonialsSection';
 import DownloadCTASection from './components/sections/DownloadCTASection';
 import FaqSection from './components/sections/FaqSection';
 import FinalCTASection from './components/sections/FinalCTASection';
@@ -41,29 +41,27 @@ export default function Home() {
       {/* Main Content */}
       <main id="main" className="flex-1 pt-20">
 
-        {/* Hero Section */}
+        {/* Hero + cifras reales de la comunidad (Supabase) */}
         <HeroSection />
+        <StatsBand />
 
         {/* Sección: Por qué Refugio */}
         <ProblemSection />
 
-        {/* Características principales */}
-        <FeaturesSection />
+        {/* Características: recorrido por scroll con la pantalla real de la app */}
+        <FeatureShowcase />
 
-        {/* Cómo funciona */}
+        {/* Cómo funciona (con vídeo de instalación) */}
         <HowItWorksSection />
-
-        {/* Diferenciadores */}
-        <DifferentiatorsSection />
 
         {/* Sección Comunidad */}
         <CommunitySection />
 
+        {/* Qué nos hace diferentes (bento) */}
+        <WhySection />
+
         {/* Quiénes somos */}
         <AboutSection />
-
-        {/* Testimonios */}
-        <TestimonialsSection />
 
         {/* CTA Descarga */}
         <DownloadCTASection />

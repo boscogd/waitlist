@@ -4,8 +4,17 @@ import SectionHeader from '../ui/SectionHeader';
 
 export default function AboutSection() {
   return (
-    <section id="nosotros" className="px-6 py-20 bg-azul text-white">
-      <div className="max-w-5xl mx-auto">
+    <section id="nosotros" className="relative px-6 py-20 bg-azul text-white overflow-hidden scroll-mt-20">
+      {/* Marca de agua del logo (decorativa) */}
+      <Image
+        src="/brand/rp-mark-white.png"
+        alt=""
+        width={534}
+        height={572}
+        aria-hidden="true"
+        className="pointer-events-none absolute -left-16 -bottom-24 w-[28rem] opacity-[0.05] rotate-[10deg]"
+      />
+      <div className="relative max-w-5xl mx-auto">
         {/* Bloque de texto + hueco para la foto real de los fundadores */}
         <div className="grid md:grid-cols-2 gap-10 items-center mb-16">
           <AnimateOnScroll>
