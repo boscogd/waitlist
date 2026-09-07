@@ -384,3 +384,33 @@ a {
     background-position: 0% 50% !important;
   }
 }
+
+/* =====================================================
+   Fondo del hero: luces suaves que derivan muy despacio.
+   (prefers-reduced-motion las detiene por la regla global)
+   ===================================================== */
+@keyframes aurora-drift {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(24px, -18px, 0) scale(1.06);
+  }
+}
+
+.animate-aurora {
+  animation: aurora-drift 14s ease-in-out infinite;
+}
+
+.animate-aurora-slow {
+  animation: aurora-drift 20s ease-in-out infinite reverse;
+}
+
+/* Variantes de flotación para los chips del hero (distinto ritmo y desfase) */
+.animate-float-slow {
+  animation: float 4.5s ease-in-out 0.6s infinite;
+}
+
+.animate-float-slower {
+  animation: float 5.5s ease-in-out 1.2s infinite;
+}

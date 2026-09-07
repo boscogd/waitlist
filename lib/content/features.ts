@@ -1,5 +1,6 @@
-// Datos de la sección "Características principales" (#caracteristicas).
-// Mapeados en FeaturesSection. Un cambio aquí cambia la sección visible.
+// Datos de la sección "Características" (#caracteristicas): un recorrido por
+// scroll en el que cada función se enseña con un vídeo real de la app
+// (grabaciones de pantalla comprimidas en /public/app/video, con su póster).
 
 export interface Feature {
   /** Ruta del icono dentro de /public. */
@@ -10,6 +11,12 @@ export interface Feature {
   description: string;
   /** Bullets con check dorado. */
   bullets: string[];
+  /** Grabación de pantalla (mp4, sin audio, 540×1030). */
+  video: string;
+  /** Primer fotograma, para pintar algo antes de que cargue el vídeo. */
+  poster: string;
+  /** Descripción del vídeo para lectores de pantalla. */
+  videoLabel: string;
 }
 
 export const features: Feature[] = [
@@ -20,6 +27,9 @@ export const features: Feature[] = [
     description:
       'Reza cada misterio con guía paso a paso, meditaciones profundas y música sacra que te ayuda a concentrarte. Personaliza la duración según tu tiempo disponible.',
     bullets: ['Todos los misterios', 'Audio en español', 'Meditaciones personalizadas'],
+    video: '/app/video/rosario.mp4',
+    poster: '/app/video/rosario.jpg',
+    videoLabel: 'Configuración del Rosario: elección de los misterios y de la intención',
   },
   {
     icon: '/icons/gospel-icon.png',
@@ -28,6 +38,9 @@ export const features: Feature[] = [
     description:
       'Recibe cada mañana las lecturas del día con reflexiones que conectan el Evangelio con tu vida cotidiana. Ideal para la Lectio Divina.',
     bullets: ['Lecturas sincronizadas con la liturgia', 'Reflexiones contextuales', 'Santo del día'],
+    video: '/app/video/evangelio.mp4',
+    poster: '/app/video/evangelio.jpg',
+    videoLabel: 'Evangelio del día con narración en audio y texto de la lectura',
   },
   {
     icon: '/icons/chat-icon.png',
@@ -36,6 +49,9 @@ export const features: Feature[] = [
     description:
       'Un asistente formado en doctrina católica que responde tus dudas sobre fe, moral y vida cristiana. Disponible 24/7 cuando necesites orientación.',
     bullets: ['Basado en el Catecismo', 'Respuestas con fuentes', 'Disponible siempre'],
+    video: '/app/video/companero.mp4',
+    poster: '/app/video/companero.jpg',
+    videoLabel: 'Conversación con el Compañero de fe',
   },
   {
     icon: '/icons/logros-icon.png',
@@ -44,5 +60,8 @@ export const features: Feature[] = [
     description:
       'Mantén tu compromiso espiritual con un sistema de medallas y rachas que celebra tu constancia en la oración. Pequeños pasos, grandes frutos.',
     bullets: ['Rachas de oración', 'Medallas especiales', 'Estadísticas de progreso'],
+    video: '/app/video/logros.mp4',
+    poster: '/app/video/logros.jpg',
+    videoLabel: 'Mi camino espiritual: nivel, puntos, racha de días y semana comunitaria',
   },
 ];

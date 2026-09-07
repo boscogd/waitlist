@@ -84,7 +84,7 @@ export default function SiteHeader() {
           aria-label="Inicio"
         >
           <Image
-            src="/logo-refugio.png"
+            src="/brand/rp-mark.png"
             alt="Refugio en la Palabra"
             width={40}
             height={44}

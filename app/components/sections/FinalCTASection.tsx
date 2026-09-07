@@ -7,7 +7,7 @@ export default function FinalCTASection() {
     <section className="px-6 pt-8 pb-24">
       <AnimateOnScroll className="max-w-2xl mx-auto text-center space-y-6">
         <Image
-          src="/logo-refugio.png"
+          src="/brand/rp-mark.png"
           alt="Refugio en la Palabra"
           width={72}
           height={72}
