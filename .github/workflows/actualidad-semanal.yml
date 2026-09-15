@@ -1,0 +1,81 @@
+# =====================================================
+# ACTUALIDAD SEMANAL — curación y publicación automática
+# =====================================================
+# Cada lunes a las 07:00 UTC (09:00 Madrid en verano, 08:00 en invierno)
+# GitHub ejecuta Claude Code con el prompt de .github/actualidad/prompt.md:
+# lee los RSS de medios católicos, cura 8-10 buenas noticias y las publica
+# en https://www.refugioenlapalabra.com/actualidad vía POST /api/news-publish.
+#
+# Corre en los servidores de GitHub: no depende de ningún ordenador nuestro
+# ni del entorno cloud de claude.ai (bloqueado por red, ver issue
+# anthropics/claude-code#93562).
+#
+# Secretos necesarios (Settings → Secrets and variables → Actions):
+#   CLAUDE_CODE_OAUTH_TOKEN  token de la suscripción (generar con `claude setup-token`)
+#   NEWS_PUBLISH_SECRET      el mismo valor que en Vercel
+#
+# Ejecución manual: pestaña Actions → "Actualidad semanal" → Run workflow.
+# OJO: GitHub desactiva los crons de un repo público tras 60 días sin
+# commits; si pasa, basta con un commit cualquiera o reactivarlo en Actions.
+
+name: Actualidad semanal
+
+on:
+  schedule:
+    - cron: '0 7 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: actualidad-semanal
+  cancel-in-progress: false
+
+jobs:
+  curar-y-publicar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/actualidad
+          sparse-checkout-cone-mode: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Instalar Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Comprobar secretos
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          NEWS_PUBLISH_SECRET: ${{ secrets.NEWS_PUBLISH_SECRET }}
+        run: |
+          [ -n "$CLAUDE_CODE_OAUTH_TOKEN" ] || { echo "::error::Falta el secreto CLAUDE_CODE_OAUTH_TOKEN"; exit 1; }
+          [ -n "$NEWS_PUBLISH_SECRET" ]     || { echo "::error::Falta el secreto NEWS_PUBLISH_SECRET"; exit 1; }
+          echo "Secretos presentes."
+
+      - name: Curar y publicar la tanda
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          NEWS_PUBLISH_SECRET: ${{ secrets.NEWS_PUBLISH_SECRET }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/actualidad"
+          cd "$RUNNER_TEMP/actualidad"
+          claude -p "$(cat "$GITHUB_WORKSPACE/.github/actualidad/prompt.md")" \
+            --model claude-opus-5 \
+            --max-turns 120 \
+            --allowedTools "Bash,Read,Write,WebFetch,WebSearch" \
+            --output-format text \
+            | tee informe.md
+
+      - name: Guardar el informe
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: informe-actualidad
+          path: ${{ runner.temp }}/actualidad/informe.md
+          if-no-files-found: ignore
