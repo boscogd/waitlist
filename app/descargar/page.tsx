@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect, type ReactNode } from 'react';
+import { useState, useEffect, useRef, type ReactNode } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import AnimateOnScroll from '../components/AnimateOnScroll';
 import { APP_URL } from '@/lib/constants';
-import { buildAppUrl } from '@/lib/track';
+import { buildAppUrl, trackEvent } from '@/lib/track';
 
 type Platform = 'android' | 'ios';
 
@@ -25,6 +25,18 @@ export default function DescargarPage() {
   useEffect(() => {
     setAppHref(buildAppUrl());
   }, []);
+
+  // Reproducciones del tutorial: el vídeo no hace autoplay, así que cada
+  // «play» es alguien que lo ha pulsado. Un evento por plataforma y visita a
+  // la página (pausar y reanudar no vuelve a contar). Nombres separados por
+  // plataforma para que el panel los muestre sin agrupar.
+  const tutorialTracked = useRef(new Set<string>());
+  const trackTutorial = (kind: 'play' | 'end') => {
+    const key = `tutorial_${kind}_${platform}`;
+    if (tutorialTracked.current.has(key)) return;
+    tutorialTracked.current.add(key);
+    trackEvent(key);
+  };
 
   // Autodetección de plataforma tras montar (evita mismatch de hidratación:
   // el render inicial siempre usa 'android', y aquí lo ajustamos en el cliente).
@@ -388,6 +400,8 @@ export default function DescargarPage() {
                     playsInline
                     preload="metadata"
                     poster=""
+                    onPlay={() => trackTutorial('play')}
+                    onEnded={() => trackTutorial('end')}
                   >
                     <source
                       src={platform === 'android' ? '/android.mp4' : '/ios.mp4'}

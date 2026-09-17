@@ -78,6 +78,14 @@ begin
     join entries using (visitor_hash)
     where e.created_at >= v_from_ts and e.kind = 'event' and e.name = 'install_click'
   ),
+  tutorials as (
+    -- Pulsan play en el vídeo de /descargar (tutorial_play_android / _ios)
+    select e.name, e.visitor_hash
+    from public.site_events e
+    join entries using (visitor_hash)
+    where e.created_at >= v_from_ts and e.kind = 'event'
+      and e.name in ('tutorial_play_android', 'tutorial_play_ios')
+  ),
   app_events as (
     select name, visitor_hash, props
     from public.site_events
@@ -117,6 +125,8 @@ begin
     'visits_inapp',    (select count(*) from entries_inapp),
     'descargar',       (select count(*) from descargar),
     'app_clicks',      (select count(*) from clicks),
+    'tutorial_android', (select count(distinct visitor_hash) from tutorials where name = 'tutorial_play_android'),
+    'tutorial_ios',     (select count(distinct visitor_hash) from tutorials where name = 'tutorial_play_ios'),
     'app_opens',       (select count(distinct visitor_hash) from app_events where name = 'app_open'),
     'app_opens_inapp', (select count(distinct visitor_hash) from app_events where name = 'app_open' and props->>'inapp' = 'true'),
     'signups',         (select count(*) from signups),

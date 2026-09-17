@@ -67,6 +67,8 @@ type Funnel = {
   signups: number;
   pwa_users: number;
   pwa_installs: number;
+  tutorial_android?: number; // ausentes con la versión anterior del SQL
+  tutorial_ios?: number;
   campaigns: { name: string; visitors: number }[];
 };
 
@@ -112,6 +114,10 @@ const EVENT_LABEL: Record<string, string> = {
   platform_select: 'Elige Android / iPhone',
   app_open: 'Llega a la app (desde la web/Instagram)',
   pwa_install: 'Instala la app (PWA)',
+  tutorial_play_android: 'Reproduce tutorial Android',
+  tutorial_play_ios: 'Reproduce tutorial iPhone',
+  tutorial_end_android: 'Ve entero tutorial Android',
+  tutorial_end_ios: 'Ve entero tutorial iPhone',
 };
 const eventLabel = (name: string) => EVENT_LABEL[name] || name;
 
@@ -717,6 +723,14 @@ export default function AnalyticsAdmin() {
                         <dd className="text-xl font-semibold text-azul tabular-nums">
                           {pct(data.funnel.visits_inapp, data.funnel.visits)}
                         </dd>
+                      </div>
+                      <div className="bg-marfil rounded-lg p-3">
+                        <dt className="text-xs text-texto/55">Ven el tutorial de Android</dt>
+                        <dd className="text-xl font-semibold text-azul tabular-nums">{fmt(data.funnel.tutorial_android)}</dd>
+                      </div>
+                      <div className="bg-marfil rounded-lg p-3">
+                        <dt className="text-xs text-texto/55">Ven el tutorial de iPhone</dt>
+                        <dd className="text-xl font-semibold text-azul tabular-nums">{fmt(data.funnel.tutorial_ios)}</dd>
                       </div>
                     </dl>
                     {data.funnel.campaigns.length > 0 && (
