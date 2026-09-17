@@ -53,6 +53,23 @@ type AnalyticsData = {
   events: { name: string; count: number; visitors: number }[];
   recent: RecentEvent[];
   signups?: Signups; // ausente hasta ejecutar el SQL con la sección web → app
+  funnel?: Funnel | null; // null hasta ejecutar supabase/instagram-funnel.sql
+};
+type Funnel = {
+  source: string;
+  days: number;
+  visits: number;
+  visits_inapp: number;
+  descargar: number;
+  app_clicks: number;
+  app_opens: number;
+  app_opens_inapp: number;
+  signups: number;
+  pwa_users: number;
+  pwa_installs: number;
+  tutorial_android?: number; // ausentes con la versión anterior del SQL
+  tutorial_ios?: number;
+  campaigns: { name: string; visitors: number }[];
 };
 
 type Period = 7 | 30 | 90;
@@ -95,6 +112,12 @@ const EVENT_LABEL: Record<string, string> = {
   instagram_click: 'Ir a Instagram',
   feedback_sent: 'Feedback enviado',
   platform_select: 'Elige Android / iPhone',
+  app_open: 'Llega a la app (desde la web/Instagram)',
+  pwa_install: 'Instala la app (PWA)',
+  tutorial_play_android: 'Reproduce tutorial Android',
+  tutorial_play_ios: 'Reproduce tutorial iPhone',
+  tutorial_end_android: 'Ve entero tutorial Android',
+  tutorial_end_ios: 'Ve entero tutorial iPhone',
 };
 const eventLabel = (name: string) => EVENT_LABEL[name] || name;
 
@@ -402,6 +425,50 @@ function RankList({ rows, unit = 'visitantes', empty }: { rows: RankRow[]; unit?
   );
 }
 
+const pct = (n: number, base: number) => (base > 0 ? `${Math.round((n / base) * 100)} %` : '—');
+
+// Embudo por etapas: barra proporcional a la primera etapa, y a la derecha el
+// paso respecto a la etapa anterior. Las etapas no son subconjuntos exactos
+// (se cruzan fuentes distintas), por eso se muestran en texto, no se infieren.
+function FunnelSteps({ f }: { f: Funnel }) {
+  const steps = [
+    { key: 'visits', label: 'Entran a la web', hint: 'Visitantes con origen Instagram', value: f.visits },
+    { key: 'descargar', label: 'Ven /descargar', hint: 'De los anteriores', value: f.descargar },
+    { key: 'app_clicks', label: 'Pulsan «Abrir la app»', hint: 'De los anteriores', value: f.app_clicks },
+    { key: 'app_opens', label: 'Llegan a la app', hint: 'Primera apertura con origen Instagram', value: f.app_opens },
+    { key: 'signups', label: 'Crean cuenta', hint: 'Origen guardado al registrarse', value: f.signups },
+    { key: 'pwa_users', label: 'Usan la app instalada', hint: 'De esas cuentas, con uso en modo PWA', value: f.pwa_users },
+  ];
+  const base = Math.max(1, f.visits, ...steps.map((s) => s.value));
+
+  return (
+    <ol className="space-y-3">
+      {steps.map((s, i) => (
+        <li key={s.key} className="min-w-0">
+          <div className="flex items-baseline justify-between gap-3 text-sm">
+            <span className="min-w-0 truncate text-texto">
+              <span className="tabular-nums text-texto/40 mr-2">{i + 1}</span>
+              {s.label}
+              <span className="text-texto/45 text-xs ml-1.5 hidden sm:inline">{s.hint}</span>
+            </span>
+            <span className="tabular-nums shrink-0">
+              <span className="text-texto/85 font-medium">{fmt(s.value)}</span>
+              {i > 0 && (
+                <span className="text-texto/45 text-xs ml-2" title="Respecto a la etapa anterior">
+                  {pct(s.value, steps[i - 1].value)}
+                </span>
+              )}
+            </span>
+          </div>
+          <div className="mt-1 h-2 rounded-full bg-azul/10 overflow-hidden" aria-hidden="true">
+            <div className="h-full rounded-full bg-azul" style={{ width: `${(s.value / base) * 100}%` }} />
+          </div>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
 function Skeleton({ className }: { className: string }) {
   return <div className={`animate-pulse rounded-xl bg-azul/5 ${className}`} aria-hidden="true" />;
 }
@@ -634,6 +701,60 @@ export default function AnalyticsAdmin() {
               <KpiTile label="Clics en instalar" value={data.totals.installs} prev={data.prev.installs} hint="Botón «Abrir la app e instalar» en /descargar" />
               <KpiTile label="Conversión" value={conversion.cur} prev={conversion.prev} format="pct" hint="Clics en instalar ÷ visitantes únicos" />
             </div>
+
+            {/* Embudo de Instagram */}
+            <Card
+              title="Embudo de Instagram"
+              subtitle="Del enlace de Instagram (refugioenlapalabra.com/ig) hasta crear cuenta e instalar la app"
+            >
+              {data.funnel ? (
+                <div className="grid lg:grid-cols-3 gap-6">
+                  <div className="lg:col-span-2">
+                    <FunnelSteps f={data.funnel} />
+                  </div>
+                  <div className="space-y-4 text-sm">
+                    <dl className="grid grid-cols-2 gap-3">
+                      <div className="bg-marfil rounded-lg p-3">
+                        <dt className="text-xs text-texto/55">Instalaciones detectadas</dt>
+                        <dd className="text-xl font-semibold text-azul tabular-nums">{fmt(data.funnel.pwa_installs)}</dd>
+                      </div>
+                      <div className="bg-marfil rounded-lg p-3">
+                        <dt className="text-xs text-texto/55">Entran con navegador de Instagram</dt>
+                        <dd className="text-xl font-semibold text-azul tabular-nums">
+                          {pct(data.funnel.visits_inapp, data.funnel.visits)}
+                        </dd>
+                      </div>
+                      <div className="bg-marfil rounded-lg p-3">
+                        <dt className="text-xs text-texto/55">Ven el tutorial de Android</dt>
+                        <dd className="text-xl font-semibold text-azul tabular-nums">{fmt(data.funnel.tutorial_android)}</dd>
+                      </div>
+                      <div className="bg-marfil rounded-lg p-3">
+                        <dt className="text-xs text-texto/55">Ven el tutorial de iPhone</dt>
+                        <dd className="text-xl font-semibold text-azul tabular-nums">{fmt(data.funnel.tutorial_ios)}</dd>
+                      </div>
+                    </dl>
+                    {data.funnel.campaigns.length > 0 && (
+                      <div>
+                        <h3 className="text-xs font-semibold text-texto/60 uppercase tracking-wide mb-2">Por enlace</h3>
+                        <RankList
+                          rows={data.funnel.campaigns.map((c) => ({ key: c.name, label: c.name === 'bio' ? 'bio (/ig)' : `/ig/${c.name}`, value: c.visitors }))}
+                          empty=""
+                        />
+                      </div>
+                    )}
+                    <p className="text-xs text-texto/45 leading-relaxed">
+                      Desde el navegador interno de Instagram no se puede instalar la app: hay que abrirla en Chrome o Safari.
+                      Quien la abre en los dos cuenta dos veces en «Llegan a la app» ({fmt(data.funnel.app_opens_inapp)} internas).
+                      En iPhone, si instala antes de registrarse, el origen se pierde.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-texto/45 py-6 text-center">
+                  Ejecuta <code className="text-xs bg-marfil px-1.5 py-0.5 rounded">supabase/instagram-funnel.sql</code> en el SQL Editor de Supabase para ver el embudo.
+                </p>
+              )}
+            </Card>
 
             {/* Serie diaria */}
             <Card
