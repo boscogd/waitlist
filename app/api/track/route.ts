@@ -66,8 +66,12 @@ function parseUserAgent(ua: string): { device: string; os: string; browser: stri
   else if (/CrOS/i.test(ua)) os = 'ChromeOS';
   else if (/Linux/i.test(ua)) os = 'Linux';
 
+  // Navegadores internos de redes sociales primero: su UA también dice
+  // Safari/Chrome, y desde ahí no se puede instalar la PWA.
   let browser = 'Otro';
-  if (/Edg\//i.test(ua)) browser = 'Edge';
+  if (/Instagram/i.test(ua)) browser = 'Instagram (interno)';
+  else if (/FBAN|FBAV|FB_IAB/i.test(ua)) browser = 'Facebook (interno)';
+  else if (/Edg\//i.test(ua)) browser = 'Edge';
   else if (/SamsungBrowser/i.test(ua)) browser = 'Samsung';
   else if (/OPR\/|Opera/i.test(ua)) browser = 'Opera';
   else if (/Firefox|FxiOS/i.test(ua)) browser = 'Firefox';

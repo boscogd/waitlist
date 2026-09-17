@@ -24,7 +24,13 @@ export async function GET(request: Request) {
 
   try {
     const sb = getServiceClient();
-    const { data, error } = await sb.rpc('site_analytics', { p_days: days, p_recent: 40 });
+    const [{ data, error }, funnel] = await Promise.all([
+      sb.rpc('site_analytics', { p_days: days, p_recent: 40 }),
+      // Embudo de Instagram (supabase/instagram-funnel.sql). Si la función aún
+      // no existe, el panel sigue funcionando sin esa tarjeta.
+      sb.rpc('site_funnel', { p_days: days, p_source: 'instagram' }),
+    ]);
+    if (funnel.error) console.error('[analytics] site_funnel:', funnel.error.message);
 
     if (error) {
       // Mensaje legible cuando la RPC/tabla aún no existen.
@@ -35,7 +41,10 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, error: message }, { status: 400 });
     }
 
-    return NextResponse.json({ success: true, data });
+    return NextResponse.json({
+      success: true,
+      data: { ...(data as Record<string, unknown>), funnel: funnel.error ? null : funnel.data },
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Error obteniendo analítica';
     return NextResponse.json({ success: false, error: message }, { status: 400 });
