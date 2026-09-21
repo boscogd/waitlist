@@ -20,18 +20,18 @@ import { getServiceClient } from '@/lib/supabase-admin';
 // - Validación estricta del cuerpo: nº de noticias, longitudes, URLs https,
 //   sin HTML, fechas recientes, URLs únicas.
 //
-// COMPORTAMIENTO: la tanda publicada actual pasa a borrador
-// (is_published = false) y la nueva se inserta publicada. Así deshacer un
-// lunes malo es cuestión de un UPDATE. Los borradores de más de 90 días se
-// borran.
+// CUERPO: { items: [...], edition_date?: "YYYY-MM-DD", intro?: "entradilla" }
 //
-// Deshacer la última tanda (Supabase SQL Editor), en dos pasos:
-//   -- a) retira la tanda nueva (la última created_at)
-//   UPDATE public.news_items SET is_published = false
-//   WHERE created_at >= (SELECT MAX(created_at) FROM public.news_items) - interval '1 minute';
-//   -- b) vuelve a publicar la anterior (los borradores más recientes que queden)
-//   UPDATE public.news_items SET is_published = true
-//   WHERE id IN (SELECT id FROM public.news_items WHERE NOT is_published ORDER BY created_at DESC LIMIT 10);
+// COMPORTAMIENTO (con ediciones, ver supabase/news-editions.sql): cada tanda
+// es una EDICIÓN con su fecha y su página permanente /actualidad/<fecha>.
+// Las ediciones anteriores NO se tocan: son el archivo. Republicar la misma
+// fecha sustituye la tanda de esa edición. /actualidad muestra la última.
+//
+// Deshacer una edición que salió mal (la web pasa sola a la anterior):
+//   UPDATE public.news_editions SET is_published = false WHERE edition_date = '2026-09-21';
+//
+// MODO ANTIGUO (si la tabla news_editions aún no existe): la tanda publicada
+// pasa a borrador y la nueva la sustituye. La respuesta indica el modo usado.
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30;
@@ -136,15 +136,59 @@ function validateItems(raw: unknown): CleanItem[] {
   });
 }
 
+// Fecha de hoy en Madrid, YYYY-MM-DD (la edición se publica "el lunes" de allí).
+function todayInMadrid(): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Madrid' }).format(new Date());
+}
+
+// Fecha de la edición = slug de su URL permanente. Opcional: por defecto, hoy.
+// Se acota a ±7 días para que un despiste no cree ediciones en fechas absurdas.
+function cleanEditionDate(value: unknown): string {
+  if (value == null || value === '') return todayInMadrid();
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    throw new Error('"edition_date" debe tener formato YYYY-MM-DD');
+  }
+  const date = new Date(`${value}T12:00:00Z`);
+  if (Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== value) {
+    throw new Error(`"edition_date" no es una fecha válida: ${value}`);
+  }
+  const diffDays = Math.abs(date.getTime() - new Date(`${todayInMadrid()}T12:00:00Z`).getTime()) / 86_400_000;
+  if (diffDays > 7) throw new Error(`"edition_date" debe estar a menos de 7 días de hoy: ${value}`);
+  return value;
+}
+
+// Entradilla de la semana: opcional, texto propio.
+function cleanIntro(value: unknown): string | null {
+  if (value == null || value === '') return null;
+  return cleanText(value, 'intro', 80, 600);
+}
+
+// ¿El error de Supabase significa "esa tabla/columna todavía no existe"?
+// (SQL de ediciones sin ejecutar → seguimos con el comportamiento antiguo.)
+function isMissingSchema(error: { code?: string; message?: string } | null): boolean {
+  if (!error) return false;
+  return (
+    error.code === '42P01' || // undefined_table (Postgres)
+    error.code === '42703' || // undefined_column (Postgres)
+    error.code === 'PGRST205' || // tabla no encontrada en la caché de PostgREST
+    error.code === 'PGRST204' || // columna no encontrada en la caché de PostgREST
+    /news_editions|edition_id/i.test(error.message || '')
+  );
+}
+
 export async function POST(request: Request) {
   if (!isAuthorized(request)) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
   }
 
   let items: CleanItem[];
+  let editionDate: string;
+  let intro: string | null;
   try {
     const body = await request.json();
     items = validateItems(body?.items);
+    editionDate = cleanEditionDate(body?.edition_date);
+    intro = cleanIntro(body?.intro);
   } catch (err) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : 'Cuerpo inválido' },
@@ -162,23 +206,49 @@ export async function POST(request: Request) {
     );
   }
 
-  // 1. La tanda actual pasa a borrador (recuperable).
-  const { error: unpublishError } = await admin
-    .from('news_items')
-    .update({ is_published: false })
-    .eq('is_published', true);
-  if (unpublishError) {
-    return NextResponse.json(
-      { error: `Error al retirar la tanda anterior: ${unpublishError.message}` },
-      { status: 500 }
-    );
+  // 1. Edición de la semana (crea o actualiza la de esa fecha). Si la tabla
+  //    aún no existe, editionId queda en null y seguimos en modo antiguo.
+  let editionId: string | null = null;
+  {
+    const { data, error } = await admin
+      .from('news_editions')
+      .upsert(
+        { edition_date: editionDate, is_published: true, ...(intro ? { intro } : {}) },
+        { onConflict: 'edition_date' }
+      )
+      .select('id')
+      .single();
+    if (error && !isMissingSchema(error)) {
+      return NextResponse.json(
+        { error: `Error al crear la edición ${editionDate}: ${error.message}` },
+        { status: 500 }
+      );
+    }
+    editionId = data?.id ?? null;
   }
 
-  // 2. Inserta la nueva tanda publicada. Si una URL ya existía (noticia
-  //    repetida de otra semana), se actualiza y vuelve a publicarse.
+  // 2. Retirar lo que la tanda nueva sustituye.
+  //    - Con ediciones: SOLO las noticias de esta misma edición (republicar el
+  //      mismo día reemplaza la tanda). Las semanas anteriores NO se tocan:
+  //      son el archivo.
+  //    - Modo antiguo: toda la tanda publicada pasa a borrador.
+  {
+    const query = admin.from('news_items').update({ is_published: false }).eq('is_published', true);
+    const { error } = await (editionId ? query.eq('edition_id', editionId) : query);
+    if (error) {
+      return NextResponse.json(
+        { error: `Error al retirar la tanda anterior: ${error.message}` },
+        { status: 500 }
+      );
+    }
+  }
+
+  // 3. Inserta la nueva tanda publicada. Si una URL ya existía (noticia
+  //    repetida de otra semana), se actualiza y pasa a esta edición.
+  const rows = editionId ? items.map((item) => ({ ...item, edition_id: editionId })) : items;
   const { error: upsertError } = await admin
     .from('news_items')
-    .upsert(items, { onConflict: 'source_url' });
+    .upsert(rows, { onConflict: 'source_url' });
   if (upsertError) {
     return NextResponse.json(
       { error: `Error al guardar la tanda nueva: ${upsertError.message}` },
@@ -186,7 +256,8 @@ export async function POST(request: Request) {
     );
   }
 
-  // 3. Limpieza de borradores viejos (best-effort).
+  // 4. Limpieza de noticias retiradas hace mucho (best-effort). Con ediciones
+  //    lo publicado nunca se borra: solo lo que alguien despublicó.
   const cutoff = new Date(Date.now() - DRAFT_RETENTION_DAYS * 86_400_000).toISOString();
   const { error: purgeError } = await admin
     .from('news_items')
@@ -195,9 +266,14 @@ export async function POST(request: Request) {
     .lt('created_at', cutoff);
 
   revalidatePath('/actualidad');
+  revalidatePath('/actualidad/archivo');
+  revalidatePath(`/actualidad/${editionDate}`);
+  revalidatePath('/sitemap.xml');
 
   return NextResponse.json({
     ok: true,
+    mode: editionId ? 'editions' : 'legacy',
+    edition_date: editionId ? editionDate : null,
     published: items.length,
     purge_warning: purgeError?.message ?? null,
     titles: items.map((i) => i.title),
