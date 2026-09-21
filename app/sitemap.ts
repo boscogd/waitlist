@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { supabase } from "@/lib/supabase";
+import { getEditions } from "@/lib/news/queries";
 
 const BASE_URL = "https://www.refugioenlapalabra.com";
 
@@ -36,6 +37,34 @@ async function getActualidadLastModified(): Promise<Date> {
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const actualidadLastModified = await getActualidadLastModified();
+
+  // Archivo: una URL permanente por edición semanal. Si la tabla de ediciones
+  // aún no existe, getEditions() devuelve [] y el sitemap queda como antes.
+  const editions = await getEditions();
+  const archiveEntries: MetadataRoute.Sitemap = editions.length
+    ? [
+        {
+          url: `${BASE_URL}/actualidad/archivo`,
+          lastModified: actualidadLastModified,
+          changeFrequency: "weekly",
+          priority: 0.5,
+        },
+        ...editions.map((e) => ({
+          url: `${BASE_URL}/actualidad/${e.edition_date}`,
+          lastModified: e.created_at ? new Date(e.created_at) : new Date(`${e.edition_date}T07:00:00Z`),
+          changeFrequency: "yearly" as const,
+          priority: 0.6,
+        })),
+      ]
+    : [];
+
+  return [
+    ...baseEntries(actualidadLastModified),
+    ...archiveEntries,
+  ];
+}
+
+function baseEntries(actualidadLastModified: Date): MetadataRoute.Sitemap {
   return [
     {
       url: `${BASE_URL}/`,

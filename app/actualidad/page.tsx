@@ -1,18 +1,23 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase';
 import SiteHeader from '../components/SiteHeader';
 import ScrollProgress from '../components/ScrollProgress';
 import BackToTop from '../components/BackToTop';
-import AnimateOnScroll from '../components/AnimateOnScroll';
 import SiteFooter from '../components/sections/SiteFooter';
+import NewsGrid, { TransparencyNote } from './NewsGrid';
+import {
+  ACTUALIDAD_URL,
+  editionPath,
+  formatDate,
+  formatEditionDate,
+  getLatest,
+  latestCreatedAt,
+} from '@/lib/news/queries';
 
 // ISR: la tanda se renueva cada lunes (y /api/news-publish revalida esta
 // ruta al publicar), así que la página se sirve cacheada y se revalida cada
-// 15 minutos. El try/catch de getNews() protege el build si la tabla no existe.
+// 15 minutos. Las consultas devuelven vacío si la tabla no existe.
 export const revalidate = 900;
-
-const PAGE_URL = 'https://www.refugioenlapalabra.com/actualidad';
 
 // SEO: el público católico busca "actualidad católica", "noticias católicas"
 // o "noticias de la Iglesia". "Actualidad/noticias cristianas" es, en español,
@@ -40,7 +45,7 @@ export const metadata: Metadata = {
     description: SEO_DESCRIPTION,
     type: 'website',
     locale: 'es_ES',
-    url: PAGE_URL,
+    url: ACTUALIDAD_URL,
     siteName: 'Refugio en la Palabra',
     images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: 'Refugio en la Palabra' }],
   },
@@ -50,55 +55,12 @@ export const metadata: Metadata = {
     description: 'Cada semana, buenas noticias de la Iglesia en el mundo hispanohablante.',
     images: ['/opengraph-image'],
   },
-  alternates: { canonical: PAGE_URL },
+  alternates: { canonical: ACTUALIDAD_URL },
 };
 
-interface NewsItem {
-  id: string;
-  title: string;
-  summary: string;
-  source_name: string;
-  source_url: string;
-  country: string | null;
-  published_at: string | null;
-  created_at: string | null;
-}
-
-async function getNews(): Promise<NewsItem[]> {
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any)
-      .from('news_items')
-      .select('id, title, summary, source_name, source_url, country, published_at, created_at')
-      .eq('is_published', true)
-      .order('published_at', { ascending: false, nullsFirst: false })
-      .limit(40);
-    if (error) return [];
-    return (data as NewsItem[]) || [];
-  } catch {
-    return [];
-  }
-}
-
-function formatDate(iso: string | null): string {
-  if (!iso) return '';
-  const d = new Date(iso);
-  if (isNaN(d.getTime())) return '';
-  return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
-}
-
-// Fecha de la última tanda publicada (la más reciente de created_at).
-function latestUpdate(news: NewsItem[]): string | null {
-  let latest: string | null = null;
-  for (const n of news) {
-    if (n.created_at && (!latest || n.created_at > latest)) latest = n.created_at;
-  }
-  return latest;
-}
-
 export default async function ActualidadPage() {
-  const news = await getNews();
-  const updatedAt = latestUpdate(news);
+  const { edition, items: news, previous } = await getLatest();
+  const updatedAt = latestCreatedAt(news);
 
   // Structured data (JSON-LD): página de colección con la lista de noticias.
   // No marcamos las noticias como NewsArticle nuestras: son de sus medios;
@@ -108,7 +70,7 @@ export default async function ActualidadPage() {
     '@type': 'CollectionPage',
     name: 'Actualidad católica: buenas noticias de la Iglesia',
     description: SEO_DESCRIPTION,
-    url: PAGE_URL,
+    url: ACTUALIDAD_URL,
     inLanguage: 'es',
     ...(updatedAt ? { dateModified: updatedAt } : {}),
     isPartOf: {
@@ -142,7 +104,7 @@ export default async function ActualidadPage() {
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://www.refugioenlapalabra.com' },
-      { '@type': 'ListItem', position: 2, name: 'Actualidad católica', item: PAGE_URL },
+      { '@type': 'ListItem', position: 2, name: 'Actualidad católica', item: ACTUALIDAD_URL },
     ],
   };
 
@@ -175,10 +137,24 @@ export default async function ActualidadPage() {
               historias de fe, esperanza y caridad de España, Latinoamérica y el Vaticano. Cada
               resumen es nuestro; pulsa para leer la noticia completa en su medio original.
             </p>
+            {edition?.intro && (
+              <p className="text-base text-texto/80 leading-relaxed mt-5 italic">{edition.intro}</p>
+            )}
             {updatedAt && (
               <p className="text-sm text-texto/50 mt-4">
                 Actualizado el <time dateTime={updatedAt}>{formatDate(updatedAt)}</time> · se
                 renueva cada lunes
+                {edition && (
+                  <>
+                    {' · '}
+                    <Link
+                      href={editionPath(edition.edition_date)}
+                      className="underline underline-offset-2 hover:text-azul transition-colors"
+                    >
+                      enlace permanente a esta semana
+                    </Link>
+                  </>
+                )}
               </p>
             )}
           </div>
@@ -194,56 +170,45 @@ export default async function ActualidadPage() {
                 </p>
               </div>
             ) : (
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {news.map((n, i) => (
-                  <AnimateOnScroll key={n.id} delay={(i % 3) * 80} className="h-full">
-                    <article className="hover-lift h-full bg-white rounded-2xl p-6 border border-azul/5 shadow-sm flex flex-col">
-                      <div className="flex items-center gap-2 mb-4 text-xs">
-                        {n.country && (
-                          <span className="bg-albero/15 text-azul px-2.5 py-1 rounded-full font-medium">
-                            {n.country}
-                          </span>
-                        )}
-                        {n.published_at && (
-                          <time dateTime={n.published_at} className="text-texto/40">
-                            {formatDate(n.published_at)}
-                          </time>
-                        )}
-                      </div>
-
-                      <h2 className="font-[family-name:var(--font-lora)] text-lg font-semibold text-azul leading-snug mb-3">
-                        {n.title}
-                      </h2>
-
-                      <p className="text-texto/80 text-sm leading-relaxed mb-5 flex-1">
-                        {n.summary}
-                      </p>
-
-                      {/* Enlace editorial a un medio que recomendamos: sin nofollow
-                          ni noreferrer, para que el medio vea que el tráfico llega
-                          de Refugio. noopener basta para la seguridad. */}
-                      <a
-                        href={n.source_url}
-                        target="_blank"
-                        rel="noopener"
-                        className="inline-flex items-center gap-1.5 text-sm font-medium text-azul hover:text-albero transition-colors mt-auto"
-                      >
-                        Leer en {n.source_name}
-                        <span aria-hidden="true">→</span>
-                      </a>
-                    </article>
-                  </AnimateOnScroll>
-                ))}
-              </div>
+              <NewsGrid news={news} />
             )}
-
-            {/* Nota de transparencia */}
-            <p className="text-center text-xs text-texto/40 mt-14 max-w-2xl mx-auto leading-relaxed">
-              Las noticias pertenecen a sus respectivos medios. Ofrecemos un titular y un resumen
-              propios con enlace al original; no reproducimos los artículos.
-            </p>
+            <TransparencyNote />
           </div>
         </section>
+
+        {/* Semanas anteriores: enlaces internos al archivo */}
+        {previous.length > 0 && (
+          <section className="px-6 pb-16" aria-labelledby="semanas-anteriores">
+            <div className="max-w-3xl mx-auto text-center">
+              <h2
+                id="semanas-anteriores"
+                className="font-[family-name:var(--font-lora)] text-2xl font-semibold text-azul mb-6"
+              >
+                Buenas noticias de semanas anteriores
+              </h2>
+              <ul className="flex flex-wrap justify-center gap-3">
+                {previous.map((e) => (
+                  <li key={e.id}>
+                    <Link
+                      href={editionPath(e.edition_date)}
+                      className="inline-block bg-white border border-azul/10 rounded-full px-4 py-2 text-sm text-azul hover:border-albero hover:text-albero transition-colors"
+                    >
+                      Semana del {formatEditionDate(e.edition_date)}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-6">
+                <Link
+                  href="/actualidad/archivo"
+                  className="text-sm font-medium text-azul hover:text-albero transition-colors"
+                >
+                  Ver todo el archivo <span aria-hidden="true">→</span>
+                </Link>
+              </p>
+            </div>
+          </section>
+        )}
 
         {/* Qué es esta sección: texto estable que explica el criterio editorial */}
         <section className="px-6 pb-20" aria-labelledby="sobre-actualidad">

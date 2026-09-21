@@ -41,11 +41,18 @@ Ejemplos del tono esperado (tanda anterior, NO los reutilices):
 2) title: "La Virgen que recorre siete kilómetros a la carrera" — summary: "En Mota del Cuervo, miles de personas llevan corriendo a Nuestra Señora de la Antigua desde su santuario hasta el pueblo. Una fe de pueblo, ruidosa y agradecida, que se hereda de padres a hijos."
 
 ## 4. Publicación
-Guarda la tanda en un archivo JSON UTF-8 llamado tanda.json con la forma {"items": [ {title, summary, source_name, source_url, country, published_at}, ... ]}. Valida que es JSON correcto con `python3 -m json.tool tanda.json > /dev/null`. Publícala con:
+Cada tanda es una EDICIÓN semanal con página permanente (https://www.refugioenlapalabra.com/actualidad/AAAA-MM-DD). Guarda la tanda en un archivo JSON UTF-8 llamado tanda.json con esta forma:
+
+{"edition_date": "AAAA-MM-DD", "intro": "…", "items": [ {title, summary, source_name, source_url, country, published_at}, ... ]}
+
+- edition_date: la fecha de HOY en Madrid (obténla con `TZ=Europe/Madrid date +%F`).
+- intro: entradilla propia de la semana, 80-600 caracteres, 2-3 frases en el mismo tono: qué hilo une las noticias de esta semana o cuáles destacan. Sin HTML, sin exclamaciones, sin repetir los titulares literalmente. Es el texto único de la página de archivo de esta semana, así que no la escribas de forma genérica.
+
+Valida que es JSON correcto con `python3 -m json.tool tanda.json > /dev/null`. Publícala con:
 
 curl -sS -X POST https://www.refugioenlapalabra.com/api/news-publish -H "Authorization: Bearer $NEWS_PUBLISH_SECRET" -H "Content-Type: application/json; charset=utf-8" --data-binary @tanda.json -w "\nHTTP %{http_code}\n"
 
-- El endpoint sustituye la tanda anterior por la nueva (la anterior queda como borrador recuperable). Llámalo UNA sola vez con la tanda completa; nada de tandas parciales ni de prueba.
+- El endpoint crea la edición de esa fecha y deja intactas las semanas anteriores, que forman el archivo. Si se vuelve a llamar con la misma edition_date, sustituye la tanda de esa edición. Llámalo UNA sola vez con la tanda completa; nada de tandas parciales ni de prueba.
 - Si responde 400, lee el mensaje (indica el ítem y el campo), corrige y vuelve a intentarlo. Si responde 401, 404 o 500, PARA y repórtalo tal cual: no reintentes más de una vez ni busques otra vía de escritura.
 - Tras un 200, descarga de nuevo https://www.refugioenlapalabra.com/actualidad y confirma que aparecen los titulares nuevos.
 
