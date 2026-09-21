@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { supabase } from "@/lib/supabase";
 
 const BASE_URL = "https://www.refugioenlapalabra.com";
 
@@ -8,7 +9,33 @@ const BASE_URL = "https://www.refugioenlapalabra.com";
 const LEGAL_LAST_MODIFIED = new Date("2026-06-29");
 const CONTENT_LAST_MODIFIED = new Date("2026-07-05");
 
-export default function sitemap(): MetadataRoute.Sitemap {
+// El sitemap se regenera cada hora para que la fecha de /actualidad siga a
+// la última tanda publicada sin necesidad de un deploy.
+export const revalidate = 3600;
+
+// Fecha real de la última tanda de /actualidad (created_at más reciente).
+// Una fecha veraz vale más que "ahora": Google deja de fiarse de los
+// lastmod que cambian en cada petición sin que cambie el contenido.
+async function getActualidadLastModified(): Promise<Date> {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data } = await (supabase as any)
+      .from("news_items")
+      .select("created_at")
+      .eq("is_published", true)
+      .order("created_at", { ascending: false })
+      .limit(1);
+    const iso = data?.[0]?.created_at;
+    const date = iso ? new Date(iso) : null;
+    if (date && !isNaN(date.getTime())) return date;
+  } catch {
+    // sin tabla o sin red en build: cae al respaldo
+  }
+  return CONTENT_LAST_MODIFIED;
+}
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const actualidadLastModified = await getActualidadLastModified();
   return [
     {
       url: `${BASE_URL}/`,
@@ -23,11 +50,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
-      // Actualidad sí cambia con frecuencia (noticias curadas on-demand)
+      // Actualidad se renueva cada lunes: fecha real de la última tanda
       url: `${BASE_URL}/actualidad`,
-      lastModified: new Date(),
+      lastModified: actualidadLastModified,
       changeFrequency: "weekly",
-      priority: 0.7,
+      priority: 0.9,
     },
     {
       url: `${BASE_URL}/feedback`,
