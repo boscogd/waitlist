@@ -45,7 +45,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const url = `${ACTUALIDAD_URL}/${fecha}`;
 
   return {
-    title,
+    // Absoluto: con el sufijo de marca del layout pasaba de 90 caracteres y
+    // Google cortaba justo la fecha, que es lo que distingue a cada edición.
+    title: { absolute: title },
     description,
     alternates: { canonical: url },
     openGraph: {
