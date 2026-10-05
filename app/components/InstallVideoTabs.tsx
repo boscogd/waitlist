@@ -5,13 +5,13 @@ import PhoneFrame from './PhoneFrame';
 
 type Platform = 'android' | 'ios';
 
-const TABS: { id: Platform; label: string; src: string }[] = [
-  { id: 'android', label: 'Android', src: '/android.mp4' },
-  { id: 'ios', label: 'iPhone', src: '/ios.mp4' },
+const TABS: { id: Platform; label: string; src: string; poster: string; seconds: number }[] = [
+  { id: 'android', label: 'Android', src: '/android.mp4', poster: '/android-poster.jpg', seconds: 19 },
+  { id: 'ios', label: 'iPhone', src: '/ios.mp4', poster: '/ios-poster.jpg', seconds: 24 },
 ];
 
 /**
- * Vídeo de instalación (30 s) dentro de un marco de móvil, con pestañas
+ * Vídeo de instalación (unos 20 s) dentro de un marco de móvil, con pestañas
  * Android / iPhone. Detecta iOS tras montar (evita mismatch de hidratación).
  */
 export default function InstallVideoTabs() {
@@ -84,7 +84,8 @@ export default function InstallVideoTabs() {
             controls
             playsInline
             preload="metadata"
-            aria-label={`Tutorial de instalación en ${current.label}, 30 segundos`}
+            poster={current.poster}
+            aria-label={`Tutorial de instalación en ${current.label}, ${current.seconds} segundos`}
           >
             <source src={current.src} type="video/mp4" />
             Tu navegador no soporta vídeos HTML5.
@@ -92,7 +93,7 @@ export default function InstallVideoTabs() {
         </PhoneFrame>
       </div>
 
-      <p className="text-xs text-texto/60">Tutorial de {current.label} · 30 segundos</p>
+      <p className="text-xs text-texto/60">Tutorial de {current.label} · {current.seconds} segundos</p>
     </div>
   );
 }

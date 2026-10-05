@@ -1,0 +1,6 @@
+# Renders y metraje cortado: se regeneran (ver BRIEF.md); la versión web vive en /public
+renders/
+*/assets/*.mp4
+snapshots/
+.hyperframes/
+node_modules/
