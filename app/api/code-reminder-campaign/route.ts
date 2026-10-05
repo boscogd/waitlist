@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase';
 import { sendCodeReminderCampaign } from '@/lib/resend';
 import { verifyCampaignAuth } from '@/lib/api-auth';
 import type { EmailTemplate } from '@/lib/types';
+import { APP_URL, SITE_URL } from '@/lib/constants';
 
 // =====================================================
 // CODE-REMINDER CAMPAIGN
@@ -63,12 +64,10 @@ function daysSince(dateString: string | null): number {
   return Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
 }
 
+// El endpoint de baja vive en la landing, no en la app: se ancla a SITE_URL.
+// (Antes caía a NEXT_PUBLIC_APP_URL y el enlace de baja daba 404.)
 function buildUnsubscribeUrl(id: string): string {
-  const base =
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    process.env.NEXT_PUBLIC_APP_URL ||
-    'https://www.refugioenlapalabra.com';
-  return `${base.replace(/\/$/, '')}/api/code-reminder/unsubscribe?u=${id}`;
+  return `${SITE_URL}/api/code-reminder/unsubscribe?u=${id}`;
 }
 
 async function loadTemplates(): Promise<Record<string, EmailTemplate>> {
@@ -92,8 +91,6 @@ async function loadTemplates(): Promise<Record<string, EmailTemplate>> {
 async function processCampaign() {
   console.log('[CodeReminder] Iniciando procesamiento…');
 
-  const appUrl =
-    process.env.NEXT_PUBLIC_APP_URL || 'https://refugio-en-la-palabra.netlify.app';
   const result = {
     processed: 0,
     sent: 0,
@@ -175,7 +172,7 @@ async function processCampaign() {
       subject: template.subject,
       htmlContent: template.html_content,
       previewText: template.preview_text || undefined,
-      appUrl,
+      appUrl: APP_URL,
       unsubscribeUrl: buildUnsubscribeUrl(user.id),
     });
 
@@ -304,8 +301,6 @@ export async function POST(request: Request) {
           { status: 500 }
         );
       }
-      const appUrl =
-        process.env.NEXT_PUBLIC_APP_URL || 'https://refugio-en-la-palabra.netlify.app';
       const sendResult = await sendCodeReminderCampaign({
         to: body.testEmail,
         name: body.name || 'Prueba',
@@ -313,7 +308,7 @@ export async function POST(request: Request) {
         subject: template.subject,
         htmlContent: template.html_content,
         previewText: template.preview_text || undefined,
-        appUrl,
+        appUrl: APP_URL,
         unsubscribeUrl: buildUnsubscribeUrl('00000000-0000-0000-0000-000000000000'),
       });
       return NextResponse.json({ success: sendResult.success, testMode: true, step, result: sendResult });

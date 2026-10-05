@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase';
 import { sendWinbackEmail } from '@/lib/resend';
 import { verifyCampaignAuth } from '@/lib/api-auth';
 import type { EmailTemplate } from '@/lib/types';
+import { APP_URL, SITE_URL } from '@/lib/constants';
 
 // =====================================================
 // WIN-BACK CAMPAIGN
@@ -60,12 +61,10 @@ function shouldResetStep(user: DormantUser): boolean {
   return new Date(user.last_sign_in_at) > new Date(user.last_winback_at);
 }
 
+// El endpoint de baja vive en la landing, no en la app: se ancla a SITE_URL.
+// (Antes caía a NEXT_PUBLIC_APP_URL y el enlace de baja daba 404.)
 function buildUnsubscribeUrl(userId: string): string {
-  const base =
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    process.env.NEXT_PUBLIC_APP_URL ||
-    'https://www.refugioenlapalabra.com';
-  return `${base.replace(/\/$/, '')}/api/winback/unsubscribe?u=${userId}`;
+  return `${SITE_URL}/api/winback/unsubscribe?u=${userId}`;
 }
 
 async function loadTemplates(): Promise<Record<string, EmailTemplate>> {
@@ -150,15 +149,13 @@ export async function POST(request: Request) {
           { status: 500 }
         );
       }
-      const appUrl =
-        process.env.NEXT_PUBLIC_APP_URL || 'https://refugio-en-la-palabra.netlify.app';
       const sendResult = await sendWinbackEmail({
         to: body.testEmail,
         name: body.name || 'Prueba',
         subject: template.subject,
         htmlContent: template.html_content,
         previewText: template.preview_text || undefined,
-        appUrl,
+        appUrl: APP_URL,
         unsubscribeUrl: buildUnsubscribeUrl('00000000-0000-0000-0000-000000000000'),
       });
       return NextResponse.json({ success: sendResult.success, testMode: true, step, result: sendResult });
@@ -180,7 +177,6 @@ export async function POST(request: Request) {
 async function runWinback() {
   console.log('[Winback] Iniciando procesamiento…');
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://refugio-en-la-palabra.netlify.app';
   const result = {
     processed: 0,
     sent: 0,
@@ -286,7 +282,7 @@ async function runWinback() {
         subject: template.subject,
         htmlContent: template.html_content,
         previewText: template.preview_text || undefined,
-        appUrl,
+        appUrl: APP_URL,
         unsubscribeUrl: buildUnsubscribeUrl(user.user_id),
       });
 

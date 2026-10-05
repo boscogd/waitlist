@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import { APP_URL } from '@/lib/constants';
 
 export const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -227,7 +228,7 @@ function getWaitlistEmailTemplate(name: string, code: string): string {
 
             <!-- CTA -->
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://refugio-en-la-palabra.netlify.app'}/bienvenida?code=${code}"
+              <a href="${APP_URL}/bienvenida?code=${code}"
                  style="display: inline-block; background-color: #1F3A5F; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 500;">
                 Descargar y empezar gratis
               </a>
@@ -598,7 +599,7 @@ function getLaunchEmailTemplate(name: string, code: string): string {
 
             <!-- CTA Button -->
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://tuapp.com'}/bienvenida?code=${code}"
+              <a href="${APP_URL}/bienvenida?code=${code}"
                  style="display: inline-block; background-color: #1F3A5F; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 500;">
                 Acceder ahora
               </a>
@@ -721,7 +722,7 @@ function getCodeReminderTemplate(name: string, code: string): string {
 
             <!-- CTA Button -->
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://refugio-en-la-palabra.netlify.app'}/bienvenida?code=${code}"
+              <a href="${APP_URL}/bienvenida?code=${code}"
                  style="display: inline-block; background-color: #1F3A5F; color: white; padding: 18px 40px; text-decoration: none; border-radius: 10px; font-size: 18px; font-weight: 600; box-shadow: 0 4px 12px rgba(31,58,95,0.3);">
                 Activar mi mes gratis
               </a>

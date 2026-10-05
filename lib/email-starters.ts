@@ -6,6 +6,8 @@
 // sustituye los textos de ejemplo. El pie legal + baja se añade solo al
 // enviar (decorateEmailHtml), así que aquí NO va el pie.
 
+import { APP_URL } from '@/lib/constants';
+
 const HEADER = `    <div style="text-align:center;margin-bottom:45px;padding-bottom:28px;border-bottom:1px solid #E5E0D5;">
       <img src="https://www.refugioenlapalabra.com/logo-refugio.png" alt="Refugio en la Palabra" width="60" height="60" style="display:block;margin:0 auto 14px;border-radius:14px;">
       <span style="font-size:14px;letter-spacing:3px;color:#8B7355;text-transform:uppercase;font-family:Arial,Helvetica,sans-serif;">Refugio en la Palabra</span>
@@ -72,7 +74,7 @@ export const EMAIL_STARTERS: EmailStarter[] = [
       <p style="margin-bottom:25px;">Escribe aquí la novedad que quieres compartir con la comunidad.</p>
       <div style="background-color:#1F3A5F;border-radius:12px;padding:30px;margin:35px 0;text-align:center;">
         <p style="margin:0 0 20px 0;color:#ffffff;font-size:17px;">Un texto destacado o una llamada a la acción.</p>
-        <a href="https://refugio-en-la-palabra.netlify.app" style="display:inline-block;background-color:#E1B955;color:#1F3A5F;text-decoration:none;padding:14px 32px;border-radius:8px;font-size:16px;font-weight:bold;">Abrir Refugio</a>
+        <a href="${APP_URL}" style="display:inline-block;background-color:#E1B955;color:#1F3A5F;text-decoration:none;padding:14px 32px;border-radius:8px;font-size:16px;font-weight:bold;">Abrir Refugio</a>
       </div>
       <p style="margin-bottom:0;margin-top:40px;">Con cariño,<br><span style="color:#8B7355;">— El equipo de Refugio</span></p>`),
   },
