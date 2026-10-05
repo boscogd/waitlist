@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=2340" />
+    <title>Instalar Refugio en Android</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 2340px; overflow: hidden; background: #16263f; }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; font-family: Inter, system-ui, sans-serif; }
+      .layer { position: absolute; inset: 0; overflow: hidden; }
+      .piece { position: absolute; display: block; }
+      .crop { background-repeat: no-repeat; background-size: 1080px 2340px; }
+      .shadow { box-shadow: 0 18px 70px rgba(0, 0, 0, 0.45); }
+      .statusbar { position: absolute; left: 0; top: 0; width: 100%; background: #0b0d12; }
+
+      /* Foco: recuadro dorado sobre el botón y el resto de la pantalla oscurecido */
+      .spot { position: absolute; border: 8px solid #e1b955; box-shadow: 0 0 0 3000px rgba(9, 15, 28, 0.6), 0 0 44px 6px rgba(225, 185, 85, 0.75); }
+      .swipe { position: absolute; left: 470px; top: 1820px; width: 140px; height: 140px; border-radius: 70px; background: rgba(225, 185, 85, 0.55); border: 8px solid #e1b955; box-shadow: 0 0 40px rgba(225, 185, 85, 0.6); }
+
+      /* Rótulo de paso */
+      .cap { position: absolute; left: 44px; width: 992px; display: flex; align-items: center; gap: 34px; padding: 36px 40px; background: #faf7f0; border-radius: 48px; border: 4px solid #e1b955; box-shadow: 0 24px 70px rgba(6, 12, 24, 0.55); }
+      .cap-top { top: 196px; }
+      .cap-mid { top: 1096px; }
+      .cap-low { top: 1810px; }
+      .cap-bottom { bottom: 168px; }
+      .num { flex: none; width: 116px; height: 116px; border-radius: 58px; display: flex; align-items: center; justify-content: center; background: #e1b955; color: #16263f; font-weight: 900; font-size: 68px; }
+      .cap-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+      .cap-main { color: #16263f; font-weight: 700; font-size: 58px; line-height: 1.12; letter-spacing: -0.02em; }
+      .cap-sub { color: #3d4c63; font-weight: 400; font-size: 38px; line-height: 1.2; }
+
+      /* Cartelas */
+      .card { position: absolute; inset: 0; background: #16263f; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+      .glow { position: absolute; left: 90px; top: 520px; width: 900px; height: 900px; border-radius: 450px; background: radial-gradient(circle, rgba(225, 185, 85, 0.3) 0%, rgba(225, 185, 85, 0.1) 42%, rgba(225, 185, 85, 0) 70%); }
+      .rule { position: absolute; left: 120px; width: 840px; height: 4px; background: rgba(225, 185, 85, 0.35); }
+      .rule-top { top: 300px; }
+      .rule-bottom { bottom: 300px; }
+      .icon { position: relative; display: block; width: 300px; height: 300px; border-radius: 68px; box-shadow: 0 30px 80px rgba(4, 8, 18, 0.6); }
+      .icon-wrap { position: relative; width: 300px; height: 300px; }
+      .check { position: absolute; right: -34px; top: -34px; width: 104px; height: 104px; border-radius: 52px; background: #e1b955; border: 8px solid #16263f; display: flex; align-items: center; justify-content: center; }
+      .check svg { display: block; width: 56px; height: 56px; }
+      .icon-label { margin-top: 26px; color: #faf7f0; font-weight: 400; font-size: 44px; }
+      .title { margin-top: 84px; width: 920px; text-align: center; color: #faf7f0; font-weight: 900; font-size: 112px; line-height: 1.04; letter-spacing: -0.035em; }
+      .sub { margin-top: 36px; width: 880px; text-align: center; color: #e1b955; font-weight: 700; font-size: 54px; line-height: 1.2; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="android" data-start="0" data-duration="18.85" data-width="1080" data-height="2340">
+      <div class="clip layer" data-start="0" data-duration="15.7" data-track-index="0"><div class="piece" style="left:0px;top:0px;width:1080px;height:2340px;background:#f1e8da"></div><img class="piece" src="assets/app.png" alt="" style="left:0px;top:232px;width:1080px;height:1982px" /><div class="piece crop" style="left:0px;top:0px;width:1080px;height:232px;background-image:url(assets/m3-last.jpg);background-position:-0px -0px;border-radius:0px"></div><div class="piece crop" style="left:0px;top:2214px;width:1080px;height:126px;background-image:url(assets/m3-last.jpg);background-position:-0px -2214px;border-radius:0px"></div></div>
+      <div class="clip layer" data-start="6.7" data-duration="3.78" data-track-index="1"><div id="android-menu" class="piece crop shadow" style="left:388px;top:100px;width:676px;height:2084px;background-image:url(assets/m2-first.jpg);background-position:-388px -100px;border-radius:58px;overflow:hidden;transform-origin:100% 0%"></div></div>
+      <div class="clip layer" data-start="10.4" data-duration="3.65" data-track-index="2"><div id="android-dim" class="piece" style="left:0px;top:0px;width:1080px;height:2214px;background:rgba(0, 0, 0, 0.64)"></div></div>
+      <div class="clip layer" data-start="10.45" data-duration="3.57" data-track-index="1"><div id="android-dialog" class="piece crop" style="left:27px;top:941px;width:1026px;height:526px;background-image:url(assets/m2-last.jpg);background-position:-27px -941px;border-radius:64px;overflow:hidden;transform-origin:50% 50%"><div class="piece" style="left:58px;top:192px;width:106px;height:106px;background:#27282c"></div><div class="piece" style="left:62px;top:196px;width:98px;height:98px;border-radius:34px;background:url(assets/icon.png) center / cover"></div></div></div>
+      <div class="clip layer" data-start="14.1" data-duration="1.6" data-track-index="2"><div id="android-toast" class="piece crop" style="left:350px;top:1800px;width:378px;height:123px;background-image:url(assets/m3-last.jpg);background-position:-350px -1800px;border-radius:61px;overflow:hidden"></div></div>
+      <div class="clip layer" data-start="3.9" data-duration="2.85" data-track-index="4"><div id="android-s1" class="spot" style="left:950px;top:95px;width:124px;height:124px;border-radius:62px"></div></div>
+      <div class="clip layer" data-start="7.1" data-duration="3.25" data-track-index="4"><div id="android-s2" class="spot" style="left:398px;top:1640px;width:660px;height:130px;border-radius:28px"></div></div>
+      <div class="clip layer" data-start="10.8" data-duration="3.05" data-track-index="4"><div id="android-s3" class="spot" style="left:796px;top:1300px;width:196px;height:120px;border-radius:30px"></div></div>
+      <div class="clip layer" data-start="1.5" data-duration="2.4" data-track-index="5"><div id="android-c0" class="cap cap-bottom"><div class="num">1</div><div class="cap-text"><p class="cap-main">Abre Refugio en Chrome</p></div></div></div>
+      <div class="clip layer" data-start="3.9" data-duration="3.1" data-track-index="5"><div id="android-c1" class="cap cap-bottom"><div class="num">2</div><div class="cap-text"><p class="cap-main">Toca los tres puntos</p></div></div></div>
+      <div class="clip layer" data-start="7.1" data-duration="3.6" data-track-index="5"><div id="android-c2" class="cap cap-bottom"><div class="num">3</div><div class="cap-text"><p class="cap-main">Elige «Añadir a pantalla de inicio»</p></div></div></div>
+      <div class="clip layer" data-start="10.8" data-duration="4.1" data-track-index="5"><div id="android-c3" class="cap cap-bottom"><div class="num">4</div><div class="cap-text"><p class="cap-main">Pulsa «Instalar»</p></div></div></div>
+      <div class="clip layer" data-start="0" data-duration="1.9" data-track-index="6">
+        <div id="android-intro" class="card">
+          <div id="android-intro-glow" class="glow"></div>
+          <div class="rule rule-top"></div>
+          <div class="rule rule-bottom"></div>
+          <img id="android-intro-icon" class="icon" src="assets/icon-intro.png" alt="" />
+          <h1 id="android-intro-title" class="title">Instala Refugio en tu Android</h1>
+          <p id="android-intro-sub" class="sub">4 pasos desde Chrome</p>
+        </div>
+      </div>
+      <div class="clip layer" data-start="15.25" data-duration="3.6" data-track-index="6">
+        <div id="android-end" class="card">
+          <div id="android-end-glow" class="glow"></div>
+          <div class="rule rule-top"></div>
+          <div class="rule rule-bottom"></div>
+          <div id="android-end-icon" class="icon-wrap">
+            <img class="icon" src="assets/icon-end.png" alt="" />
+            <div id="android-end-check" class="check"><svg viewBox="0 0 24 24" fill="none" stroke="#16263f" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7" /></svg></div>
+          </div>
+          <p id="android-end-label" class="icon-label">Refugio</p>
+          <h1 id="android-end-title" class="title">¡Listo!</h1>
+          <p id="android-end-sub" class="sub">Ya tienes Refugio en tu pantalla de inicio</p>
+        </div>
+      </div>
+    </div>
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      tl.fromTo("#android-menu", { opacity: 0, scale: 0.86 }, { opacity: 1, scale: 1, duration: 0.32, ease: "power3.out" }, 6.7);
+      tl.to("#android-menu", { opacity: 0, duration: 0.18, ease: "power1.in" }, 10.3);
+      tl.fromTo("#android-dim", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power1.out" }, 10.4);
+      tl.to("#android-dim", { opacity: 0, duration: 0.25, ease: "power1.in" }, 13.8);
+      tl.fromTo("#android-dialog", { opacity: 0, scale: 0.86 }, { opacity: 1, scale: 1, duration: 0.3, ease: "power3.out" }, 10.45);
+      tl.to("#android-dialog", { opacity: 0, duration: 0.22, ease: "power1.in" }, 13.8);
+      tl.fromTo("#android-toast", { opacity: 0 }, { opacity: 1, duration: 0.25, ease: "power1.out" }, 14.1);
+      tl.fromTo("#android-s1", { opacity: 0, scale: 1.5 }, { opacity: 1, scale: 1, duration: 0.45, ease: "power3.out" }, 4.35);
+      tl.to("#android-s1", { scale: 1.07, duration: 0.42, ease: "sine.inOut", yoyo: true, repeat: 1 }, 4.85);
+      tl.to("#android-s1", { scale: 0.9, duration: 0.12, ease: "power2.in" }, 6.48);
+      tl.to("#android-s1", { opacity: 0, duration: 0.1, ease: "none" }, 6.62);
+      tl.fromTo("#android-s2", { opacity: 0, scale: 1.5 }, { opacity: 1, scale: 1, duration: 0.45, ease: "power3.out" }, 7.55);
+      tl.to("#android-s2", { scale: 1.07, duration: 0.42, ease: "sine.inOut", yoyo: true, repeat: 3 }, 8.05);
+      tl.to("#android-s2", { scale: 0.9, duration: 0.12, ease: "power2.in" }, 10.08);
+      tl.to("#android-s2", { opacity: 0, duration: 0.1, ease: "none" }, 10.22);
+      tl.fromTo("#android-s3", { opacity: 0, scale: 1.5 }, { opacity: 1, scale: 1, duration: 0.45, ease: "power3.out" }, 11.25);
+      tl.to("#android-s3", { scale: 1.07, duration: 0.42, ease: "sine.inOut", yoyo: true, repeat: 3 }, 11.75);
+      tl.to("#android-s3", { scale: 0.9, duration: 0.12, ease: "power2.in" }, 13.58);
+      tl.to("#android-s3", { opacity: 0, duration: 0.1, ease: "none" }, 13.72);
+      tl.fromTo("#android-c0", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, 1.58);
+      tl.fromTo("#android-c0 .num", { scale: 0.4 }, { scale: 1, duration: 0.5, ease: "back.out(2.2)" }, 1.66);
+      tl.to("#android-c0", { opacity: 0, duration: 0.2, ease: "power1.in" }, 3.68);
+      tl.fromTo("#android-c1", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, 3.98);
+      tl.fromTo("#android-c1 .num", { scale: 0.4 }, { scale: 1, duration: 0.5, ease: "back.out(2.2)" }, 4.06);
+      tl.to("#android-c1", { opacity: 0, duration: 0.2, ease: "power1.in" }, 6.78);
+      tl.fromTo("#android-c2", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, 7.18);
+      tl.fromTo("#android-c2 .num", { scale: 0.4 }, { scale: 1, duration: 0.5, ease: "back.out(2.2)" }, 7.26);
+      tl.to("#android-c2", { opacity: 0, duration: 0.2, ease: "power1.in" }, 10.48);
+      tl.fromTo("#android-c3", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, 10.88);
+      tl.fromTo("#android-c3 .num", { scale: 0.4 }, { scale: 1, duration: 0.5, ease: "back.out(2.2)" }, 10.96);
+      tl.to("#android-c3", { opacity: 0, duration: 0.2, ease: "power1.in" }, 14.68);
+      tl.fromTo("#android-intro-icon", { scale: 0.7, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.6, ease: "back.out(1.6)" }, 0.05);
+      tl.fromTo("#android-intro-title", { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55, ease: "power3.out" }, 0.22);
+      tl.fromTo("#android-intro-sub", { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, 0.42);
+      tl.fromTo("#android-intro-glow", { scale: 0.9 }, { scale: 1.18, duration: 1.9, ease: "sine.inOut" }, 0);
+      tl.to("#android-intro", { opacity: 0, duration: 0.4, ease: "power1.inOut" }, 1.5);
+      tl.fromTo("#android-end", { opacity: 0 }, { opacity: 1, duration: 0.45, ease: "power1.inOut" }, 15.25);
+      tl.fromTo("#android-end-glow", { scale: 0.85 }, { scale: 1.2, duration: 3.6, ease: "sine.inOut" }, 15.25);
+      tl.fromTo("#android-end-icon", { scale: 0.3, opacity: 0, y: -80 }, { scale: 1, opacity: 1, y: 0, duration: 0.7, ease: "back.out(1.8)" }, 15.6);
+      tl.fromTo("#android-end-label", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "none" }, 16.1);
+      tl.fromTo("#android-end-check", { scale: 0 }, { scale: 1, duration: 0.45, ease: "back.out(3)" }, 16.2);
+      tl.fromTo("#android-end-title", { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55, ease: "power3.out" }, 16.25);
+      tl.fromTo("#android-end-sub", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 16.45);
+      window.__timelines["android"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>
