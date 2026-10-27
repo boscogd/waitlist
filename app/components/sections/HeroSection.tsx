@@ -1,7 +1,7 @@
 import Image from 'next/image';
-import Link from 'next/link';
 import HeroPhone from '../HeroPhone';
-import { IconArrowRight, IconCheckCircle } from '../icons';
+import StoreButtons from '../StoreButtons';
+import { IconCheckCircle } from '../icons';
 
 export default function HeroSection() {
   return (
@@ -30,7 +30,7 @@ export default function HeroSection() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-dorado opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-dorado" />
               </span>
-              App católica · Ya disponible
+              App católica · Ya en Google Play
             </p>
 
             {/* Título principal */}
@@ -46,19 +46,11 @@ export default function HeroSection() {
               Reza el Rosario guiado, reflexiona con el Evangelio diario y resuelve tus dudas de fe 24/7 con inteligencia artificial católica.
             </p>
 
-            {/* CTA Principal */}
-            <div className="flex flex-col items-center lg:items-start gap-2 pt-2 animate-fade-in-up animation-delay-300">
-              <Link
-                href="/descargar"
-                data-track="cta_click"
-                data-track-where="hero"
-                className="group bg-gradient-to-r from-azul to-azul-800 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:shadow-xl hover:shadow-azul/20 hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-2"
-              >
-                Instalar gratis
-                <IconArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Link>
+            {/* CTA Principal: Google Play (Android) + iPhone y ordenador */}
+            <div className="flex flex-col items-center lg:items-start gap-3 pt-2 animate-fade-in-up animation-delay-300">
+              <StoreButtons where="hero" align="start" />
               <p className="text-xs text-texto/70">
-                Se instala desde tu navegador en 30 s · Sin App Store ni Google Play
+                En iPhone y en el ordenador se instala desde el navegador en 30 segundos
               </p>
             </div>
 
@@ -66,7 +58,7 @@ export default function HeroSection() {
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-5 gap-y-2 pt-2 text-sm text-texto/60 animate-fade-in-up animation-delay-400">
               <div className="flex items-center gap-2">
                 <IconCheckCircle className="w-4 h-4 text-albero" />
-                <span>Gratis</span>
+                <span>Gratis para empezar</span>
               </div>
               <div className="flex items-center gap-2">
                 <IconCheckCircle className="w-4 h-4 text-albero" />

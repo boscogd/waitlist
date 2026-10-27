@@ -29,9 +29,9 @@ export const whyItems: WhyItem[] = [
   },
   {
     key: 'privacidad',
-    title: 'Sin anuncios ni tracking',
+    title: 'Sin anuncios ni venta de datos',
     description:
-      'Tu vida espiritual es sagrada. No vendemos tus datos ni te interrumpimos con publicidad.',
+      'Tu vida espiritual es sagrada. No vendemos ni compartimos tus datos, y nunca te interrumpimos con publicidad.',
     icon: '/icons/confianza-icon.png',
     iconAlt: 'Manos en oración que representan la privacidad',
   },
@@ -53,9 +53,9 @@ export const whyItems: WhyItem[] = [
   },
   {
     key: 'universal',
-    title: 'Funciona en iPhone, Android y PC',
+    title: 'En Android, iPhone y ordenador',
     description:
-      'Se instala desde el navegador en 30 segundos. Sin tiendas, sin descargas pesadas y siempre actualizada.',
+      'En Android la descargas de Google Play. En iPhone y en el ordenador se instala desde el navegador en 30 segundos. Tu cuenta es la misma en todos.',
     icon: '/icons/mundo-icon.png',
     iconAlt: 'Paloma que representa la app disponible en cualquier dispositivo',
   },

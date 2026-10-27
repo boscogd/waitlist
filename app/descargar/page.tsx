@@ -4,10 +4,19 @@ import { useState, useEffect, useRef, type ReactNode } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import AnimateOnScroll from '../components/AnimateOnScroll';
-import { APP_URL } from '@/lib/constants';
+import { GooglePlayBadge } from '../components/StoreButtons';
+import { APP_URL, INSTAGRAM_URL } from '@/lib/constants';
 import { buildAppUrl, trackEvent } from '@/lib/track';
 
-type Platform = 'android' | 'ios';
+// =====================================================
+// /descargar — cómo tener Refugio en cada dispositivo
+// =====================================================
+// Android → Google Play. iPhone/iPad → se instala desde Safari (aún no está
+// en la App Store), con vídeo y pasos. Ordenador → se usa en el navegador.
+// La plataforma se elige con ?plataforma=android|iphone|ordenador o se
+// detecta por el navegador tras montar (el render inicial es Android).
+
+type Platform = 'android' | 'ios' | 'pc';
 
 type Step = {
   number: number;
@@ -16,6 +25,119 @@ type Step = {
   icon: ReactNode;
   important?: boolean;
 };
+
+const PLATFORM_PARAM: Record<string, Platform> = {
+  android: 'android',
+  iphone: 'ios',
+  ipad: 'ios',
+  ios: 'ios',
+  ordenador: 'pc',
+  pc: 'pc',
+};
+
+const ANDROID_ICON = (
+  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M17.523 15.341c-.5 0-.91.41-.91.91s.41.91.91.91.91-.41.91-.91-.41-.91-.91-.91m-11.046 0c-.5 0-.91.41-.91.91s.41.91.91.91.91-.41.91-.91-.41-.91-.91-.91m11.4-6.02l1.97-3.41c.11-.19.04-.43-.14-.54-.19-.11-.43-.04-.54.14l-2 3.46c-1.55-.7-3.29-1.09-5.16-1.09s-3.61.39-5.16 1.09l-2-3.46c-.11-.18-.35-.25-.54-.14-.18.11-.25.35-.14.54l1.97 3.41C2.79 11.27.5 14.53.5 18.32h23c0-3.79-2.29-7.05-5.67-9z" />
+  </svg>
+);
+
+const APPLE_ICON = (
+  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
+  </svg>
+);
+
+const PC_ICON = (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+  </svg>
+);
+
+const PLATFORMS: { id: Platform; label: string; icon: ReactNode }[] = [
+  { id: 'android', label: 'Android', icon: ANDROID_ICON },
+  { id: 'ios', label: 'iPhone / iPad', icon: APPLE_ICON },
+  { id: 'pc', label: 'Ordenador', icon: PC_ICON },
+];
+
+const iosSteps: Step[] = [
+  {
+    number: 1,
+    title: 'Abre la app en Safari',
+    description:
+      'Pulsa el botón «Abrir la app en Safari» que aparece debajo del vídeo. Si estás en Chrome u otro navegador, abre Safari y vuelve a esta página.',
+    icon: (
+      <svg className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 2.182a9.818 9.818 0 110 19.636 9.818 9.818 0 010-19.636zm4.034 4.352l-5.72 2.674-2.673 5.72 5.72-2.674zm-3.352 3.42a1.364 1.364 0 100 2.728 1.364 1.364 0 000-2.728z" />
+      </svg>
+    ),
+    important: true,
+  },
+  {
+    number: 2,
+    title: 'Toca el botón Compartir',
+    description:
+      'Si en la barra de Safari ves tres puntos (···), tócalos y elige «Compartir». Si ves directamente el icono de compartir (un cuadrado con una flecha hacia arriba), tócalo.',
+    icon: (
+      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+      </svg>
+    ),
+  },
+  {
+    number: 3,
+    title: 'Busca «Añadir a pantalla de inicio»',
+    description: 'Baja en el menú hasta encontrar esa opción. Tiene un icono de un cuadrado con un +.',
+    icon: (
+      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    ),
+  },
+  {
+    number: 4,
+    title: 'Confirma tocando «Añadir»',
+    description:
+      'Verás una vista previa del icono y el nombre. Toca «Añadir» arriba a la derecha y la app aparecerá en tu pantalla de inicio.',
+    icon: (
+      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+      </svg>
+    ),
+  },
+];
+
+const faqs = [
+  {
+    question: '¿Dónde descargo Refugio?',
+    answer:
+      'En Android, en Google Play: búscala como «Refugio en la Palabra». En iPhone y iPad se instala desde Safari en medio minuto. En el ordenador funciona directamente en el navegador.',
+  },
+  {
+    question: '¿Por qué en iPhone no está en la App Store?',
+    answer:
+      'Por ahora solo estamos en Google Play. En iPhone se instala desde Safari y es la misma app, con la misma cuenta y las mismas funciones. No descargas ningún archivo: Safari añade a tu pantalla de inicio un acceso a la app oficial, con conexión segura.',
+  },
+  {
+    question: '¿Tengo que usar Safari en el iPhone?',
+    answer:
+      'Es lo más sencillo y es lo que enseña el vídeo. Otros navegadores del iPhone solo lo permiten en versiones recientes de iOS y con pasos distintos.',
+  },
+  {
+    question: '¿Mi cuenta es la misma en el móvil y en el ordenador?',
+    answer:
+      'Sí. Entra con el mismo correo o con tu cuenta de Google en cada dispositivo. Si ya usabas Refugio desde el navegador, puedes descargarla de Google Play y entrar con la misma cuenta.',
+  },
+  {
+    question: '¿La app se actualiza sola?',
+    answer:
+      'Sí. En Android, Google Play la actualiza como cualquier otra app. En iPhone y en el ordenador se actualiza sola cada vez que la abres con conexión.',
+  },
+  {
+    question: '¿Cómo la desinstalo si quiero?',
+    answer:
+      'Como cualquier otra app: en Android, mantén pulsado el icono y elige «Desinstalar». En iPhone, mantén pulsado el icono y toca «Eliminar app».',
+  },
+];
 
 export default function DescargarPage() {
   const [platform, setPlatform] = useState<Platform>('android');
@@ -26,198 +148,40 @@ export default function DescargarPage() {
     setAppHref(buildAppUrl());
   }, []);
 
-  // Reproducciones del tutorial: el vídeo no hace autoplay, así que cada
-  // «play» es alguien que lo ha pulsado. Un evento por plataforma y visita a
-  // la página (pausar y reanudar no vuelve a contar). Nombres separados por
-  // plataforma para que el panel los muestre sin agrupar.
+  // Reproducciones del tutorial de iPhone: el vídeo no hace autoplay, así que
+  // cada «play» es alguien que lo ha pulsado. Un evento por visita a la página.
   const tutorialTracked = useRef(new Set<string>());
   const trackTutorial = (kind: 'play' | 'end') => {
-    const key = `tutorial_${kind}_${platform}`;
+    const key = `tutorial_${kind}_ios`;
     if (tutorialTracked.current.has(key)) return;
     tutorialTracked.current.add(key);
     trackEvent(key);
   };
 
-  // Autodetección de plataforma tras montar (evita mismatch de hidratación:
-  // el render inicial siempre usa 'android', y aquí lo ajustamos en el cliente).
+  // Plataforma: primero ?plataforma=…, si no, la del navegador. Tras montar
+  // para no romper la hidratación (el render inicial siempre es Android).
   useEffect(() => {
+    const param = new URLSearchParams(window.location.search).get('plataforma')?.toLowerCase();
+    if (param && PLATFORM_PARAM[param]) {
+      setPlatform(PLATFORM_PARAM[param]);
+      return;
+    }
     const ua = navigator.userAgent || '';
     const isIOS =
       /iPad|iPhone|iPod/.test(ua) ||
       // iPadOS 13+ se identifica como Mac con pantalla táctil
-      (/Macintosh/.test(ua) && typeof document !== 'undefined' && 'ontouchend' in document);
-    if (isIOS) {
-      setPlatform('ios');
-    }
+      (/Macintosh/.test(ua) && 'ontouchend' in document);
+    if (isIOS) setPlatform('ios');
   }, []);
 
-  const androidSteps: Step[] = [
-    {
-      number: 1,
-      title: 'Abre la app en Chrome',
-      description: 'Pulsa el botón "Abrir la app e instalar" que aparece debajo del vídeo. Se abrirá en Chrome u otro navegador.',
-      icon: (
-        <svg className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 0C8.21 0 4.831 1.757 2.632 4.501l3.953 6.848A5.454 5.454 0 0 1 12 6.545h10.691A12 12 0 0 0 12 0zM1.931 5.47A11.943 11.943 0 0 0 0 12c0 6.012 4.42 10.991 10.189 11.864l3.953-6.847a5.45 5.45 0 0 1-6.865-2.29zm13.342 2.166a5.446 5.446 0 0 1 1.45 7.09l.002.001h-.002l-3.952 6.848a12.014 12.014 0 0 0 9.921-9.718zm-3.218 2.31a2.182 2.182 0 1 0 0 4.364 2.182 2.182 0 0 0 0-4.364z"/>
-        </svg>
-      ),
-    },
-    {
-      number: 2,
-      title: 'Toca el menú',
-      description: 'Pulsa los tres puntos verticales (⋮) en la esquina superior derecha del navegador.',
-      icon: (
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-        </svg>
-      ),
-    },
-    {
-      number: 3,
-      title: '"Añadir a pantalla de inicio"',
-      description: 'Selecciona esta opción en el menú. También puede aparecer como "Instalar aplicación".',
-      icon: (
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-        </svg>
-      ),
-    },
-    {
-      number: 4,
-      title: 'Confirma y listo',
-      description: 'Pulsa "Añadir" o "Instalar". La app aparecerá en tu pantalla de inicio como cualquier otra aplicación.',
-      icon: (
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-        </svg>
-      ),
-    },
-  ];
-
-  const iosSteps: Step[] = [
-    {
-      number: 1,
-      title: 'Abre la app en Safari',
-      description: 'Pulsa el botón "Abrir la app e instalar" que aparece debajo del vídeo. Si estás en Chrome u otro navegador, abre Safari y vuelve a esta página. Solo Safari permite instalar apps en iPhone.',
-      icon: (
-        <svg className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 2.182a9.818 9.818 0 110 19.636 9.818 9.818 0 010-19.636zm4.034 4.352l-5.72 2.674-2.673 5.72 5.72-2.674zm-3.352 3.42a1.364 1.364 0 100 2.728 1.364 1.364 0 000-2.728z"/>
-        </svg>
-      ),
-      important: true,
-    },
-    {
-      number: 2,
-      title: 'Toca el botón Compartir',
-      description: 'Si en la barra de Safari ves tres puntos (···), tócalos y elige "Compartir". Si ves directamente el icono de compartir (un cuadrado con una flecha hacia arriba), tócalo.',
-      icon: (
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-        </svg>
-      ),
-    },
-    {
-      number: 3,
-      title: 'Desplaza y busca la opción',
-      description: 'Baja en el menú hasta encontrar "Añadir a pantalla de inicio". Tiene un icono de un cuadrado con un +.',
-      icon: (
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      ),
-    },
-    {
-      number: 4,
-      title: 'Confirma tocando "Añadir"',
-      description: 'Verás una vista previa del icono y nombre. Toca "Añadir" en la esquina superior derecha para finalizar.',
-      icon: (
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-        </svg>
-      ),
-    },
-  ];
-
-  const steps = platform === 'android' ? androidSteps : iosSteps;
-
-  const benefits = [
-    {
-      icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-        </svg>
-      ),
-      title: 'Acceso instantáneo',
-      description: 'Abre la app directamente desde tu pantalla de inicio, sin buscar en el navegador.',
-    },
-    {
-      icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
-        </svg>
-      ),
-      title: 'Sin distracciones',
-      description: 'Experiencia a pantalla completa, sin barras del navegador que molesten.',
-    },
-    {
-      icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-        </svg>
-      ),
-      title: 'Notificaciones',
-      description: 'Recordatorios suaves para no perder tu momento de oración.',
-    },
-    {
-      icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
-        </svg>
-      ),
-      title: 'Ocupa muy poco',
-      description: 'No necesitas espacio de almacenamiento como las apps tradicionales.',
-    },
-  ];
-
-  const faqs = [
-    {
-      question: '¿Es seguro instalar la app de esta forma?',
-      answer: 'Absolutamente. Las PWA (Progressive Web Apps) son una tecnología estándar aprobada por Google y Apple. Grandes empresas como Starbucks, Pinterest y Twitter la utilizan. No estás descargando nada extraño, simplemente creando un acceso directo inteligente a nuestra web.',
-    },
-    {
-      question: '¿Por qué no están en la App Store o Google Play?',
-      answer: 'Somos Aida y Bosco, un equipo pequeño que está empezando. Queríamos que pudieras usar Refugio cuanto antes, sin esperar meses de procesos de aprobación. Con una PWA podemos mejorar la app cada semana y que tú tengas las novedades al instante. Y tranquilo: funciona exactamente igual que cualquier app de las tiendas.',
-    },
-    {
-      question: '¿Funciona sin conexión a internet?',
-      answer: 'Sí, parcialmente. Una vez instalada, podrás acceder a contenido que ya hayas visitado incluso sin conexión. Las funciones que requieren datos nuevos (como el Evangelio del día) necesitarán conexión.',
-    },
-    {
-      question: '¿Cómo desinstalo la app si quiero?',
-      answer: 'Igual que cualquier otra app: en Android, mantén pulsado el icono y selecciona "Desinstalar". En iPhone, mantén pulsado el icono hasta que tiemble y toca la X o "Eliminar app".',
-    },
-    {
-      question: '¿Por qué en iPhone solo funciona con Safari?',
-      answer: 'Apple solo permite instalar PWAs desde Safari, su navegador nativo. Es una limitación de iOS, no nuestra. Chrome, Firefox y otros navegadores en iPhone no tienen esta capacidad.',
-    },
-    {
-      question: '¿La app se actualiza automáticamente?',
-      answer: 'Sí. Cada vez que abras la app con conexión a internet, se actualizará automáticamente a la última versión. No tienes que hacer nada, siempre tendrás las últimas funciones.',
-    },
-  ];
-
-  // Datos estructurados: HowTo (pasos de instalación de la plataforma activa)
-  // y FAQPage (las 6 dudas frecuentes de esta página). Texto idéntico al visible.
+  // Datos estructurados: HowTo (solo iPhone, que es donde hay pasos) y
+  // FAQPage. Texto idéntico al visible.
   const howToJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'HowTo',
-    name:
-      platform === 'android'
-        ? 'Instalación en Android'
-        : 'Instalación en iPhone',
-    description:
-      'Sigue estos sencillos pasos para tener Refugio en tu pantalla de inicio',
-    step: steps.map((step) => ({
+    name: 'Instalar Refugio en la Palabra en iPhone',
+    description: 'Cómo añadir Refugio en la Palabra a la pantalla de inicio del iPhone desde Safari',
+    step: iosSteps.map((step) => ({
       '@type': 'HowToStep',
       position: step.number,
       name: step.title,
@@ -231,42 +195,25 @@ export default function DescargarPage() {
     mainEntity: faqs.map((faq) => ({
       '@type': 'Question',
       name: faq.question,
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: faq.answer,
-      },
+      acceptedAnswer: { '@type': 'Answer', text: faq.answer },
     })),
   };
 
   return (
     <div className="min-h-screen bg-marfil flex flex-col">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(howToJsonLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(howToJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+
       {/* Header simplificado */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-marfil/95 backdrop-blur-md border-b border-azul/5">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
-            <Image
-              src="/logo-refugio.png"
-              alt="Refugio en la Palabra"
-              width={40}
-              height={44}
-              className="object-contain"
-            />
+            <Image src="/logo-refugio.png" alt="Refugio en la Palabra" width={40} height={44} className="object-contain" />
             <span className="font-[family-name:var(--font-lora)] text-xl font-semibold text-azul hidden sm:block">
               Refugio en la Palabra
             </span>
           </Link>
-          <Link
-            href="/"
-            className="text-sm text-texto/70 hover:text-azul transition-colors flex items-center gap-2"
-          >
+          <Link href="/" className="text-sm text-texto/70 hover:text-azul transition-colors flex items-center gap-2">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
@@ -275,417 +222,247 @@ export default function DescargarPage() {
         </div>
       </header>
 
-      {/* Main Content */}
       <main id="main" className="flex-1 pt-20">
-
-        {/* Hero Section */}
-        <section className="px-6 py-12 sm:py-16 lg:py-20">
+        {/* Hero + selector de dispositivo */}
+        <section className="px-6 pt-12 pb-8 sm:pt-16">
           <div className="max-w-4xl mx-auto text-center">
             <AnimateOnScroll>
-              <div className="inline-flex items-center gap-2 bg-albero/15 text-[#8a6d1f] px-4 py-2 rounded-full text-sm font-medium mb-6">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
-                Instalación en 30 segundos
-              </div>
-            </AnimateOnScroll>
-
-            <AnimateOnScroll delay={100}>
-              <h1 className="font-[family-name:var(--font-lora)] text-4xl sm:text-5xl lg:text-6xl font-semibold text-azul leading-tight tracking-tight mb-6">
-                Instala{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-albero to-dorado">
-                  Refugio
-                </span>
-                {' '}en tu móvil
+              <h1 className="font-[family-name:var(--font-lora)] text-4xl sm:text-5xl lg:text-6xl font-semibold text-azul leading-tight tracking-tight mb-5">
+                Descarga{' '}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-albero to-dorado">Refugio</span>
               </h1>
             </AnimateOnScroll>
-
-            <AnimateOnScroll delay={200}>
+            <AnimateOnScroll delay={100}>
               <p className="text-lg sm:text-xl text-texto/80 max-w-2xl mx-auto leading-relaxed mb-8">
-                Añade la app a tu pantalla de inicio y accede con un solo toque.
-                Sin tiendas de apps, sin esperas, sin complicaciones.
+                Gratis para empezar, sin anuncios. Elige tu dispositivo.
               </p>
             </AnimateOnScroll>
-
-            {/* Platform selector */}
-            <AnimateOnScroll delay={300}>
+            <AnimateOnScroll delay={200}>
               <div
-                className="inline-flex bg-white rounded-2xl p-1.5 shadow-lg shadow-azul/5 border border-azul/5"
+                className="inline-flex flex-wrap justify-center bg-white rounded-2xl p-1.5 shadow-lg shadow-azul/5 border border-azul/5"
                 role="group"
-                aria-label="Elige tu plataforma para ver las instrucciones"
+                aria-label="Elige tu dispositivo"
               >
-                <button
-                  type="button"
-                  onClick={() => setPlatform('android')}
-                  data-track="platform_select"
-                  data-track-platform="android"
-                  aria-pressed={platform === 'android'}
-                  className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-medium transition-all duration-300 ${
-                    platform === 'android'
-                      ? 'bg-gradient-to-r from-azul to-azul-800 text-white shadow-md'
-                      : 'text-texto/70 hover:text-azul hover:bg-marfil/50'
-                  }`}
-                >
-                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M17.523 15.341c-.5 0-.91.41-.91.91s.41.91.91.91.91-.41.91-.91-.41-.91-.91-.91m-11.046 0c-.5 0-.91.41-.91.91s.41.91.91.91.91-.41.91-.91-.41-.91-.91-.91m11.4-6.02l1.97-3.41c.11-.19.04-.43-.14-.54-.19-.11-.43-.04-.54.14l-2 3.46c-1.55-.7-3.29-1.09-5.16-1.09s-3.61.39-5.16 1.09l-2-3.46c-.11-.18-.35-.25-.54-.14-.18.11-.25.35-.14.54l1.97 3.41C2.79 11.27.5 14.53.5 18.32h23c0-3.79-2.29-7.05-5.67-9z"/>
-                  </svg>
-                  Android
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPlatform('ios')}
-                  data-track="platform_select"
-                  data-track-platform="ios"
-                  aria-pressed={platform === 'ios'}
-                  className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-medium transition-all duration-300 ${
-                    platform === 'ios'
-                      ? 'bg-gradient-to-r from-azul to-azul-800 text-white shadow-md'
-                      : 'text-texto/70 hover:text-azul hover:bg-marfil/50'
-                  }`}
-                >
-                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-                  </svg>
-                  iPhone / iPad
-                </button>
+                {PLATFORMS.map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => setPlatform(p.id)}
+                    data-track="platform_select"
+                    data-track-platform={p.id}
+                    aria-pressed={platform === p.id}
+                    className={`flex items-center gap-2 px-4 sm:px-6 py-3 rounded-xl text-sm font-medium transition-all duration-300 ${
+                      platform === p.id
+                        ? 'bg-gradient-to-r from-azul to-azul-800 text-white shadow-md'
+                        : 'text-texto/70 hover:text-azul hover:bg-marfil/50'
+                    }`}
+                  >
+                    {p.icon}
+                    {p.label}
+                  </button>
+                ))}
               </div>
             </AnimateOnScroll>
+          </div>
+        </section>
 
-            {/* Advertencia Safari para iOS - ANTES del video */}
-            {platform === 'ios' && (
-              <AnimateOnScroll delay={350}>
-                <div className="mt-6 max-w-xl mx-auto bg-amber-50 border border-amber-200 rounded-2xl p-4 flex gap-3 items-start">
+        {platform === 'android' && (
+          <section className="px-6 pb-16">
+            <div className="max-w-xl mx-auto bg-white rounded-3xl p-8 sm:p-10 border border-azul/5 shadow-xl shadow-azul/5 text-center">
+              <Image
+                src="/icon-refugio-192.png"
+                alt="Icono de Refugio en la Palabra"
+                width={96}
+                height={96}
+                className="mx-auto rounded-3xl shadow-lg shadow-azul/15"
+              />
+              <h2 className="font-[family-name:var(--font-lora)] text-2xl sm:text-3xl font-semibold text-azul mt-5">
+                Refugio en la Palabra
+              </h2>
+              <p className="text-texto/70 mt-2">Descárgala de Google Play como cualquier otra app.</p>
+              <div className="mt-6 flex justify-center">
+                <GooglePlayBadge where="descargar" />
+              </div>
+              <p className="text-sm text-texto/60 mt-6 leading-relaxed">
+                ¿Ya la usabas desde el navegador? Entra en la de Google Play con la misma cuenta.
+              </p>
+            </div>
+          </section>
+        )}
+
+        {platform === 'pc' && (
+          <section className="px-6 pb-16">
+            <div className="max-w-xl mx-auto bg-white rounded-3xl p-8 sm:p-10 border border-azul/5 shadow-xl shadow-azul/5 text-center">
+              <h2 className="font-[family-name:var(--font-lora)] text-2xl sm:text-3xl font-semibold text-azul">
+                Úsala en el navegador
+              </h2>
+              <p className="text-texto/70 mt-3 leading-relaxed">
+                En el ordenador no hace falta instalar nada: abre Refugio y entra con tu cuenta. Si usas Chrome o Edge,
+                puedes instalarla con el icono de instalar que aparece en la barra de direcciones.
+              </p>
+              <a
+                href={`${appHref}&web_where=ordenador`}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-track="install_click"
+                data-track-where="ordenador"
+                className="mt-6 inline-flex items-center gap-2 bg-azul hover:bg-azul-800 text-white px-7 py-3.5 rounded-xl font-semibold shadow-md hover:shadow-lg transition-all duration-300"
+              >
+                Abrir Refugio
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </a>
+              <p className="text-sm text-texto/60 mt-6">
+                ¿Quieres tenerla también en el móvil? Elige Android o iPhone arriba.
+              </p>
+            </div>
+          </section>
+        )}
+
+        {platform === 'ios' && (
+          <>
+            <section className="px-6 pb-4">
+              <div className="max-w-lg sm:max-w-xl mx-auto">
+                <div className="mb-6 bg-amber-50 border border-amber-200 rounded-2xl p-4 flex gap-3 items-start text-left">
                   <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
                     <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-amber-800 text-sm">Importante: Usa Safari</h3>
+                    <h3 className="font-semibold text-amber-800 text-sm">En iPhone se instala desde Safari</h3>
                     <p className="text-xs text-amber-700 mt-0.5">
-                      En iPhone solo Safari permite instalar apps. Si usas Chrome u otro navegador, abre Safari primero.
+                      Aún no estamos en la App Store. Desde Safari es la misma app y tarda medio minuto: mira el vídeo.
                     </p>
                   </div>
                 </div>
-              </AnimateOnScroll>
-            )}
 
-          </div>
-        </section>
-
-        {/* Video Tutorial Section - Ahora visible inmediatamente */}
-        <section className="px-6 py-4 -mt-4">
-          <div className="max-w-lg sm:max-w-xl mx-auto">
-            {/* Título del video */}
-            <AnimateOnScroll delay={350}>
-              <div className="text-center mb-4">
-                <div className="inline-flex items-center gap-2 bg-albero/10 text-[#8a6d1f] px-4 py-2 rounded-full text-sm font-medium">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Tutorial de {platform === 'android' ? 'Android (19 seg)' : 'iPhone (24 seg)'}
+                <div className="relative bg-gradient-to-br from-azul to-azul-800 rounded-3xl overflow-hidden shadow-2xl shadow-azul/20">
+                  <div className="relative aspect-[9/16] mx-auto max-h-[70vh]">
+                    <video
+                      className="absolute inset-0 w-full h-full object-contain"
+                      controls
+                      playsInline
+                      preload="metadata"
+                      poster="/ios-poster.jpg"
+                      onPlay={() => trackTutorial('play')}
+                      onEnded={() => trackTutorial('end')}
+                      aria-label="Tutorial de instalación en iPhone, 24 segundos"
+                    >
+                      <source src="/ios.mp4" type="video/mp4" />
+                      Tu navegador no soporta vídeos HTML5.
+                    </video>
+                  </div>
                 </div>
-              </div>
-            </AnimateOnScroll>
 
-            <AnimateOnScroll delay={400}>
-              <div className="relative bg-gradient-to-br from-azul to-azul-800 rounded-3xl overflow-hidden shadow-2xl shadow-azul/20">
-                {/* Video - siempre vertical 9:16, con altura máxima para no salirse de pantalla */}
-                <div className="relative aspect-[9/16] mx-auto max-h-[70vh]">
-                  <video
-                    key={platform}
-                    className="absolute inset-0 w-full h-full object-contain"
-                    controls
-                    playsInline
-                    preload="metadata"
-                    poster={platform === 'android' ? '/android-poster.jpg' : '/ios-poster.jpg'}
-                    onPlay={() => trackTutorial('play')}
-                    onEnded={() => trackTutorial('end')}
+                <div className="mt-6 text-center">
+                  <a
+                    href={`${appHref}&web_where=principal`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-track="install_click"
+                    data-track-where="principal"
+                    className="group inline-flex items-center gap-3 bg-gradient-to-r from-albero to-dorado text-azul-800 px-8 py-4 rounded-2xl text-lg font-semibold shadow-lg shadow-albero/25 hover:shadow-xl hover:shadow-albero/30 hover:scale-[1.02] transition-all duration-300"
                   >
-                    <source
-                      src={platform === 'android' ? '/android.mp4' : '/ios.mp4'}
-                      type="video/mp4"
-                    />
-                    Tu navegador no soporta videos HTML5.
-                  </video>
-                </div>
-
-                {/* Badge de plataforma */}
-                <div className="absolute top-4 right-4 bg-black/50 backdrop-blur-sm px-3 py-1.5 rounded-full text-white text-xs font-medium flex items-center gap-1.5 z-10">
-                  {platform === 'android' ? (
-                    <>
-                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M17.523 15.341c-.5 0-.91.41-.91.91s.41.91.91.91.91-.41.91-.91-.41-.91-.91-.91m-11.046 0c-.5 0-.91.41-.91.91s.41.91.91.91.91-.41.91-.91-.41-.91-.91-.91m11.4-6.02l1.97-3.41c.11-.19.04-.43-.14-.54-.19-.11-.43-.04-.54.14l-2 3.46c-1.55-.7-3.29-1.09-5.16-1.09s-3.61.39-5.16 1.09l-2-3.46c-.11-.18-.35-.25-.54-.14-.18.11-.25.35-.14.54l1.97 3.41C2.79 11.27.5 14.53.5 18.32h23c0-3.79-2.29-7.05-5.67-9z"/>
-                      </svg>
-                      Android
-                    </>
-                  ) : (
-                    <>
-                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-                      </svg>
-                      iOS
-                    </>
-                  )}
+                    Abrir la app en Safari
+                    <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </a>
+                  <p className="text-sm text-texto/70 mt-3">Se abre en una pestaña nueva. Luego sigue los pasos del vídeo.</p>
+                  <p className="text-sm mt-4">
+                    <a href="#pasos" className="text-azul hover:text-azul-800 underline underline-offset-2">
+                      ¿Prefieres leer los pasos?
+                    </a>
+                  </p>
                 </div>
               </div>
-            </AnimateOnScroll>
+            </section>
 
-            {/* CTA Principal - Ahora DESPUÉS del video */}
-            <AnimateOnScroll delay={500}>
-              <div className="mt-6 text-center">
-                <a
-                  href={`${appHref}&web_where=principal`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  data-track="install_click"
-                  data-track-where="principal"
-                  className="group inline-flex items-center gap-3 bg-gradient-to-r from-albero to-dorado text-azul-800 px-8 py-4 rounded-2xl text-lg font-semibold shadow-lg shadow-albero/25 hover:shadow-xl hover:shadow-albero/30 hover:scale-[1.02] transition-all duration-300"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                  Abrir la app e instalar
-                  <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                </a>
-                <p className="text-sm text-texto/70 mt-3 flex items-center justify-center gap-1.5">
-                  <svg className="w-4 h-4 text-[#8a6d1f] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                  </svg>
-                  Te llevamos a la app oficial de Refugio
-                </p>
-                <p className="text-sm text-texto/70 mt-2">
-                  Se abrirá en una nueva pestaña. Sigue los pasos del video para instalarla.
-                </p>
-              </div>
-            </AnimateOnScroll>
-
-            {/* Enlace a pasos escritos */}
-            <AnimateOnScroll delay={550}>
-              <p className="text-center text-sm text-texto/70 mt-6">
-                <a href="#pasos" className="text-azul hover:text-azul-800 underline underline-offset-2">
-                  ¿Prefieres leer los pasos? Haz clic aquí
-                </a>
-              </p>
-            </AnimateOnScroll>
-          </div>
-        </section>
-
-        {/* Steps Section */}
-        <section id="pasos" className="px-6 py-16 scroll-mt-24">
-          <div className="max-w-4xl mx-auto">
-            <AnimateOnScroll>
-              <div className="text-center mb-12">
-                <span className="text-[#8a6d1f] font-medium text-sm uppercase tracking-wider">Paso a paso (versión escrita)</span>
-                <h2 className="font-[family-name:var(--font-lora)] text-3xl sm:text-4xl font-semibold text-azul mt-3 mb-4">
-                  {platform === 'android' ? 'Instalación en Android' : 'Instalación en iPhone'}
-                </h2>
-                <p className="text-texto/70 max-w-xl mx-auto">
-                  Sigue estos sencillos pasos para tener Refugio en tu pantalla de inicio
-                </p>
-              </div>
-            </AnimateOnScroll>
-
-            {/* Steps Grid */}
-            <div className="space-y-6">
-              {steps.map((step, index) => (
-                <AnimateOnScroll key={step.number} delay={index * 100}>
-                  <div className={`bg-white rounded-2xl p-6 sm:p-8 border transition-all duration-300 hover:shadow-lg ${
-                    step.important ? 'border-amber-200 bg-amber-50/30' : 'border-azul/5 hover:border-albero/30'
-                  }`}>
-                    <div className="flex gap-6 items-start">
-                      {/* Number */}
-                      <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-albero to-dorado text-azul-800 rounded-2xl flex items-center justify-center text-2xl font-bold flex-shrink-0 shadow-lg shadow-albero/20">
-                        {step.number}
-                      </div>
-
-                      {/* Content */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-4">
+            <section id="pasos" className="px-6 py-16 scroll-mt-24">
+              <div className="max-w-4xl mx-auto">
+                <div className="text-center mb-12">
+                  <span className="text-[#8a6d1f] font-medium text-sm uppercase tracking-wider">Paso a paso</span>
+                  <h2 className="font-[family-name:var(--font-lora)] text-3xl sm:text-4xl font-semibold text-azul mt-3">
+                    Instalación en iPhone
+                  </h2>
+                </div>
+                <div className="space-y-6">
+                  {iosSteps.map((step) => (
+                    <div
+                      key={step.number}
+                      className={`bg-white rounded-2xl p-6 sm:p-8 border ${
+                        step.important ? 'border-amber-200 bg-amber-50/30' : 'border-azul/5'
+                      }`}
+                    >
+                      <div className="flex gap-6 items-start">
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-albero to-dorado text-azul-800 rounded-2xl flex items-center justify-center text-2xl font-bold flex-shrink-0 shadow-lg shadow-albero/20">
+                          {step.number}
+                        </div>
+                        <div className="flex-1 min-w-0 flex items-start justify-between gap-4">
                           <div>
                             <h3 className="font-[family-name:var(--font-lora)] text-xl sm:text-2xl font-semibold text-azul mb-2">
                               {step.title}
                             </h3>
-                            <p className="text-texto/70 leading-relaxed">
-                              {step.description}
-                            </p>
+                            <p className="text-texto/70 leading-relaxed">{step.description}</p>
                           </div>
-
-                          {/* Icon */}
-                          <div className="w-12 h-12 sm:w-14 sm:h-14 bg-marfil rounded-xl flex items-center justify-center flex-shrink-0 text-azul/60">
+                          <div className="hidden sm:flex w-14 h-14 bg-marfil rounded-xl items-center justify-center flex-shrink-0 text-azul/60">
                             {step.icon}
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </AnimateOnScroll>
-              ))}
-            </div>
-
-            {/* Success message */}
-            <AnimateOnScroll delay={500}>
-              <div className="mt-8 bg-albero/10 border border-albero/30 rounded-2xl p-6 sm:p-8 text-center">
-                <div className="w-16 h-16 bg-albero/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-[#8a6d1f]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <h3 className="font-[family-name:var(--font-lora)] text-xl font-semibold text-azul mb-2">
-                  ¡Ya está!
-                </h3>
-                <p className="text-texto/70 mb-6">
-                  Refugio en la Palabra ya está en tu pantalla de inicio. Ábrela cuando quieras rezar.
-                </p>
-                <a
-                  href={`${appHref}&web_where=final`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  data-track="install_click"
-                  data-track-where="final"
-                  className="group inline-flex items-center gap-2 bg-azul hover:bg-azul-800 text-white px-6 py-3 rounded-xl font-semibold shadow-md hover:shadow-lg transition-all duration-300"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Empezar a usar Refugio
-                  <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                </a>
-              </div>
-            </AnimateOnScroll>
-          </div>
-        </section>
-
-        {/* Benefits Section */}
-        <section className="px-6 py-16 bg-gradient-to-b from-white/50 to-marfil">
-          <div className="max-w-5xl mx-auto">
-            <AnimateOnScroll>
-              <div className="text-center mb-12">
-                <span className="text-[#8a6d1f] font-medium text-sm uppercase tracking-wider">Ventajas</span>
-                <h2 className="font-[family-name:var(--font-lora)] text-3xl sm:text-4xl font-semibold text-azul mt-3 mb-4">
-                  ¿Por qué instalar la app?
-                </h2>
-                <p className="text-texto/70 max-w-xl mx-auto">
-                  Más que un acceso directo: una experiencia completa de aplicación
-                </p>
-              </div>
-            </AnimateOnScroll>
-
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {benefits.map((benefit, index) => (
-                <AnimateOnScroll key={index} delay={index * 100}>
-                  <div className="bg-white rounded-2xl p-6 border border-azul/5 hover:border-albero/30 hover:shadow-lg transition-all duration-300 text-center">
-                    <div className="w-14 h-14 bg-gradient-to-br from-albero/20 to-dorado/20 rounded-xl flex items-center justify-center mx-auto mb-4 text-albero">
-                      {benefit.icon}
-                    </div>
-                    <h3 className="font-semibold text-azul mb-2">{benefit.title}</h3>
-                    <p className="text-sm text-texto/70">{benefit.description}</p>
-                  </div>
-                </AnimateOnScroll>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Trust Section */}
-        <section className="px-6 py-16">
-          <div className="max-w-4xl mx-auto">
-            <AnimateOnScroll>
-              <div className="bg-gradient-to-br from-azul to-azul-800 rounded-3xl p-8 sm:p-12 text-white text-center">
-                <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <svg className="w-10 h-10 text-albero" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                  </svg>
-                </div>
-                <h2 className="font-[family-name:var(--font-lora)] text-2xl sm:text-3xl font-semibold mb-4">
-                  Tecnología de confianza
-                </h2>
-                <p className="text-white/80 max-w-2xl mx-auto mb-8 leading-relaxed">
-                  Las PWA (Progressive Web Apps) son utilizadas por empresas como <strong>Starbucks</strong>, <strong>Pinterest</strong>, <strong>Twitter</strong> y <strong>Spotify</strong>.
-                  Es una tecnología estándar, segura y respaldada por Google y Apple.
-                </p>
-                <div className="flex flex-wrap justify-center gap-4 text-sm text-white/60">
-                  <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
-                    <svg className="w-4 h-4 text-albero" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    Sin malware
-                  </div>
-                  <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
-                    <svg className="w-4 h-4 text-albero" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    Sin permisos extraños
-                  </div>
-                  <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
-                    <svg className="w-4 h-4 text-albero" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    Conexión segura HTTPS
-                  </div>
+                  ))}
                 </div>
               </div>
-            </AnimateOnScroll>
-          </div>
-        </section>
+            </section>
+          </>
+        )}
 
-        {/* FAQ Section */}
+        {/* Preguntas frecuentes */}
         <section className="px-6 py-16 bg-white/50">
           <div className="max-w-3xl mx-auto">
-            <AnimateOnScroll>
-              <div className="text-center mb-12">
-                <span className="text-[#8a6d1f] font-medium text-sm uppercase tracking-wider">Dudas frecuentes</span>
-                <h2 className="font-[family-name:var(--font-lora)] text-3xl sm:text-4xl font-semibold text-azul mt-3">
-                  Preguntas sobre la instalación
-                </h2>
-              </div>
-            </AnimateOnScroll>
-
+            <div className="text-center mb-12">
+              <span className="text-[#8a6d1f] font-medium text-sm uppercase tracking-wider">Dudas frecuentes</span>
+              <h2 className="font-[family-name:var(--font-lora)] text-3xl sm:text-4xl font-semibold text-azul mt-3">
+                Preguntas sobre la descarga
+              </h2>
+            </div>
             <div className="space-y-4">
-              {faqs.map((faq, index) => (
-                <AnimateOnScroll key={index} delay={index * 50}>
-                  <details className="group bg-white rounded-xl border border-azul/10 overflow-hidden">
-                    <summary className="flex items-center justify-between p-6 cursor-pointer font-medium text-azul hover:bg-marfil/50 transition-colors">
-                      {faq.question}
-                      <svg className="w-5 h-5 text-texto/50 group-open:rotate-180 transition-transform flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </summary>
-                    <div className="px-6 pb-6 text-texto/70">
-                      {faq.answer}
-                    </div>
-                  </details>
-                </AnimateOnScroll>
+              {faqs.map((faq) => (
+                <details key={faq.question} className="group bg-white rounded-xl border border-azul/10 overflow-hidden">
+                  <summary className="flex items-center justify-between p-6 cursor-pointer font-medium text-azul hover:bg-marfil/50 transition-colors">
+                    {faq.question}
+                    <svg className="w-5 h-5 text-texto/50 group-open:rotate-180 transition-transform flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </summary>
+                  <div className="px-6 pb-6 text-texto/70">{faq.answer}</div>
+                </details>
               ))}
             </div>
           </div>
         </section>
 
-        {/* CTA Final */}
+        {/* Ayuda */}
         <section className="px-6 py-20">
           <AnimateOnScroll className="max-w-4xl mx-auto text-center space-y-8">
             <h2 className="font-[family-name:var(--font-lora)] text-3xl sm:text-4xl font-semibold text-azul">
-              ¿Necesitas más ayuda?
+              ¿Necesitas ayuda?
             </h2>
             <p className="text-lg text-texto/70 max-w-2xl mx-auto">
-              Si tienes problemas instalando la app, escríbenos y te ayudamos encantados.
+              Si algo no te funciona, escríbenos y te ayudamos. Somos dos personas y leemos cada mensaje.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <a
-                href="https://www.instagram.com/refugioenlapalabra_"
+                href={INSTAGRAM_URL}
                 target="_blank"
                 rel="noopener noreferrer"
+                data-track="instagram_click"
+                data-track-where="descargar"
                 className="inline-flex items-center gap-2 bg-gradient-to-r from-azul to-azul-800 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:shadow-xl hover:shadow-azul/20 transition-all duration-300"
               >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                </svg>
                 Escríbenos en Instagram
               </a>
               <Link
@@ -693,14 +470,10 @@ export default function DescargarPage() {
                 className="inline-flex items-center gap-2 bg-white text-azul px-8 py-4 rounded-xl text-lg font-semibold border border-azul/10 hover:border-azul/30 hover:shadow-lg transition-all duration-300"
               >
                 Volver al inicio
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                </svg>
               </Link>
             </div>
           </AnimateOnScroll>
         </section>
-
       </main>
 
       {/* Footer simplificado */}
@@ -708,13 +481,7 @@ export default function DescargarPage() {
         <div className="max-w-6xl mx-auto px-6 py-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-white/50">
             <div className="flex items-center gap-3">
-              <Image
-                src="/icon-refugio-192.png"
-                alt="Refugio en la Palabra"
-                width={32}
-                height={32}
-                className="rounded-lg"
-              />
+              <Image src="/icon-refugio-192.png" alt="Refugio en la Palabra" width={32} height={32} className="rounded-lg" />
               <span className="text-white/70">Refugio en la Palabra</span>
             </div>
             <p>© {new Date().getFullYear()} Todos los derechos reservados.</p>
