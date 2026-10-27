@@ -9,12 +9,12 @@ import {
   validateItems,
 } from '@/lib/news/validate';
 import {
-  AUTO_PUBLISH_HOURS,
   EDITION_ADMIN_COLUMNS,
   MISSING_DRAFTS_SCHEMA,
   type EditionRow,
   editionState,
   isMissingSchema,
+  nextAutoPublishAt,
   notifyDraftReady,
   revalidateNews,
 } from '@/lib/news/editions-admin';
@@ -153,12 +153,15 @@ export async function POST(request: Request) {
   }
 
   // 2. Retirar lo que la tanda nueva sustituye.
-  //    - Con ediciones: SOLO las noticias de esta misma edición (republicar el
-  //      mismo día reemplaza la tanda). Las semanas anteriores NO se tocan.
+  //    - Con ediciones: TODAS las noticias de esta misma edición (también las
+  //      de un borrador previo) se despublican y se SEPARAN de ella, para que
+  //      retirar y volver a publicar la edición no recupere la tanda vieja.
+  //      Las semanas anteriores NO se tocan.
   //    - Modo antiguo: toda la tanda publicada pasa a borrador.
   {
-    const query = admin.from('news_items').update({ is_published: false }).eq('is_published', true);
-    const { error } = await (editionId ? query.eq('edition_id', editionId) : query);
+    const { error } = await (editionId
+      ? admin.from('news_items').update({ is_published: false, edition_id: null }).eq('edition_id', editionId)
+      : admin.from('news_items').update({ is_published: false }).eq('is_published', true));
     if (error) {
       return NextResponse.json(
         { error: `Error al retirar la tanda anterior: ${error.message}` },
@@ -264,40 +267,72 @@ async function saveDraft(
     );
   }
 
-  // 3. Crea o actualiza el borrador.
-  const autoPublishAt = new Date(Date.now() + AUTO_PUBLISH_HOURS * 3_600_000).toISOString();
-  const { data: edition, error: editionError } = await admin
-    .from('news_editions')
-    .upsert(
-      {
-        edition_date: editionDate,
-        is_published: false,
-        is_draft: true,
-        auto_publish_at: autoPublishAt,
-        intro,
-      },
-      { onConflict: 'edition_date' }
-    )
-    .select('id')
-    .single();
-  if (editionError || !edition) {
+  // 3. Crea el borrador o actualiza el existente. La actualización es
+  //    condicional (is_draft = true): si alguien lo publicó o descartó desde
+  //    que lo leímos, no se pisa. La creación choca con UNIQUE(edition_date)
+  //    si otra petición la creó entre medias.
+  const autoPublishAt = nextAutoPublishAt();
+  const draftFields = { is_published: false, is_draft: true, auto_publish_at: autoPublishAt, intro };
+  const { data: saved, error: editionError } = existing
+    ? await admin
+        .from('news_editions')
+        .update(draftFields)
+        .eq('id', existing.id)
+        .eq('is_draft', true)
+        .select('id')
+    : await admin
+        .from('news_editions')
+        .insert({ edition_date: editionDate, ...draftFields })
+        .select('id');
+  if (editionError) {
     const missing = isMissingSchema(editionError);
+    const conflict = editionError.code === '23505';
     return NextResponse.json(
-      { error: missing ? MISSING_DRAFTS_SCHEMA : `Error guardando el borrador: ${editionError?.message}` },
-      { status: 500 }
+      {
+        error: missing
+          ? MISSING_DRAFTS_SCHEMA
+          : conflict
+            ? `La edición ${editionDate} se acaba de crear por otra vía; no se sobrescribe.`
+            : `Error guardando el borrador: ${editionError.message}`,
+      },
+      { status: missing ? 500 : conflict ? 409 : 500 }
+    );
+  }
+  const edition = saved?.[0];
+  if (!edition) {
+    return NextResponse.json(
+      { error: `La edición ${editionDate} ha dejado de ser un borrador mientras se guardaba; no se sobrescribe.` },
+      { status: 409 }
     );
   }
 
-  // 4. Sustituye las noticias del borrador (nunca han sido públicas).
-  const { error: deleteError } = await admin.from('news_items').delete().eq('edition_id', edition.id);
-  if (deleteError) {
-    return NextResponse.json({ error: `Error vaciando el borrador: ${deleteError.message}` }, { status: 500 });
-  }
-  const { error: insertError } = await admin
+  // 4. Noticias del borrador: primero guarda las nuevas (upsert por URL:
+  //    solo pueden coincidir con las de este mismo borrador, las de otras
+  //    ediciones ya se descartaron) y DESPUÉS quita las que sobran. Si algo
+  //    falla a medias, el borrador conserva lo que tenía.
+  const { error: upsertError } = await admin
     .from('news_items')
-    .insert(fresh.map((item) => ({ ...item, is_published: false, edition_id: edition.id })));
-  if (insertError) {
-    return NextResponse.json({ error: `Error guardando las noticias: ${insertError.message}` }, { status: 500 });
+    .upsert(
+      fresh.map((item) => ({ ...item, is_published: false, edition_id: edition.id })),
+      { onConflict: 'source_url' }
+    );
+  if (upsertError) {
+    return NextResponse.json({ error: `Error guardando las noticias: ${upsertError.message}` }, { status: 500 });
+  }
+  const { data: current, error: currentError } = await admin
+    .from('news_items')
+    .select('id, source_url')
+    .eq('edition_id', edition.id);
+  if (currentError) {
+    return NextResponse.json({ error: `Error leyendo el borrador: ${currentError.message}` }, { status: 500 });
+  }
+  const keep = new Set(fresh.map((i) => i.source_url));
+  const stale = (current || []).filter((r: { source_url: string }) => !keep.has(r.source_url)).map((r: { id: string }) => r.id);
+  if (stale.length) {
+    const { error: deleteError } = await admin.from('news_items').delete().in('id', stale);
+    if (deleteError) {
+      return NextResponse.json({ error: `Error limpiando el borrador: ${deleteError.message}` }, { status: 500 });
+    }
   }
 
   const notifyWarning = await notifyDraftReady({

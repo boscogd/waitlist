@@ -13,6 +13,22 @@ export const SITE_URL = 'https://www.refugioenlapalabra.com';
 // Horas que espera un borrador antes de publicarse solo si nadie lo toca.
 export const AUTO_PUBLISH_HOURS = 48;
 
+// Hora (UTC) del cron diario /api/news-autopublish. Debe coincidir con vercel.json.
+const AUTO_PUBLISH_CRON_HOUR_UTC = 8;
+
+/**
+ * Momento en que el borrador se publicará solo: la primera pasada del cron
+ * diario tras AUTO_PUBLISH_HOURS. Así el correo y el panel anuncian la hora
+ * real y no una que el cron no va a cumplir.
+ */
+export function nextAutoPublishAt(from = new Date()): string {
+  const due = new Date(from.getTime() + AUTO_PUBLISH_HOURS * 3_600_000);
+  const run = new Date(due);
+  run.setUTCHours(AUTO_PUBLISH_CRON_HOUR_UTC, 0, 0, 0);
+  if (run < due) run.setUTCDate(run.getUTCDate() + 1);
+  return run.toISOString();
+}
+
 // Mínimo de noticias para publicar una edición (a mano o sola).
 export const MIN_TO_PUBLISH = 5;
 
@@ -60,10 +76,21 @@ export function revalidateNews(editionDate?: string) {
 }
 
 /**
- * Publica una edición: primero sus noticias y después la edición, para que
- * nunca se vea una edición vacía. Devuelve el nº de noticias publicadas.
+ * Publica una edición. Devuelve el nº de noticias publicadas, o null si la
+ * edición ya no estaba en el estado esperado (otra acción se adelantó).
+ *
+ * Orden y concurrencia: primero se RECLAMA la edición con un UPDATE
+ * condicional (solo si sigue sin publicar y, para el cron, si sigue siendo un
+ * borrador vencido), así una pausa o un descarte hechos mientras tanto ganan.
+ * Después se publican sus noticias; si eso falla, la edición vuelve a su
+ * estado anterior. Mientras tanto la web no la muestra: getLatest() salta las
+ * ediciones sin noticias publicadas.
  */
-export async function publishEdition(admin: SupabaseClient, edition: EditionRow): Promise<number> {
+export async function publishEdition(
+  admin: SupabaseClient,
+  edition: EditionRow,
+  opts: { onlyIfDue?: boolean } = {}
+): Promise<number | null> {
   const { count, error: countError } = await admin
     .from('news_items')
     .select('id', { count: 'exact', head: true })
@@ -75,13 +102,7 @@ export async function publishEdition(admin: SupabaseClient, edition: EditionRow)
     );
   }
 
-  const { error: itemsError } = await admin
-    .from('news_items')
-    .update({ is_published: true })
-    .eq('edition_id', edition.id);
-  if (itemsError) throw new Error(`Error publicando las noticias: ${itemsError.message}`);
-
-  const { error: editionError } = await admin
+  let claim = admin
     .from('news_editions')
     .update({
       is_published: true,
@@ -89,8 +110,31 @@ export async function publishEdition(admin: SupabaseClient, edition: EditionRow)
       auto_publish_at: null,
       published_at: new Date().toISOString(),
     })
-    .eq('id', edition.id);
-  if (editionError) throw new Error(`Error publicando la edición: ${editionError.message}`);
+    .eq('id', edition.id)
+    .eq('is_published', false);
+  if (opts.onlyIfDue) {
+    claim = claim.eq('is_draft', true).lte('auto_publish_at', new Date().toISOString());
+  }
+  const { data: claimed, error: claimError } = await claim.select('id');
+  if (claimError) throw new Error(`Error publicando la edición: ${claimError.message}`);
+  if (!claimed?.length) return null;
+
+  const { error: itemsError } = await admin
+    .from('news_items')
+    .update({ is_published: true })
+    .eq('edition_id', edition.id);
+  if (itemsError) {
+    await admin
+      .from('news_editions')
+      .update({
+        is_published: false,
+        is_draft: edition.is_draft,
+        auto_publish_at: edition.auto_publish_at,
+        published_at: edition.published_at,
+      })
+      .eq('id', edition.id);
+    throw new Error(`Error publicando las noticias: ${itemsError.message}`);
+  }
 
   revalidateNews(edition.edition_date);
   return count ?? 0;

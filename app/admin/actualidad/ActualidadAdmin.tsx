@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useId, useState } from 'react';
 
 // =====================================================
 // ADMIN — Actualidad: revisar el borrador semanal y publicarlo
@@ -201,6 +201,7 @@ function EditionCard({
   onClose?: () => void;
 }) {
   const [intro, setIntro] = useState(e.intro || '');
+  const introId = useId();
   const [adding, setAdding] = useState(false);
   const enough = e.items.length >= MIN_TO_PUBLISH;
 
@@ -257,7 +258,7 @@ function EditionCard({
               onClick={() =>
                 run(
                   { action: e.auto_publish_at ? 'pause' : 'resume', edition_id: e.id },
-                  e.auto_publish_at ? 'En pausa: no se publicará sola.' : 'Se publicará sola en 48 horas.'
+                  e.auto_publish_at ? 'En pausa: no se publicará sola.' : 'Reanudado: se publicará sola en la fecha que ves arriba.'
                 )
               }
               className="px-4 py-2 text-sm text-azul border border-azul/20 rounded-xl hover:bg-azul/5 disabled:opacity-40"
@@ -297,8 +298,11 @@ function EditionCard({
       )}
 
       <div>
-        <label className="block text-sm font-medium text-texto/70 mb-1">Entradilla de la semana</label>
+        <label htmlFor={introId} className="block text-sm font-medium text-texto/70 mb-1">
+          Entradilla de la semana
+        </label>
         <textarea
+          id={introId}
           value={intro}
           onChange={(ev) => setIntro(ev.target.value)}
           rows={3}
@@ -380,12 +384,14 @@ function ItemEditor({
         </a>
       </div>
       <input
+        aria-label={`Titular de la noticia ${index}`}
         value={title}
         onChange={(ev) => setTitle(ev.target.value)}
         className="w-full px-3 py-2 text-base font-semibold text-azul bg-white border border-azul/15 rounded-lg focus:outline-none focus:ring-2 focus:ring-azul/20"
       />
       <Counter value={title} min={15} max={140} />
       <textarea
+        aria-label={`Resumen de la noticia ${index}`}
         value={summary}
         onChange={(ev) => setSummary(ev.target.value)}
         rows={3}
@@ -478,18 +484,18 @@ function AddItemForm({
       <p className="text-sm text-texto/70">
         Escribe el titular y el resumen con tus palabras: no copies frases del medio (solo se puede enlazar).
       </p>
-      <input required type="url" placeholder="Enlace al artículo (https://…)" value={f.source_url} onChange={set('source_url')} className={input} />
+      <input required type="url" aria-label="Enlace al artículo" placeholder="Enlace al artículo (https://…)" value={f.source_url} onChange={set('source_url')} className={input} />
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <input required placeholder="Medio (p. ej. Alfa y Omega)" value={f.source_name} onChange={set('source_name')} className={input} />
-        <input placeholder="País" value={f.country} onChange={set('country')} className={input} />
-        <input required type="date" value={f.published_at} onChange={set('published_at')} className={input} />
+        <input required aria-label="Medio" placeholder="Medio (p. ej. Alfa y Omega)" value={f.source_name} onChange={set('source_name')} className={input} />
+        <input aria-label="País" placeholder="País" value={f.country} onChange={set('country')} className={input} />
+        <input required type="date" aria-label="Fecha del artículo" value={f.published_at} onChange={set('published_at')} className={input} />
       </div>
       <div>
-        <input required placeholder="Titular propio" value={f.title} onChange={set('title')} className={input} />
+        <input required aria-label="Titular propio" placeholder="Titular propio" value={f.title} onChange={set('title')} className={input} />
         <Counter value={f.title} min={15} max={140} />
       </div>
       <div>
-        <textarea required rows={3} placeholder="Resumen propio (2-3 frases)" value={f.summary} onChange={set('summary')} className={input} />
+        <textarea required rows={3} aria-label="Resumen propio" placeholder="Resumen propio (2-3 frases)" value={f.summary} onChange={set('summary')} className={input} />
         <Counter value={f.summary} min={60} max={420} />
       </div>
       <div className="flex justify-end gap-3">

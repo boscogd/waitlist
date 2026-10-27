@@ -51,11 +51,16 @@ export async function GET(request: Request) {
     );
   }
 
-  const results: { edition_date: string; published?: number; error?: string }[] = [];
+  const results: { edition_date: string; published?: number; skipped?: string; error?: string }[] = [];
   for (const edition of (data as EditionRow[]) || []) {
     try {
-      const published = await publishEdition(admin, edition);
-      results.push({ edition_date: edition.edition_date, published });
+      // onlyIfDue: si Aida la pausó o descartó mientras tanto, no se publica.
+      const published = await publishEdition(admin, edition, { onlyIfDue: true });
+      results.push(
+        published === null
+          ? { edition_date: edition.edition_date, skipped: 'cambió de estado durante la ejecución' }
+          : { edition_date: edition.edition_date, published }
+      );
     } catch (err) {
       results.push({
         edition_date: edition.edition_date,

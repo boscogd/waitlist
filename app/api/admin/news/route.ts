@@ -3,12 +3,12 @@ import { verifyAdminAuth } from '@/lib/api-auth';
 import { getServiceClient } from '@/lib/supabase-admin';
 import { cleanIntro, cleanItem, cleanSummary, cleanTitle, todayInMadrid } from '@/lib/news/validate';
 import {
-  AUTO_PUBLISH_HOURS,
   EDITION_ADMIN_COLUMNS,
   MISSING_DRAFTS_SCHEMA,
   type EditionRow,
   editionState,
   isMissingSchema,
+  nextAutoPublishAt,
   publishEdition,
   revalidateNews,
 } from '@/lib/news/editions-admin';
@@ -16,12 +16,12 @@ import {
 // =====================================================
 // ADMIN — gestión de Actualidad (/admin/actualidad)
 // =====================================================
-// GET  → últimas ediciones (borradores, publicadas y retiradas) con sus noticias.
+// GET  → todos los borradores + las últimas ediciones publicadas o retiradas, con sus noticias.
 // POST → { action, ... }:
 //   publish       { edition_id }            publica ya
-//   retire        { edition_id }            la quita de la web (no borra nada)
+//   retire        { edition_id }            la quita de la web con sus noticias (no borra nada)
 //   pause         { edition_id }            borrador: no se publicará solo
-//   resume        { edition_id }            borrador: vuelve a publicarse solo en 48 h
+//   resume        { edition_id }            borrador: vuelve a publicarse solo (48 h, en la pasada del cron)
 //   update_intro  { edition_id, intro }
 //   update_item   { item_id, title, summary }
 //   delete_item   { item_id }
@@ -30,6 +30,8 @@ import {
 // Auth: sesión de admin (cookie httpOnly). Escritura con service-role.
 
 export const dynamic = 'force-dynamic';
+
+const EDITIONS_LIMIT = 60;
 
 const ITEM_ADMIN_COLUMNS =
   'id, edition_id, title, summary, source_name, source_url, country, published_at, is_published';
@@ -63,12 +65,22 @@ export async function GET(request: Request) {
     return fail(err instanceof Error ? err.message : 'Sin cliente admin', 500);
   }
 
-  const { data: editions, error } = await admin
-    .from('news_editions')
-    .select(EDITION_ADMIN_COLUMNS)
-    .order('edition_date', { ascending: false })
-    .limit(12);
+  // Los borradores siempre (aunque sean antiguos y estén en pausa); del resto,
+  // las últimas EDITIONS_LIMIT, de sobra para corregir o retirar semanas pasadas.
+  const [drafts, others] = await Promise.all([
+    admin.from('news_editions').select(EDITION_ADMIN_COLUMNS).eq('is_draft', true),
+    admin
+      .from('news_editions')
+      .select(EDITION_ADMIN_COLUMNS)
+      .eq('is_draft', false)
+      .order('edition_date', { ascending: false })
+      .limit(EDITIONS_LIMIT),
+  ]);
+  const error = drafts.error || others.error;
   if (error) return fail(isMissingSchema(error) ? MISSING_DRAFTS_SCHEMA : error.message, 500);
+  const editions = [...(drafts.data || []), ...(others.data || [])].sort((a, b) =>
+    a.edition_date < b.edition_date ? 1 : -1
+  );
 
   const ids = (editions as EditionRow[]).map((e) => e.id);
   const { data: items, error: itemsError } = ids.length
@@ -106,6 +118,7 @@ export async function POST(request: Request) {
       case 'publish': {
         const edition = await getEdition(admin, body.edition_id);
         const published = await publishEdition(admin, edition);
+        if (published === null) return fail('La edición ya estaba publicada', 409);
         return NextResponse.json({ ok: true, published });
       }
 
@@ -116,7 +129,14 @@ export async function POST(request: Request) {
           .update({ is_published: false, is_draft: false, auto_publish_at: null })
           .eq('id', edition.id);
         if (error) throw new Error(error.message);
+        // Sus noticias también dejan de ser públicas (anon solo lee lo
+        // publicado). Volver a publicar la edición las recupera.
+        const { error: itemsError } = await admin
+          .from('news_items')
+          .update({ is_published: false })
+          .eq('edition_id', edition.id);
         revalidateNews(edition.edition_date);
+        if (itemsError) throw new Error(`Edición retirada, pero sus noticias siguen visibles: ${itemsError.message}`);
         return NextResponse.json({ ok: true });
       }
 
@@ -124,15 +144,15 @@ export async function POST(request: Request) {
       case 'resume': {
         const edition = await getEdition(admin, body.edition_id);
         if (editionState(edition) !== 'draft') throw new Error('Solo se puede pausar o reanudar un borrador');
-        const autoPublishAt =
-          body.action === 'resume'
-            ? new Date(Date.now() + AUTO_PUBLISH_HOURS * 3_600_000).toISOString()
-            : null;
-        const { error } = await admin
+        const autoPublishAt = body.action === 'resume' ? nextAutoPublishAt() : null;
+        const { data: changed, error } = await admin
           .from('news_editions')
           .update({ auto_publish_at: autoPublishAt })
-          .eq('id', edition.id);
+          .eq('id', edition.id)
+          .eq('is_draft', true)
+          .select('id');
         if (error) throw new Error(error.message);
+        if (!changed?.length) return fail('La edición ya no es un borrador', 409);
         return NextResponse.json({ ok: true, auto_publish_at: autoPublishAt });
       }
 
