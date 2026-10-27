@@ -1,22 +1,21 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Descargar App | Refugio en la Palabra",
+  title: "Descargar la app",
   description:
-    "Aprende a instalar Refugio en la Palabra en tu móvil. Tutorial paso a paso para Android e iPhone. Sin tiendas de apps, instalación en 30 segundos.",
+    "Descarga Refugio en la Palabra, la app católica de oración: en Google Play para Android y desde Safari en iPhone, en 30 segundos. Gratis para empezar y sin anuncios.",
   keywords: [
     "instalar refugio en la palabra",
     "descargar app católica",
-    "pwa católica",
+    "app católica google play",
     "app rosario android",
     "app rosario iphone",
-    "instalar app sin app store",
-    "progressive web app católica",
+    "app católica iphone",
   ],
   openGraph: {
-    title: "Instala Refugio en tu móvil | Tutorial paso a paso",
+    title: "Descarga Refugio en la Palabra",
     description:
-      "Añade Refugio en la Palabra a tu pantalla de inicio en 30 segundos. Tutorial para Android e iPhone.",
+      "En Google Play para Android y desde Safari en iPhone. La app católica para rezar el Rosario, leer el Evangelio del día y resolver tus dudas de fe.",
     type: "website",
     locale: "es_ES",
     url: "https://www.refugioenlapalabra.com/descargar",
@@ -26,15 +25,15 @@ export const metadata: Metadata = {
         url: "/opengraph-image",
         width: 1200,
         height: 630,
-        alt: "Refugio en la Palabra - Instalar App",
+        alt: "Refugio en la Palabra",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Instala Refugio en tu móvil",
+    title: "Descarga Refugio en la Palabra",
     description:
-      "Tutorial para añadir Refugio en la Palabra a tu pantalla de inicio. Android e iPhone.",
+      "En Google Play para Android y desde Safari en iPhone.",
     images: ["/opengraph-image"],
   },
   alternates: {

@@ -6,9 +6,9 @@ import { IconArrowRight } from '../icons';
 
 const STEPS = [
   {
-    title: 'Instálala en 30 segundos',
+    title: 'Descárgala',
     description:
-      'Directamente desde el navegador, sin tiendas ni descargas. En medio minuto la tienes lista en tu móvil.',
+      'En Android, desde Google Play. En iPhone y en el ordenador se instala desde el navegador en medio minuto.',
   },
   {
     title: 'Elige tu momento de oración',
@@ -35,7 +35,7 @@ export default function HowItWorksSection() {
                 eyebrowClassName="text-[#8a6d1f] font-medium text-sm uppercase tracking-wider"
                 title="Empieza en 3 simples pasos"
                 titleClassName="font-[family-name:var(--font-lora)] text-3xl sm:text-4xl font-semibold text-azul mt-3 mb-4"
-                subtitle="No hay que registrarse en ninguna tienda ni esperar descargas. Mira el vídeo y sigue los pasos."
+                subtitle="En un par de minutos estás rezando. Si tienes iPhone, mira el vídeo: se instala desde Safari."
                 subtitleClassName="text-texto/70 max-w-lg mx-auto lg:mx-0"
               />
             </div>
@@ -68,7 +68,7 @@ export default function HowItWorksSection() {
                 data-track-where="como-funciona"
                 className="group inline-flex items-center gap-2 bg-azul text-white px-6 py-3.5 rounded-xl font-semibold hover:bg-azul-800 hover:shadow-lg hover:shadow-azul/20 transition-all duration-300"
               >
-                Ver la guía completa de instalación
+                Ver cómo descargarla
                 <IconArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>

@@ -124,7 +124,9 @@ const jsonLd = [
     name: "Refugio en la Palabra",
     url: "https://www.refugioenlapalabra.com",
     applicationCategory: "ReligionApplication",
-    operatingSystem: "iOS, Android, Web",
+    operatingSystem: "Android, iOS, Web",
+    installUrl: "https://play.google.com/store/apps/details?id=com.refugioenlapalabra.app",
+    downloadUrl: "https://play.google.com/store/apps/details?id=com.refugioenlapalabra.app",
     offers: {
       "@type": "Offer",
       price: "0",

@@ -1,18 +1,23 @@
 'use client';
 
 import { useEffect, useId, useState } from 'react';
+import Image from 'next/image';
 import PhoneFrame from './PhoneFrame';
+import { GooglePlayBadge } from './StoreButtons';
 
 type Platform = 'android' | 'ios';
 
-const TABS: { id: Platform; label: string; src: string; poster: string; seconds: number }[] = [
-  { id: 'android', label: 'Android', src: '/android.mp4', poster: '/android-poster.jpg', seconds: 19 },
-  { id: 'ios', label: 'iPhone', src: '/ios.mp4', poster: '/ios-poster.jpg', seconds: 24 },
+const TABS: { id: Platform; label: string }[] = [
+  { id: 'android', label: 'Android' },
+  { id: 'ios', label: 'iPhone' },
 ];
 
+const IOS_VIDEO = { src: '/ios.mp4', poster: '/ios-poster.jpg', seconds: 24 };
+
 /**
- * Vídeo de instalación (unos 20 s) dentro de un marco de móvil, con pestañas
- * Android / iPhone. Detecta iOS tras montar (evita mismatch de hidratación).
+ * Marco de móvil con pestañas Android / iPhone. Android: la app está en
+ * Google Play (botón a la ficha). iPhone: vídeo de instalación desde Safari.
+ * Detecta iOS tras montar (evita mismatch de hidratación).
  */
 export default function InstallVideoTabs() {
   const [platform, setPlatform] = useState<Platform>('android');
@@ -25,8 +30,6 @@ export default function InstallVideoTabs() {
       (/Macintosh/.test(ua) && 'ontouchend' in document);
     if (isIOS) setPlatform('ios');
   }, []);
-
-  const current = TABS.find((t) => t.id === platform) ?? TABS[0];
 
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
@@ -77,23 +80,47 @@ export default function InstallVideoTabs() {
           aria-hidden="true"
           className="absolute inset-0 rounded-[3rem] bg-gradient-to-br from-albero/25 to-azul/10 blur-2xl scale-110"
         />
-        <PhoneFrame className="relative" screenClassName="bg-[#0e1726]">
-          <video
-            key={platform}
-            className="absolute inset-0 h-full w-full object-contain"
-            controls
-            playsInline
-            preload="metadata"
-            poster={current.poster}
-            aria-label={`Tutorial de instalación en ${current.label}, ${current.seconds} segundos`}
-          >
-            <source src={current.src} type="video/mp4" />
-            Tu navegador no soporta vídeos HTML5.
-          </video>
-        </PhoneFrame>
+        {platform === 'ios' ? (
+          <PhoneFrame className="relative" screenClassName="bg-[#0e1726]">
+            <video
+              className="absolute inset-0 h-full w-full object-contain"
+              controls
+              playsInline
+              preload="metadata"
+              poster={IOS_VIDEO.poster}
+              aria-label={`Tutorial de instalación en iPhone, ${IOS_VIDEO.seconds} segundos`}
+            >
+              <source src={IOS_VIDEO.src} type="video/mp4" />
+              Tu navegador no soporta vídeos HTML5.
+            </video>
+          </PhoneFrame>
+        ) : (
+          <PhoneFrame className="relative" screenClassName="bg-marfil">
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 px-5 text-center">
+              <Image
+                src="/icon-refugio-192.png"
+                alt=""
+                width={72}
+                height={72}
+                className="rounded-2xl shadow-lg shadow-azul/15"
+              />
+              <div>
+                <p className="font-[family-name:var(--font-lora)] text-lg font-semibold text-azul leading-tight">
+                  Refugio en la Palabra
+                </p>
+                <p className="mt-1 text-xs text-texto/60">Búscala en Google Play o pulsa aquí</p>
+              </div>
+              <GooglePlayBadge where="como-funciona" className="!min-w-0 !px-4" />
+            </div>
+          </PhoneFrame>
+        )}
       </div>
 
-      <p className="text-xs text-texto/60">Tutorial de {current.label} · {current.seconds} segundos</p>
+      <p className="text-xs text-texto/60">
+        {platform === 'ios'
+          ? `Tutorial de iPhone · ${IOS_VIDEO.seconds} segundos`
+          : 'En Android se descarga como cualquier app'}
+      </p>
     </div>
   );
 }

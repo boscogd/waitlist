@@ -11,17 +11,17 @@ export const faqs: Faq[] = [
   {
     question: '¿Cómo descargo la aplicación?',
     answer:
-      'Es muy sencillo. Ve a la página de descarga y sigue las instrucciones según tu dispositivo. En iPhone/iPad, abre Safari y añade la app a tu pantalla de inicio. En Android, Chrome te ofrecerá instalarla directamente.',
+      'En Android, búscala en Google Play como «Refugio en la Palabra» y descárgala como cualquier app. En iPhone o iPad, abre Safari, entra en la app y añádela a tu pantalla de inicio: en la página de descarga tienes un vídeo de 24 segundos. En el ordenador funciona directamente en el navegador.',
   },
   {
     question: '¿Es compatible con mi dispositivo?',
     answer:
-      'Refugio en la Palabra funciona en cualquier dispositivo moderno: iPhone, Android, tablet u ordenador. Solo necesitas un navegador actualizado como Safari, Chrome o Firefox.',
+      'Sí, si tienes un móvil, tablet u ordenador de los últimos años. En Android se descarga de Google Play; en iPhone, iPad y ordenador basta con un navegador actualizado como Safari, Chrome o Edge.',
   },
   {
-    question: '¿Por qué no está en la App Store o Google Play?',
+    question: '¿Está en Google Play y en la App Store?',
     answer:
-      'Refugio es una Progressive Web App (PWA). Esto significa que funciona como una app nativa pero se instala directamente desde el navegador. No necesitas pasar por las tiendas, se actualiza automáticamente y ocupa menos espacio en tu dispositivo.',
+      'En Google Play, sí. En la App Store todavía no: en iPhone se instala desde Safari en medio minuto y funciona igual, con la misma cuenta y las mismas funciones, y se actualiza sola.',
   },
   {
     question: '¿Cómo funciona el Compañero de fe?',

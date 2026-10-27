@@ -8,3 +8,6 @@ export const APP_URL = 'https://refugio-en-la-palabra.netlify.app';
 
 /** Perfil de Instagram (variante canónica, sin parámetros de tracking). */
 export const INSTAGRAM_URL = 'https://www.instagram.com/refugioenlapalabra_';
+
+/** Ficha de la app en Google Play (Android). */
+export const PLAY_URL = 'https://play.google.com/store/apps/details?id=com.refugioenlapalabra.app';
