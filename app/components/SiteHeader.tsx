@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
+import { DownloadLink } from './StoreButtons';
 
 const NAV = [
   { id: 'caracteristicas', label: 'Características' },
@@ -96,7 +97,7 @@ export default function SiteHeader() {
         </a>
 
         {/* Navegación desktop */}
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden lg:flex items-center gap-8 whitespace-nowrap">
           {NAV.map(({ id, label }) => (
             <a
               key={id}
@@ -119,14 +120,12 @@ export default function SiteHeader() {
 
         {/* CTA + hamburguesa */}
         <div className="flex items-center gap-2">
-          <Link
-            href="/descargar"
-            data-track="cta_click"
-            data-track-where="header"
+          <DownloadLink
+            where="header"
             className="bg-azul text-white px-4 sm:px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-azul-800 transition-colors shadow-sm"
           >
             Descargar
-          </Link>
+          </DownloadLink>
           <button
             ref={menuButtonRef}
             type="button"
@@ -134,7 +133,7 @@ export default function SiteHeader() {
             aria-label={open ? 'Cerrar menú' : 'Abrir menú'}
             aria-expanded={open}
             aria-controls="mobile-menu"
-            className="md:hidden w-10 h-10 flex items-center justify-center rounded-lg text-azul hover:bg-azul/5 transition-colors"
+            className="lg:hidden w-10 h-10 flex items-center justify-center rounded-lg text-azul hover:bg-azul/5 transition-colors"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
               {open ? (
@@ -151,7 +150,7 @@ export default function SiteHeader() {
       <div
         id="mobile-menu"
         inert={!open}
-        className={`md:hidden overflow-hidden border-t border-azul/5 transition-all duration-300 ease-out ${
+        className={`lg:hidden overflow-hidden border-t border-azul/5 transition-all duration-300 ease-out ${
           open ? 'max-h-72 opacity-100' : 'max-h-0 opacity-0'
         }`}
       >

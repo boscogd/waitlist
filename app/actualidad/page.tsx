@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { DownloadLink } from '../components/StoreButtons';
 import SiteHeader from '../components/SiteHeader';
 import ScrollProgress from '../components/ScrollProgress';
 import BackToTop from '../components/BackToTop';
@@ -250,13 +251,13 @@ export default async function ActualidadPage() {
                 Y si además de leer buenas noticias quieres rezar cada día, Refugio en la Palabra
                 es una app católica con Rosario guiado y el Evangelio del día.
               </p>
-              <Link
-                href="/descargar"
+              <DownloadLink
+                where="actualidad"
                 className="inline-flex items-center gap-2 bg-azul text-white px-6 py-3.5 rounded-xl font-semibold hover:bg-azul-800 hover:shadow-lg hover:shadow-azul/20 transition-all duration-300"
               >
                 Conocer la app
                 <span aria-hidden="true">→</span>
-              </Link>
+              </DownloadLink>
             </div>
           </div>
         </section>

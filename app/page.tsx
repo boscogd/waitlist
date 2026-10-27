@@ -8,6 +8,7 @@ import FeatureShowcase from './components/sections/FeatureShowcase';
 import HowItWorksSection from './components/sections/HowItWorksSection';
 import CommunitySection from './components/sections/CommunitySection';
 import WhySection from './components/sections/WhySection';
+import NewsTeaserSection from './components/sections/NewsTeaserSection';
 import AboutSection from './components/sections/AboutSection';
 import DownloadCTASection from './components/sections/DownloadCTASection';
 import FaqSection from './components/sections/FaqSection';
@@ -15,7 +16,11 @@ import FinalCTASection from './components/sections/FinalCTASection';
 import SiteFooter from './components/sections/SiteFooter';
 import { faqs } from '@/lib/content/faqs';
 
-export default function Home() {
+// La portada enseña la última edición de Actualidad: se regenera cada 15 min
+// (y al momento cuando se publica una edición, ver revalidateNews).
+export const revalidate = 900;
+
+export default async function Home() {
   // FAQ JSON-LD: se deriva del MISMO array `faqs` que alimenta la sección #faq
   // (fuente única). Se incluye aquí porque el FAQPage se retira del layout global.
   const faqJsonLd = {
@@ -59,6 +64,9 @@ export default function Home() {
 
         {/* Qué nos hace diferentes (bento) */}
         <WhySection />
+
+        {/* Esta semana en Actualidad (última edición publicada) */}
+        <NewsTeaserSection />
 
         {/* Quiénes somos */}
         <AboutSection />

@@ -1,12 +1,26 @@
+'use client';
+
+import { useEffect, useState, type ComponentProps } from 'react';
 import Link from 'next/link';
 import { PLAY_URL } from '@/lib/constants';
+import { buildPlayUrl, isAndroid } from '@/lib/track';
 
 // =====================================================
 // Botones de descarga: Google Play (Android) + iPhone y ordenador
 // =====================================================
 // Android → ficha de Google Play. iPhone y ordenador → /descargar, donde se
 // explica cómo instalarla desde el navegador (aún no está en la App Store).
-// `where` etiqueta los clics en la analítica propia (data-track).
+// `where` etiqueta los clics en la analítica propia (data-track) y viaja a
+// Google Play como campaña, para ver en Play Console las instalaciones que
+// vienen de la web (ver buildPlayUrl).
+
+// Enlace a la ficha de Play con el origen de la visita. Se calcula tras montar
+// (la atribución vive en sessionStorage); antes, el enlace limpio.
+function usePlayHref(where: string): string {
+  const [href, setHref] = useState(PLAY_URL);
+  useEffect(() => setHref(buildPlayUrl(where)), [where]);
+  return href;
+}
 
 function PlayLogo({ className = '' }: { className?: string }) {
   return (
@@ -20,9 +34,10 @@ function PlayLogo({ className = '' }: { className?: string }) {
 }
 
 export function GooglePlayBadge({ where, className = '' }: { where: string; className?: string }) {
+  const href = usePlayHref(where);
   return (
     <a
-      href={PLAY_URL}
+      href={href}
       target="_blank"
       rel="noopener noreferrer"
       data-track="play_click"
@@ -85,5 +100,33 @@ export default function StoreButtons({
       <GooglePlayBadge where={where} />
       <IphoneButton where={where} />
     </div>
+  );
+}
+
+/**
+ * Enlace genérico de «descargar la app» (cabecera, pie, CTA finales): en
+ * Android va directo a Google Play, que es lo único que hay que hacer allí;
+ * en iPhone y ordenador, a /descargar, donde se explica cómo instalarla.
+ */
+export function DownloadLink({
+  where,
+  children,
+  ...props
+}: { where: string } & Omit<ComponentProps<'a'>, 'href'>) {
+  const playHref = usePlayHref(where);
+  const [android, setAndroid] = useState(false);
+  useEffect(() => setAndroid(isAndroid()), []);
+
+  if (android) {
+    return (
+      <a href={playHref} data-track="play_click" data-track-where={where} {...props}>
+        {children}
+      </a>
+    );
+  }
+  return (
+    <Link href="/descargar" data-track="cta_click" data-track-where={where} {...props}>
+      {children}
+    </Link>
   );
 }

@@ -69,6 +69,7 @@ export const MISSING_DRAFTS_SCHEMA =
   'Faltan las columnas de borradores: ejecuta supabase/news-drafts.sql en Supabase.';
 
 export function revalidateNews(editionDate?: string) {
+  revalidatePath('/'); // la portada enseña la última edición
   revalidatePath('/actualidad');
   revalidatePath('/actualidad/archivo');
   if (editionDate) revalidatePath(`/actualidad/${editionDate}`);

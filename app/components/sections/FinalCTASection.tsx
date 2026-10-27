@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import Link from 'next/link';
+import { DownloadLink } from '../StoreButtons';
 import AnimateOnScroll from '../AnimateOnScroll';
 
 export default function FinalCTASection() {
@@ -18,14 +18,12 @@ export default function FinalCTASection() {
         </p>
         <p className="text-base text-texto/60">
           ¿Aún no la tienes?{' '}
-          <Link
-            href="/descargar"
-            data-track="cta_click"
-            data-track-where="final"
+          <DownloadLink
+            where="final"
             className="text-azul font-medium underline decoration-albero/60 underline-offset-4 hover:decoration-albero transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-albero rounded-sm"
           >
             Descárgala aquí
-          </Link>
+          </DownloadLink>
         </p>
       </AnimateOnScroll>
     </section>

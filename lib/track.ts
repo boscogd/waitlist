@@ -16,7 +16,7 @@
 // producción) salvo que pongas `localStorage.rp_track_local = '1'`. La
 // atribución sí se guarda siempre.
 
-import { APP_URL } from '@/lib/constants';
+import { APP_URL, PLAY_URL } from '@/lib/constants';
 
 const ENDPOINT = '/api/track';
 const ATTR_KEY = 'rp_attr';
@@ -194,4 +194,42 @@ export function buildAppUrl(where?: string): string {
   }
   if (where) params.set('web_where', where);
   return `${APP_URL}/?${params.toString()}`;
+}
+
+// =====================================================
+// ENLACE A GOOGLE PLAY CON ORIGEN (web → Play Console)
+// =====================================================
+// Google Play pasa el parámetro `referrer` a sus informes de adquisición
+// (Play Console → Adquisición de usuarios → por campaña UTM). Así se ve
+// cuántas INSTALACIONES vienen de la web y de dónde llegó esa visita:
+//   utm_source   el de la visita (instagram, google…) o "web" si entró directa
+//   utm_medium   siempre "landing"
+//   utm_campaign el botón pulsado (hero, descargar, cabecera…)
+function sourceFromHost(host?: string): string | null {
+  if (!host) return null;
+  const parts = host.split('.');
+  const name = parts.length >= 2 ? parts[parts.length - 2] : parts[0];
+  return name ? name.replace(/[^a-z0-9_-]/g, '').slice(0, 40) || null : null;
+}
+
+export function buildPlayUrl(where: string): string {
+  let source = 'web';
+  if (typeof window !== 'undefined') {
+    // En la primera página de la visita la atribución puede no estar guardada
+    // aún (el botón se monta antes que el tracker): se calcula sin guardarla,
+    // para no marcar mal la página de entrada.
+    const attr = readAttribution() ?? buildAttribution(window.location.pathname);
+    source = attr.s || sourceFromHost(attr.ref) || 'web';
+  }
+  const referrer = new URLSearchParams({
+    utm_source: source,
+    utm_medium: 'landing',
+    utm_campaign: where,
+  }).toString();
+  return `${PLAY_URL}&referrer=${encodeURIComponent(referrer)}`;
+}
+
+// ¿Es un móvil Android? (para mandar directo a Google Play). Solo en cliente.
+export function isAndroid(): boolean {
+  return typeof navigator !== 'undefined' && /Android/i.test(navigator.userAgent || '');
 }
