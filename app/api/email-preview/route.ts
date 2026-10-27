@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { decorateEmailHtml } from '@/lib/resend';
 import type { EmailTemplate } from '@/lib/types';
+import { APP_URL } from '@/lib/constants';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,7 +26,7 @@ const SAMPLE: Record<string, string> = {
   '{{name}}': 'María',
   '{{code}}': 'REFUGIO-7K2P9',
   '{{app_url}}':
-    process.env.NEXT_PUBLIC_APP_URL || 'https://refugio-en-la-palabra.netlify.app',
+    APP_URL,
   '{{unsubscribe_url}}': '#',
 };
 
