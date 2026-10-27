@@ -109,6 +109,20 @@ export default function AdminDashboard() {
 
   const panels = [
     {
+      title: 'Actualidad',
+      description: 'Revisa el borrador semanal de buenas noticias: quita, corrige o añade noticias y publícalo.',
+      href: '/admin/actualidad',
+      icon: (
+        <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" />
+        </svg>
+      ),
+      color: 'from-rose-500 to-rose-600',
+      shadowColor: 'shadow-rose-500/20',
+      bgLight: 'bg-rose-50',
+      textColor: 'text-rose-600',
+    },
+    {
       title: 'Correos',
       description: 'Escribe y envía correos, gestiona las plantillas de las campañas y consulta métricas.',
       href: '/admin/emails',

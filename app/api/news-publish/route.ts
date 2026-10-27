@@ -1,144 +1,65 @@
 import { NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
 import { safeEqual } from '@/lib/api-auth';
 import { getServiceClient } from '@/lib/supabase-admin';
+import {
+  type CleanItem,
+  MIN_ITEMS,
+  cleanIntro,
+  todayInMadrid,
+  validateItems,
+} from '@/lib/news/validate';
+import {
+  AUTO_PUBLISH_HOURS,
+  EDITION_ADMIN_COLUMNS,
+  MISSING_DRAFTS_SCHEMA,
+  type EditionRow,
+  editionState,
+  isMissingSchema,
+  notifyDraftReady,
+  revalidateNews,
+} from '@/lib/news/editions-admin';
 
 // =====================================================
-// ACTUALIDAD — publicación de una tanda CURADA de noticias
+// ACTUALIDAD — entrada de una tanda CURADA de noticias
 // =====================================================
-// Lo llama la rutina semanal de Claude (claude.ai/code → Routines) cada
-// lunes con 8-10 noticias ya curadas y resumidas con criterio editorial.
-// A diferencia de /api/news-refresh (Gemini), aquí NO hay IA: el endpoint
-// solo valida y guarda lo que recibe.
+// Lo llama el trabajo semanal (GitHub Actions, .github/actualidad/prompt.md)
+// con 8-10 noticias ya curadas y resumidas con criterio editorial. Aquí NO
+// hay IA: el endpoint solo valida y guarda lo que recibe.
 //
 // SEGURIDAD:
 // - Auth: `Authorization: Bearer <NEWS_PUBLISH_SECRET>`. Secreto PROPIO y de
 //   alcance mínimo: no vale para campañas, ni para el admin, ni para nada
-//   más. Lo peor que puede hacer quien lo robe es publicar noticias, que se
-//   deshacen con un UPDATE (ver "Deshacer" abajo).
+//   más. Lo peor que puede hacer quien lo robe es crear noticias, que se
+//   retiran desde /admin/actualidad.
 // - Escritura con service-role (solo servidor). anon sigue sin poder escribir.
-// - Validación estricta del cuerpo: nº de noticias, longitudes, URLs https,
-//   sin HTML, fechas recientes, URLs únicas.
+// - Validación estricta del cuerpo (lib/news/validate.ts).
 //
-// CUERPO: { items: [...], edition_date?: "YYYY-MM-DD", intro?: "entradilla" }
+// CUERPO: { items: [...], edition_date?: "YYYY-MM-DD", intro?: "…", status?: "draft" | "published" }
 //
-// COMPORTAMIENTO (con ediciones, ver supabase/news-editions.sql): cada tanda
-// es una EDICIÓN con su fecha y su página permanente /actualidad/<fecha>.
-// Las ediciones anteriores NO se tocan: son el archivo. Republicar la misma
-// fecha sustituye la tanda de esa edición. /actualidad muestra la última.
+// status = "draft" (lo que usa el trabajo semanal, ver supabase/news-drafts.sql):
+//   la edición queda como BORRADOR, invisible en la web. Se avisa por correo
+//   a NEWS_REVIEW_EMAIL; Aida la revisa en /admin/actualidad y la publica, o
+//   se publica sola a las AUTO_PUBLISH_HOURS horas (/api/news-autopublish).
+//   Las noticias cuya URL ya salió en otra edición se descartan (no se roban
+//   de semanas anteriores). Si esa fecha ya está publicada o retirada → 409.
 //
-// Deshacer una edición que salió mal (la web pasa sola a la anterior):
-//   UPDATE public.news_editions SET is_published = false WHERE edition_date = '2026-09-21';
-//
-// MODO ANTIGUO (si la tabla news_editions aún no existe): la tanda publicada
-// pasa a borrador y la nueva la sustituye. La respuesta indica el modo usado.
+// status = "published" (por defecto, compatibilidad): publica al momento.
+//   Cada tanda es una EDICIÓN con su fecha y su página permanente
+//   /actualidad/<fecha>. Las anteriores NO se tocan: son el archivo.
+//   Republicar la misma fecha sustituye la tanda de esa edición.
+//   Sin la tabla news_editions → modo antiguo (la tanda nueva sustituye a la
+//   anterior). La respuesta indica el modo usado.
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30;
 
-const MIN_ITEMS = 5;
-const MAX_ITEMS = 12;
-const MAX_AGE_DAYS = 45; // ventana de "actualidad"
 const DRAFT_RETENTION_DAYS = 90;
-
-interface IncomingItem {
-  title: string;
-  summary: string;
-  source_name: string;
-  source_url: string;
-  country?: string | null;
-  published_at: string;
-}
-
-interface CleanItem {
-  title: string;
-  summary: string;
-  source_name: string;
-  source_url: string;
-  country: string;
-  published_at: string;
-  is_published: true;
-}
 
 function isAuthorized(request: Request): boolean {
   const secret = process.env.NEWS_PUBLISH_SECRET;
   if (!secret) return false;
   const header = request.headers.get('authorization');
   return !!header && safeEqual(header, `Bearer ${secret}`);
-}
-
-// Texto plano: recorta, colapsa espacios y rechaza HTML.
-function cleanText(value: unknown, field: string, min: number, max: number): string {
-  if (typeof value !== 'string') throw new Error(`"${field}" debe ser texto`);
-  const text = value.replace(/\s+/g, ' ').trim();
-  if (text.length < min || text.length > max) {
-    throw new Error(`"${field}" debe tener entre ${min} y ${max} caracteres (tiene ${text.length})`);
-  }
-  if (/<[a-z!/][^>]*>/i.test(text)) throw new Error(`"${field}" no puede contener HTML`);
-  return text;
-}
-
-function cleanUrl(value: unknown): string {
-  if (typeof value !== 'string') throw new Error('"source_url" debe ser texto');
-  let url: URL;
-  try {
-    url = new URL(value.trim());
-  } catch {
-    throw new Error(`"source_url" no es una URL válida: ${String(value).slice(0, 80)}`);
-  }
-  if (url.protocol !== 'https:') throw new Error('"source_url" debe ser https');
-  if (/(^|\.)news\.google\.com$/i.test(url.hostname)) {
-    throw new Error('"source_url" debe enlazar al medio original, no a Google News');
-  }
-  url.hash = '';
-  return url.toString();
-}
-
-function cleanDate(value: unknown): string {
-  if (typeof value !== 'string') throw new Error('"published_at" debe ser texto ISO');
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) throw new Error(`"published_at" no es una fecha válida: ${value}`);
-  const ageDays = (Date.now() - date.getTime()) / 86_400_000;
-  if (ageDays > MAX_AGE_DAYS) throw new Error(`"published_at" tiene más de ${MAX_AGE_DAYS} días: ${value}`);
-  if (ageDays < -1) throw new Error(`"published_at" está en el futuro: ${value}`);
-  return date.toISOString();
-}
-
-function validateItems(raw: unknown): CleanItem[] {
-  if (!Array.isArray(raw)) throw new Error('"items" debe ser un array');
-  if (raw.length < MIN_ITEMS || raw.length > MAX_ITEMS) {
-    throw new Error(`"items" debe tener entre ${MIN_ITEMS} y ${MAX_ITEMS} noticias (tiene ${raw.length})`);
-  }
-  const seenUrls = new Set<string>();
-  return raw.map((entry, index) => {
-    if (!entry || typeof entry !== 'object') throw new Error(`items[${index}] no es un objeto`);
-    const it = entry as Partial<IncomingItem>;
-    try {
-      const item: CleanItem = {
-        title: cleanText(it.title, 'title', 15, 140),
-        summary: cleanText(it.summary, 'summary', 60, 420),
-        source_name: cleanText(it.source_name, 'source_name', 2, 60),
-        source_url: cleanUrl(it.source_url),
-        country:
-          it.country == null || it.country === ''
-            ? 'Internacional'
-            : cleanText(it.country, 'country', 2, 40),
-        published_at: cleanDate(it.published_at),
-        is_published: true,
-      };
-      const key = item.source_url.toLowerCase();
-      if (seenUrls.has(key)) throw new Error(`"source_url" repetida: ${item.source_url}`);
-      seenUrls.add(key);
-      return item;
-    } catch (err) {
-      throw new Error(`items[${index}]: ${err instanceof Error ? err.message : String(err)}`);
-    }
-  });
-}
-
-// Fecha de hoy en Madrid, YYYY-MM-DD (la edición se publica "el lunes" de allí).
-function todayInMadrid(): string {
-  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Madrid' }).format(new Date());
 }
 
 // Fecha de la edición = slug de su URL permanente. Opcional: por defecto, hoy.
@@ -157,23 +78,10 @@ function cleanEditionDate(value: unknown): string {
   return value;
 }
 
-// Entradilla de la semana: opcional, texto propio.
-function cleanIntro(value: unknown): string | null {
-  if (value == null || value === '') return null;
-  return cleanText(value, 'intro', 80, 600);
-}
-
-// ¿El error de Supabase significa "esa tabla/columna todavía no existe"?
-// (SQL de ediciones sin ejecutar → seguimos con el comportamiento antiguo.)
-function isMissingSchema(error: { code?: string; message?: string } | null): boolean {
-  if (!error) return false;
-  return (
-    error.code === '42P01' || // undefined_table (Postgres)
-    error.code === '42703' || // undefined_column (Postgres)
-    error.code === 'PGRST205' || // tabla no encontrada en la caché de PostgREST
-    error.code === 'PGRST204' || // columna no encontrada en la caché de PostgREST
-    /news_editions|edition_id/i.test(error.message || '')
-  );
+function cleanStatus(value: unknown): 'draft' | 'published' {
+  if (value == null || value === '' || value === 'published') return 'published';
+  if (value === 'draft') return 'draft';
+  throw new Error('"status" debe ser "draft" o "published"');
 }
 
 export async function POST(request: Request) {
@@ -184,11 +92,13 @@ export async function POST(request: Request) {
   let items: CleanItem[];
   let editionDate: string;
   let intro: string | null;
+  let status: 'draft' | 'published';
   try {
     const body = await request.json();
     items = validateItems(body?.items);
     editionDate = cleanEditionDate(body?.edition_date);
     intro = cleanIntro(body?.intro);
+    status = cleanStatus(body?.status);
   } catch (err) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : 'Cuerpo inválido' },
@@ -205,6 +115,12 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
+
+  if (status === 'draft') return saveDraft(admin, items, editionDate, intro);
+
+  // ---------------------------------------------------------------
+  // PUBLICACIÓN DIRECTA
+  // ---------------------------------------------------------------
 
   // 1. Edición de la semana (crea o actualiza la de esa fecha). Si la tabla
   //    aún no existe, editionId queda en null y seguimos en modo antiguo.
@@ -227,10 +143,18 @@ export async function POST(request: Request) {
     editionId = data?.id ?? null;
   }
 
+  // Si ya existen las columnas de borradores, deja la edición como publicada
+  // a todos los efectos (best-effort: sin esas columnas no pasa nada).
+  if (editionId) {
+    await admin
+      .from('news_editions')
+      .update({ is_draft: false, auto_publish_at: null, published_at: new Date().toISOString() })
+      .eq('id', editionId);
+  }
+
   // 2. Retirar lo que la tanda nueva sustituye.
   //    - Con ediciones: SOLO las noticias de esta misma edición (republicar el
-  //      mismo día reemplaza la tanda). Las semanas anteriores NO se tocan:
-  //      son el archivo.
+  //      mismo día reemplaza la tanda). Las semanas anteriores NO se tocan.
   //    - Modo antiguo: toda la tanda publicada pasa a borrador.
   {
     const query = admin.from('news_items').update({ is_published: false }).eq('is_published', true);
@@ -245,7 +169,11 @@ export async function POST(request: Request) {
 
   // 3. Inserta la nueva tanda publicada. Si una URL ya existía (noticia
   //    repetida de otra semana), se actualiza y pasa a esta edición.
-  const rows = editionId ? items.map((item) => ({ ...item, edition_id: editionId })) : items;
+  const rows = items.map((item) => ({
+    ...item,
+    is_published: true,
+    ...(editionId ? { edition_id: editionId } : {}),
+  }));
   const { error: upsertError } = await admin
     .from('news_items')
     .upsert(rows, { onConflict: 'source_url' });
@@ -265,17 +193,127 @@ export async function POST(request: Request) {
     .eq('is_published', false)
     .lt('created_at', cutoff);
 
-  revalidatePath('/actualidad');
-  revalidatePath('/actualidad/archivo');
-  revalidatePath(`/actualidad/${editionDate}`);
-  revalidatePath('/sitemap.xml');
+  revalidateNews(editionDate);
 
   return NextResponse.json({
     ok: true,
+    status: 'published',
     mode: editionId ? 'editions' : 'legacy',
     edition_date: editionId ? editionDate : null,
     published: items.length,
     purge_warning: purgeError?.message ?? null,
     titles: items.map((i) => i.title),
+  });
+}
+
+// ---------------------------------------------------------------
+// BORRADOR
+// ---------------------------------------------------------------
+async function saveDraft(
+  admin: ReturnType<typeof getServiceClient>,
+  items: CleanItem[],
+  editionDate: string,
+  intro: string | null
+) {
+  // 1. ¿Ya hay una edición con esa fecha?
+  const { data: existingRows, error: existingError } = await admin
+    .from('news_editions')
+    .select(EDITION_ADMIN_COLUMNS)
+    .eq('edition_date', editionDate)
+    .limit(1);
+  if (existingError) {
+    const missing = isMissingSchema(existingError);
+    return NextResponse.json(
+      { error: missing ? MISSING_DRAFTS_SCHEMA : `Error leyendo la edición: ${existingError.message}` },
+      { status: 500 }
+    );
+  }
+  const existing = (existingRows?.[0] as EditionRow | undefined) ?? null;
+  if (existing && editionState(existing) !== 'draft') {
+    return NextResponse.json(
+      {
+        error: `La edición ${editionDate} ya está ${
+          editionState(existing) === 'published' ? 'publicada' : 'retirada'
+        }; no se sobrescribe con un borrador.`,
+      },
+      { status: 409 }
+    );
+  }
+
+  // 2. Descarta noticias ya usadas en OTRA edición (no se les cambia de semana).
+  const { data: dupRows, error: dupError } = await admin
+    .from('news_items')
+    .select('source_url, edition_id')
+    .in('source_url', items.map((i) => i.source_url));
+  if (dupError) {
+    return NextResponse.json({ error: `Error comprobando duplicados: ${dupError.message}` }, { status: 500 });
+  }
+  const taken = new Set(
+    (dupRows || [])
+      .filter((r: { edition_id: string | null }) => !existing || r.edition_id !== existing.id)
+      .map((r: { source_url: string }) => r.source_url)
+  );
+  const fresh = items.filter((i) => !taken.has(i.source_url));
+  const skipped = items.filter((i) => taken.has(i.source_url)).map((i) => i.source_url);
+  if (fresh.length < MIN_ITEMS) {
+    return NextResponse.json(
+      {
+        error: `Solo quedan ${fresh.length} noticias nuevas (mínimo ${MIN_ITEMS}); estas ya salieron en otra edición: ${skipped.join(', ')}`,
+      },
+      { status: 400 }
+    );
+  }
+
+  // 3. Crea o actualiza el borrador.
+  const autoPublishAt = new Date(Date.now() + AUTO_PUBLISH_HOURS * 3_600_000).toISOString();
+  const { data: edition, error: editionError } = await admin
+    .from('news_editions')
+    .upsert(
+      {
+        edition_date: editionDate,
+        is_published: false,
+        is_draft: true,
+        auto_publish_at: autoPublishAt,
+        intro,
+      },
+      { onConflict: 'edition_date' }
+    )
+    .select('id')
+    .single();
+  if (editionError || !edition) {
+    const missing = isMissingSchema(editionError);
+    return NextResponse.json(
+      { error: missing ? MISSING_DRAFTS_SCHEMA : `Error guardando el borrador: ${editionError?.message}` },
+      { status: 500 }
+    );
+  }
+
+  // 4. Sustituye las noticias del borrador (nunca han sido públicas).
+  const { error: deleteError } = await admin.from('news_items').delete().eq('edition_id', edition.id);
+  if (deleteError) {
+    return NextResponse.json({ error: `Error vaciando el borrador: ${deleteError.message}` }, { status: 500 });
+  }
+  const { error: insertError } = await admin
+    .from('news_items')
+    .insert(fresh.map((item) => ({ ...item, is_published: false, edition_id: edition.id })));
+  if (insertError) {
+    return NextResponse.json({ error: `Error guardando las noticias: ${insertError.message}` }, { status: 500 });
+  }
+
+  const notifyWarning = await notifyDraftReady({
+    editionDate,
+    titles: fresh.map((i) => i.title),
+    autoPublishAt,
+  });
+
+  return NextResponse.json({
+    ok: true,
+    status: 'draft',
+    edition_date: editionDate,
+    saved: fresh.length,
+    skipped_duplicates: skipped,
+    auto_publish_at: autoPublishAt,
+    notify_warning: notifyWarning,
+    titles: fresh.map((i) => i.title),
   });
 }
