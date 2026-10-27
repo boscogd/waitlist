@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { IconInstagram } from '../icons';
 import { INSTAGRAM_URL } from '@/lib/constants';
+import { DownloadLink } from '../StoreButtons';
 
 export default function SiteFooter() {
   return (
@@ -41,7 +42,7 @@ export default function SiteFooter() {
               <li><a href="/#nosotros" className="hover:text-white transition-colors">Quiénes somos</a></li>
               <li><a href="/#faq" className="hover:text-white transition-colors">Preguntas frecuentes</a></li>
               <li><Link href="/actualidad" className="hover:text-white transition-colors">Actualidad</Link></li>
-              <li><Link href="/descargar" data-track="cta_click" data-track-where="footer" className="hover:text-white transition-colors">Descargar la app</Link></li>
+              <li><DownloadLink where="footer" className="hover:text-white transition-colors">Descargar la app</DownloadLink></li>
             </ul>
           </div>
 
