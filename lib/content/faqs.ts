@@ -26,16 +26,16 @@ export const faqs: Faq[] = [
   {
     question: '¿Cómo funciona el Compañero de fe?',
     answer:
-      'Es un asistente de inteligencia artificial formado con fuentes católicas: el Catecismo, las Escrituras, documentos del Magisterio y enseñanzas de santos. Puede responder dudas sobre la fe, orientarte en situaciones difíciles y acompañarte en tu camino. No reemplaza a un sacerdote ni a la dirección espiritual, pero está disponible 24/7 para cuando necesites orientación.',
+      'Es un asistente de inteligencia artificial al que le hemos dado como guía el Catecismo, la Sagrada Escritura y el Magisterio de la Iglesia. Responde dudas sobre la fe y te acompaña a cualquier hora. Como toda inteligencia artificial, puede equivocarse: no es un sacerdote, ni sustituye a la confesión ni a la dirección espiritual, y cuando el tema lo pide te anima a hablar con uno. Para generar las respuestas, tus mensajes se envían a un proveedor de inteligencia artificial (Google); nunca los usamos para publicidad.',
   },
   {
     question: '¿Cuánto cuesta la aplicación?',
     answer:
-      'Descargar y usar Refugio en la Palabra es gratis. Tienes acceso al Evangelio del día, Rosario, Lectio Divina y mucho más sin pagar nada. Algunas funciones avanzadas son de pago para ayudarnos a mantener el proyecto, pero siempre podrás rezar y crecer en tu fe sin coste.',
+      'Descargarla y rezar con ella es gratis: el Rosario, el Evangelio del día, la Lectio Divina y mucho más, sin anuncios. Refugio Premium cuesta 4,99 € al mes o 49,99 € al año (precios en España) y amplía, entre otras cosas, el Compañero de fe sin el límite diario de mensajes. Con Premium nos ayudas a mantener el proyecto, y siempre podrás rezar sin pagar nada.',
   },
   {
     question: '¿Mis datos están seguros?',
     answer:
-      'Absolutamente. Cumplimos con el RGPD y la normativa española de protección de datos. No vendemos ni compartimos tus datos con terceros. Tu vida espiritual es sagrada y merece la máxima privacidad.',
+      'Cumplimos el RGPD y la normativa española de protección de datos. No vendemos tus datos ni los usamos para publicidad. Solo los tratan los servicios que necesitamos para que la app funcione (alojamiento, correo y el proveedor de inteligencia artificial del Compañero de fe), y puedes pedirnos que los borremos cuando quieras. Tu vida espiritual es sagrada y la tratamos con ese cuidado.',
   },
 ];

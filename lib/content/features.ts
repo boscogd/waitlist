@@ -36,7 +36,7 @@ export const features: Feature[] = [
     iconAlt: 'Evangelio del día comentado con reflexiones diarias',
     title: 'Evangelio del día comentado',
     description:
-      'Recibe cada mañana las lecturas del día con reflexiones que conectan el Evangelio con tu vida cotidiana. Ideal para la Lectio Divina.',
+      'Cada día tienes las lecturas de la misa con reflexiones que conectan el Evangelio con tu vida cotidiana. Ideal para la Lectio Divina.',
     bullets: ['Lecturas sincronizadas con la liturgia', 'Reflexiones contextuales', 'Santo del día'],
     video: '/app/video/evangelio.mp4',
     poster: '/app/video/evangelio.jpg',
@@ -48,7 +48,7 @@ export const features: Feature[] = [
     title: 'Compañero de fe',
     description:
       'Un asistente formado en doctrina católica que responde tus dudas sobre fe, moral y vida cristiana. Disponible 24/7 cuando necesites orientación.',
-    bullets: ['Basado en el Catecismo', 'Respuestas con fuentes', 'Disponible siempre'],
+    bullets: ['Basado en el Catecismo', 'Te anima a hablar con un sacerdote', 'Disponible siempre'],
     video: '/app/video/companero.mp4',
     poster: '/app/video/companero.jpg',
     videoLabel: 'Conversación con el Compañero de fe',

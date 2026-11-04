@@ -47,7 +47,7 @@ export const whyItems: WhyItem[] = [
     key: 'ia',
     title: 'IA formada en doctrina',
     description:
-      'El Compañero de fe se apoya en el Catecismo, la Escritura y los documentos del Magisterio. Y sabe cuándo remitirte a un sacerdote.',
+      'El Compañero de fe se apoya en el Catecismo, la Escritura y los documentos del Magisterio. Y te anima a hablar con un sacerdote cuando hace falta.',
     icon: '/icons/chat-icon.png',
     iconAlt: 'Burbuja de conversación que representa al Compañero de fe',
   },

@@ -21,7 +21,7 @@ const PAINS = [
     pain: 'Dudas sin respuesta',
     detail: 'Tienes preguntas sobre la fe y no siempre hay alguien a quien preguntárselas.',
     answer:
-      'El Compañero de fe responde a cualquier hora a partir del Catecismo, y sabe cuándo remitirte a un sacerdote.',
+      'El Compañero de fe responde a cualquier hora a partir del Catecismo, y te anima a hablar con un sacerdote cuando hace falta.',
   },
   {
     icon: '/icons/mundo-icon.png',
@@ -92,7 +92,7 @@ export default function ProblemSection() {
                   <h3 className="font-[family-name:var(--font-lora)] text-xl sm:text-2xl font-semibold text-azul">
                     {item.pain}
                   </h3>
-                  <p className="mt-1.5 text-texto/60 leading-relaxed">{item.detail}</p>
+                  <p className="mt-1.5 text-texto/70 leading-relaxed">{item.detail}</p>
                   <p className="mt-4 flex items-start gap-2.5 rounded-xl bg-albero/10 px-4 py-3 text-texto/85 leading-relaxed">
                     <IconCheckCircle className="mt-0.5 h-5 w-5 shrink-0 text-albero" />
                     <span>

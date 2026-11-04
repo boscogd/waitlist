@@ -16,7 +16,7 @@ export default function FinalCTASection() {
         <p className="font-[family-name:var(--font-lora)] text-2xl sm:text-3xl font-medium text-azul leading-snug text-balance">
           Que cada día encuentres aquí un refugio para descansar en Dios y crecer en la fe.
         </p>
-        <p className="text-base text-texto/60">
+        <p className="text-base text-texto/70">
           ¿Aún no la tienes?{' '}
           <DownloadLink
             where="final"

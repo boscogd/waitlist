@@ -108,7 +108,7 @@ export default function InstallVideoTabs() {
                 <p className="font-[family-name:var(--font-lora)] text-lg font-semibold text-azul leading-tight">
                   Refugio en la Palabra
                 </p>
-                <p className="mt-1 text-xs text-texto/60">Búscala en Google Play o pulsa aquí</p>
+                <p className="mt-1 text-xs text-texto/70">Búscala en Google Play o pulsa aquí</p>
               </div>
               <GooglePlayBadge where="como-funciona" className="!min-w-0 !px-4" />
             </div>
@@ -116,7 +116,7 @@ export default function InstallVideoTabs() {
         )}
       </div>
 
-      <p className="text-xs text-texto/60">
+      <p className="text-xs text-texto/70">
         {platform === 'ios'
           ? `Tutorial de iPhone · ${IOS_VIDEO.seconds} segundos`
           : 'En Android se descarga como cualquier app'}

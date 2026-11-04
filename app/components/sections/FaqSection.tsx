@@ -24,7 +24,7 @@ export default function FaqSection() {
             <details key={faq.question} className="group bg-white rounded-xl border border-azul/10 overflow-hidden">
               <summary className="flex items-center justify-between p-6 cursor-pointer font-medium text-azul hover:bg-marfil/50 transition-colors">
                 {faq.question}
-                <IconChevronDown className="w-5 h-5 text-texto/50 group-open:rotate-180 transition-transform" />
+                <IconChevronDown className="w-5 h-5 text-texto/70 group-open:rotate-180 transition-transform" />
               </summary>
               <div className="px-6 pb-6 text-texto/70">
                 {faq.answer}

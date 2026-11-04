@@ -141,6 +141,11 @@ const faqs = [
 
 export default function DescargarPage() {
   const [platform, setPlatform] = useState<Platform>('android');
+  // Navegador interno de Instagram/Facebook/TikTok en iPhone: desde ahí NO se
+  // puede añadir a la pantalla de inicio. Guardamos el nombre de la app para
+  // explicar cómo salir a Safari. null = Safari u otro navegador normal.
+  const [inAppName, setInAppName] = useState<string | null>(null);
+  const [linkCopied, setLinkCopied] = useState(false);
   // Enlace a la app con el origen de la visita (utm, referrer, página de
   // entrada). Se calcula tras montar porque sale de sessionStorage.
   const [appHref, setAppHref] = useState(`${APP_URL}/?src=web`);
@@ -161,18 +166,41 @@ export default function DescargarPage() {
   // Plataforma: primero ?plataforma=…, si no, la del navegador. Tras montar
   // para no romper la hidratación (el render inicial siempre es Android).
   useEffect(() => {
-    const param = new URLSearchParams(window.location.search).get('plataforma')?.toLowerCase();
-    if (param && PLATFORM_PARAM[param]) {
-      setPlatform(PLATFORM_PARAM[param]);
-      return;
-    }
     const ua = navigator.userAgent || '';
     const isIOS =
       /iPad|iPhone|iPod/.test(ua) ||
       // iPadOS 13+ se identifica como Mac con pantalla táctil
       (/Macintosh/.test(ua) && 'ontouchend' in document);
+    if (isIOS) {
+      const app = /Instagram/i.test(ua)
+        ? 'Instagram'
+        : /FBAN|FBAV|FB_IAB/i.test(ua)
+          ? 'Facebook'
+          : /TikTok|musical_ly|BytedanceWebview/i.test(ua)
+            ? 'TikTok'
+            : null;
+      if (app) {
+        setInAppName(app);
+        trackEvent('inapp_ios_shown', { app });
+      }
+    }
+    const param = new URLSearchParams(window.location.search).get('plataforma')?.toLowerCase();
+    if (param && PLATFORM_PARAM[param]) {
+      setPlatform(PLATFORM_PARAM[param]);
+      return;
+    }
     if (isIOS) setPlatform('ios');
   }, []);
+
+  const copyPageLink = async () => {
+    const url = 'https://www.refugioenlapalabra.com/descargar?plataforma=iphone';
+    try {
+      await navigator.clipboard.writeText(url);
+      setLinkCopied(true);
+    } catch {
+      window.prompt('Copia este enlace y pégalo en Safari:', url);
+    }
+  };
 
   // Datos estructurados: HowTo (solo iPhone, que es donde hay pasos) y
   // FAQPage. Texto idéntico al visible.
@@ -283,7 +311,7 @@ export default function DescargarPage() {
               <div className="mt-6 flex justify-center">
                 <GooglePlayBadge where="descargar" />
               </div>
-              <p className="text-sm text-texto/60 mt-6 leading-relaxed">
+              <p className="text-sm text-texto/70 mt-6 leading-relaxed">
                 ¿Ya la usabas desde el navegador? Entra en la de Google Play con la misma cuenta.
               </p>
             </div>
@@ -313,7 +341,7 @@ export default function DescargarPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
               </a>
-              <p className="text-sm text-texto/60 mt-6">
+              <p className="text-sm text-texto/70 mt-6">
                 ¿Quieres tenerla también en el móvil? Elige Android o iPhone arriba.
               </p>
             </div>
@@ -324,6 +352,25 @@ export default function DescargarPage() {
           <>
             <section className="px-6 pb-4">
               <div className="max-w-lg sm:max-w-xl mx-auto">
+                {inAppName && (
+                  <div className="mb-6 bg-azul text-white rounded-2xl p-5 text-left shadow-lg shadow-azul/20" role="alert">
+                    <h3 className="font-semibold text-lg">Estás dentro de {inAppName}: desde aquí no se puede instalar</h3>
+                    <p className="text-base text-white/90 mt-2">Primero abre esta página en Safari:</p>
+                    <ol className="mt-2 space-y-1.5 text-base text-white/90 list-decimal list-inside">
+                      <li>Toca los tres puntos (···) de arriba a la derecha.</li>
+                      <li>Elige «Abrir en el navegador externo» o «Abrir en Safari».</li>
+                      <li>Ya en Safari, sigue el vídeo de abajo.</li>
+                    </ol>
+                    <button
+                      type="button"
+                      onClick={copyPageLink}
+                      data-track="inapp_copy_link"
+                      className="mt-4 w-full rounded-xl bg-white text-azul font-semibold px-4 py-3 text-base"
+                    >
+                      {linkCopied ? 'Enlace copiado: pégalo en Safari' : 'Copiar el enlace para abrirlo en Safari'}
+                    </button>
+                  </div>
+                )}
                 <div className="mb-6 bg-amber-50 border border-amber-200 rounded-2xl p-4 flex gap-3 items-start text-left">
                   <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
                     <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -332,7 +379,7 @@ export default function DescargarPage() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-amber-800 text-sm">En iPhone se instala desde Safari</h3>
-                    <p className="text-xs text-amber-700 mt-0.5">
+                    <p className="text-sm text-amber-800 mt-0.5">
                       Aún no estamos en la App Store. Desde Safari es la misma app y tarda medio minuto: mira el vídeo.
                     </p>
                   </div>
@@ -434,7 +481,7 @@ export default function DescargarPage() {
                 <details key={faq.question} className="group bg-white rounded-xl border border-azul/10 overflow-hidden">
                   <summary className="flex items-center justify-between p-6 cursor-pointer font-medium text-azul hover:bg-marfil/50 transition-colors">
                     {faq.question}
-                    <svg className="w-5 h-5 text-texto/50 group-open:rotate-180 transition-transform flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 text-texto/70 group-open:rotate-180 transition-transform flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
                   </summary>
@@ -479,7 +526,7 @@ export default function DescargarPage() {
       {/* Footer simplificado */}
       <footer className="bg-azul text-white">
         <div className="max-w-6xl mx-auto px-6 py-8">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-white/50">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-white/70">
             <div className="flex items-center gap-3">
               <Image src="/icon-refugio-192.png" alt="Refugio en la Palabra" width={32} height={32} className="rounded-lg" />
               <span className="text-white/70">Refugio en la Palabra</span>

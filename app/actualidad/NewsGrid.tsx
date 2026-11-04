@@ -16,7 +16,7 @@ export default function NewsGrid({ news }: { news: NewsItem[] }) {
                 </span>
               )}
               {n.published_at && (
-                <time dateTime={n.published_at} className="text-texto/40">
+                <time dateTime={n.published_at} className="text-texto/70">
                   {formatDate(n.published_at)}
                 </time>
               )}
@@ -50,7 +50,7 @@ export default function NewsGrid({ news }: { news: NewsItem[] }) {
 // Nota de transparencia que acompaña siempre a la rejilla.
 export function TransparencyNote() {
   return (
-    <p className="text-center text-xs text-texto/40 mt-14 max-w-2xl mx-auto leading-relaxed">
+    <p className="text-center text-xs text-texto/70 mt-14 max-w-2xl mx-auto leading-relaxed">
       Las noticias pertenecen a sus respectivos medios. Ofrecemos un titular y un resumen propios
       con enlace al original; no reproducimos los artículos.
     </p>

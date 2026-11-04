@@ -24,7 +24,7 @@ export default function WhySection() {
         <AnimateOnScroll>
           <div className="text-center mb-12">
             <SectionHeader
-              eyebrow="Único en su clase"
+              eyebrow="Lo que nos distingue"
               eyebrowClassName="text-[#8a6d1f] font-medium text-sm uppercase tracking-wider"
               title="¿Qué nos hace diferentes?"
               titleClassName="font-[family-name:var(--font-lora)] text-3xl sm:text-4xl font-semibold text-azul mt-3 mb-4"

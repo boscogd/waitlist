@@ -33,29 +33,29 @@ export default function HeroSection() {
               App católica · Ya en Google Play
             </p>
 
-            {/* Título principal */}
-            <h1 className="font-[family-name:var(--font-lora)] text-4xl sm:text-5xl lg:text-6xl font-semibold text-azul leading-tight tracking-tight text-balance animate-fade-in-up animation-delay-100">
-              Tu refugio diario para{' '}
+            {/* Título y subtítulo SIN animación de entrada: son lo primero que se
+                pinta (LCP) y una animación con retraso los hacía llegar tarde. */}
+            <h1 className="font-[family-name:var(--font-lora)] text-4xl sm:text-5xl lg:text-6xl font-semibold text-azul leading-tight tracking-tight text-balance">
+              La app católica para rezar{' '}
               <span className="text-[#8a6d1f]">
-                crecer en la fe
+                cada día
               </span>
             </h1>
 
-            {/* Subtítulo */}
-            <p className="text-lg sm:text-xl text-texto/80 max-w-md sm:max-w-xl mx-auto lg:mx-0 leading-relaxed animate-fade-in-up animation-delay-200 px-2 sm:px-0">
-              Reza el Rosario guiado, reflexiona con el Evangelio diario y resuelve tus dudas de fe 24/7 con inteligencia artificial católica.
+            <p className="text-lg sm:text-xl text-texto/80 max-w-md sm:max-w-xl mx-auto lg:mx-0 leading-relaxed px-2 sm:px-0">
+              El Rosario guiado con audio, el Evangelio del día comentado y un compañero de fe con inteligencia artificial que responde tus dudas a partir del Catecismo. En español, de principio a fin.
             </p>
 
             {/* CTA Principal: Google Play (Android) + iPhone y ordenador */}
             <div className="flex flex-col items-center lg:items-start gap-3 pt-2 animate-fade-in-up animation-delay-300">
               <StoreButtons where="hero" align="start" />
-              <p className="text-xs text-texto/70">
+              <p className="text-sm text-texto/75">
                 En iPhone y en el ordenador se instala desde el navegador en 30 segundos
               </p>
             </div>
 
             {/* Garantías rápidas (las cifras van en la franja de debajo) */}
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-5 gap-y-2 pt-2 text-sm text-texto/60 animate-fade-in-up animation-delay-400">
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-5 gap-y-2 pt-2 text-sm text-texto/75 animate-fade-in-up animation-delay-400">
               <div className="flex items-center gap-2">
                 <IconCheckCircle className="w-4 h-4 text-albero" />
                 <span>Gratis para empezar</span>

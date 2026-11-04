@@ -60,7 +60,7 @@ export default function WaitlistForm() {
             required
             className="w-full px-6 py-4 text-base text-texto bg-white border border-azul/20 rounded-lg
                      focus:outline-none focus:ring-2 focus:ring-albero focus:border-transparent
-                     placeholder:text-texto/50 transition-all duration-200"
+                     placeholder:text-texto/70 transition-all duration-200"
           />
         </div>
 
@@ -78,7 +78,7 @@ export default function WaitlistForm() {
             required
             className="w-full px-6 py-4 text-base text-texto bg-white border border-azul/20 rounded-lg
                      focus:outline-none focus:ring-2 focus:ring-albero focus:border-transparent
-                     placeholder:text-texto/50 transition-all duration-200"
+                     placeholder:text-texto/70 transition-all duration-200"
           />
         </div>
 
@@ -134,7 +134,7 @@ export default function WaitlistForm() {
         </div>
       )}
 
-      <p className="mt-6 text-xs text-center text-texto/60 leading-relaxed">
+      <p className="mt-6 text-xs text-center text-texto/70 leading-relaxed">
         Cero spam. Baja con un clic.{' '}
         <a
           href="/privacidad"

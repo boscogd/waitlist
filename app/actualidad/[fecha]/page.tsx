@@ -138,7 +138,7 @@ export default async function EdicionPage({ params }: PageProps) {
       <main className="flex-1 pt-20">
         <section className="px-6 pt-14 md:pt-20 pb-8">
           <div className="max-w-3xl mx-auto text-center">
-            <nav aria-label="Migas de pan" className="text-sm text-texto/50 mb-4">
+            <nav aria-label="Migas de pan" className="text-sm text-texto/70 mb-4">
               <Link href="/actualidad" className="hover:text-azul transition-colors">
                 Actualidad católica
               </Link>
