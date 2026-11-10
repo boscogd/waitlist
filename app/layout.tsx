@@ -99,34 +99,63 @@ export const metadata: Metadata = {
   classification: "Catholic Prayer App",
 };
 
-// Schema.org JSON-LD para SEO
+// Schema.org JSON-LD para SEO.
+// Hay otro proyecto con el mismo nombre (refugioenlapalabra.es, formación
+// bíblica en vídeo). Estos datos le dicen a Google sin ambigüedad QUÉ es esta
+// entidad: la app, quién la hace, y cuáles son sus perfiles oficiales. Los
+// tres nodos se enlazan por @id para que cuenten como una sola entidad.
+const SITE_URL = "https://www.refugioenlapalabra.com";
+const PLAY_URL = "https://play.google.com/store/apps/details?id=com.refugioenlapalabra.app";
+const ORG_ID = `${SITE_URL}/#organization`;
+
 const jsonLd = [
   {
     "@context": "https://schema.org",
     "@type": "Organization",
+    "@id": ORG_ID,
     name: "Refugio en la Palabra",
-    url: "https://www.refugioenlapalabra.com",
-    logo: "https://www.refugioenlapalabra.com/logo-refugio.png",
+    alternateName: ["refugioenlapalabra", "Refugio en la Palabra App"],
+    url: SITE_URL,
+    logo: {
+      "@type": "ImageObject",
+      url: `${SITE_URL}/icon-refugio-512.png`,
+      width: 512,
+      height: 512,
+    },
+    image: `${SITE_URL}/aida-bosco.jpg`,
     description:
       "App católica de oración y crecimiento en la fe: Rosario guiado con audio, Evangelio del día comentado y compañero de fe disponible 24/7.",
+    disambiguatingDescription:
+      "La app católica de oración creada por Aida y Bosco en España, disponible en Google Play y en refugioenlapalabra.com.",
     email: "info@refugioenlapalabra.com",
-    sameAs: ["https://www.instagram.com/refugioenlapalabra_"],
+    founder: [
+      { "@type": "Person", name: "Aida" },
+      { "@type": "Person", name: "Bosco" },
+    ],
+    areaServed: "ES",
+    sameAs: ["https://www.instagram.com/refugioenlapalabra_", PLAY_URL],
   },
   {
     "@context": "https://schema.org",
     "@type": "WebSite",
+    "@id": `${SITE_URL}/#website`,
     name: "Refugio en la Palabra",
-    url: "https://www.refugioenlapalabra.com",
+    alternateName: ["refugioenlapalabra", "Refugio en la Palabra App"],
+    url: SITE_URL,
+    inLanguage: "es-ES",
+    publisher: { "@id": ORG_ID },
   },
   {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
+    "@id": `${SITE_URL}/#app`,
     name: "Refugio en la Palabra",
-    url: "https://www.refugioenlapalabra.com",
-    applicationCategory: "ReligionApplication",
+    url: SITE_URL,
+    applicationCategory: "LifestyleApplication",
     operatingSystem: "Android, iOS, Web",
-    installUrl: "https://play.google.com/store/apps/details?id=com.refugioenlapalabra.app",
-    downloadUrl: "https://play.google.com/store/apps/details?id=com.refugioenlapalabra.app",
+    inLanguage: "es-ES",
+    installUrl: PLAY_URL,
+    downloadUrl: PLAY_URL,
     offers: {
       "@type": "Offer",
       price: "0",
@@ -134,11 +163,8 @@ const jsonLd = [
     },
     description:
       "App católica con rosario guiado, evangelio diario y compañero de fe para resolver tus dudas.",
-    author: {
-      "@type": "Organization",
-      name: "Refugio en la Palabra",
-      url: "https://www.refugioenlapalabra.com",
-    },
+    author: { "@id": ORG_ID },
+    publisher: { "@id": ORG_ID },
   },
 ];
 

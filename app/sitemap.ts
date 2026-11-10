@@ -8,7 +8,7 @@ const BASE_URL = "https://www.refugioenlapalabra.com";
 // las páginas legales no cambian desde su última revisión, y el contenido
 // principal se actualizó por última vez en la fecha indicada.
 const LEGAL_LAST_MODIFIED = new Date("2026-06-29");
-const CONTENT_LAST_MODIFIED = new Date("2026-07-05");
+const CONTENT_LAST_MODIFIED = new Date("2026-11-10");
 
 // El sitemap se regenera cada hora para que la fecha de /actualidad siga a
 // la última tanda publicada sin necesidad de un deploy.
@@ -71,6 +71,12 @@ function baseEntries(actualidadLastModified: Date): MetadataRoute.Sitemap {
       lastModified: CONTENT_LAST_MODIFIED,
       changeFrequency: "weekly",
       priority: 1.0,
+    },
+    {
+      url: `${BASE_URL}/quienes-somos`,
+      lastModified: CONTENT_LAST_MODIFIED,
+      changeFrequency: "monthly",
+      priority: 0.8,
     },
     {
       url: `${BASE_URL}/descargar`,
