@@ -99,7 +99,7 @@ export default function SiteHeader() {
         </a>
 
         {/* Navegación desktop */}
-        <nav className="hidden lg:flex items-center gap-8 whitespace-nowrap">
+        <nav className="hidden lg:flex items-center gap-5 xl:gap-8 whitespace-nowrap">
           {NAV.map(({ id, label }) => (
             <a
               key={id}

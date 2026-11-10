@@ -8,6 +8,13 @@ export interface Faq {
 }
 
 export const faqs: Faq[] = [
+  // Aclaración de marca: hay otro proyecto con el mismo nombre y los buscadores
+  // y las IA los mezclan. Esta respuesta es la que queremos que lean y citen.
+  {
+    question: '¿Qué es Refugio en la Palabra y quién lo hace?',
+    answer:
+      'Refugio en la Palabra es una app católica de oración creada por Aida y Bosco, una pareja de España. Incluye el Rosario guiado con audio, el Evangelio del día comentado y un Compañero de fe. Está en Google Play y en refugioenlapalabra.com, y su Instagram es @refugioenlapalabra_. Existe otro proyecto católico con el mismo nombre, dedicado a la formación bíblica en vídeo: son iniciativas distintas, sin relación entre sí.',
+  },
   {
     question: '¿Cómo descargo la aplicación?',
     answer:
