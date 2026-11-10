@@ -5,7 +5,7 @@ import SiteHeader from '../../components/SiteHeader';
 import ScrollProgress from '../../components/ScrollProgress';
 import BackToTop from '../../components/BackToTop';
 import SiteFooter from '../../components/sections/SiteFooter';
-import StoreButtons from '../../components/StoreButtons';
+import StoreButtons, { DownloadLink } from '../../components/StoreButtons';
 import { SITE_URL } from '@/lib/constants';
 import { getGuia, guias } from '@/lib/content/guias';
 
@@ -144,6 +144,17 @@ export default async function GuiaPage({ params }: PageProps) {
               ))}
             </div>
 
+            {/* Paso natural hacia la app, antes de que el lector se vaya con su respuesta */}
+            <p className="mt-6 rounded-xl border border-albero/50 bg-white px-5 py-4 text-texto/90 leading-relaxed">
+              {guia.appHook}{' '}
+              <DownloadLink
+                where={`guia-inicio-${guia.slug}`}
+                className="font-semibold text-azul underline underline-offset-4 decoration-albero hover:decoration-azul transition-colors whitespace-nowrap"
+              >
+                Abrir la app
+              </DownloadLink>
+            </p>
+
             {guia.sections.map((s) => {
               const ListTag = s.ordered ? 'ol' : 'ul';
               return (
@@ -168,6 +179,12 @@ export default async function GuiaPage({ params }: PageProps) {
                         </li>
                       ))}
                     </ListTag>
+                  ) : null}
+                  {s.appTip ? (
+                    <p className="mt-5 border-l-4 border-albero pl-4 text-texto/85 leading-relaxed">
+                      <span className="font-semibold text-azul">Con la app: </span>
+                      {s.appTip}
+                    </p>
                   ) : null}
                 </section>
               );

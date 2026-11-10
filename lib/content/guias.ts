@@ -15,6 +15,8 @@ export interface GuiaSection {
   /** Lista con viñetas o numerada (`ordered`). */
   list?: string[];
   ordered?: boolean;
+  /** Dónde cuesta hacerlo solo y qué hace la app con eso. Solo lo que la app hace de verdad. */
+  appTip?: string;
 }
 
 export interface GuiaFaq {
@@ -36,6 +38,8 @@ export interface Guia {
   intro: string[];
   sections: GuiaSection[];
   faqs: GuiaFaq[];
+  /** Pregunta corta bajo la respuesta inicial que lleva a la app. */
+  appHook: string;
   /** Cómo ayuda la app en esto (una frase, sin exagerar). */
   appNote: string;
 }
@@ -43,6 +47,8 @@ export interface Guia {
 export const guias: Guia[] = [
   {
     slug: 'como-rezar-el-rosario',
+    appHook:
+      '¿Prefieres que te lo vayan rezando? En la app tienes el Rosario guiado con audio.',
     title: 'Cómo rezar el Rosario paso a paso',
     shortTitle: 'Cómo rezar el Rosario',
     description:
@@ -71,6 +77,8 @@ export const guias: Guia[] = [
       },
       {
         heading: 'Cómo se usa el rosario de cuentas',
+        appTip:
+          'Si no tienes un rosario a mano o te pierdes con las cuentas, el Rosario guiado de la app lleva la cuenta por ti.',
         paragraphs: [
           'El rosario es solo una ayuda para no perder la cuenta. Tiene un crucifijo, un tramo corto de cinco cuentas y un círculo con cinco grupos de diez cuentas (las decenas), separados por una cuenta suelta.',
           'Se empieza por el crucifijo. Cada cuenta suelta es un Padrenuestro y cada cuenta de una decena es un Avemaría. Al acabar las diez, se reza el Gloria y se pasa a la siguiente cuenta suelta.',
@@ -85,6 +93,8 @@ export const guias: Guia[] = [
       },
       {
         heading: 'Si te distraes o no tienes veinte minutos',
+        appTip:
+          'A mucha gente le ayuda a no distraerse rezar acompañada de una voz: es lo que hace el audio del Rosario guiado en la app.',
         paragraphs: [
           'Distraerse es lo normal. Cuando te des cuenta, vuelve al misterio sin enfadarte contigo y sigue donde ibas; no hay que empezar de nuevo.',
           'Si no tienes tiempo, reza un solo misterio. Diez Avemarías bien rezadas valen más que cincuenta a la carrera. También se puede repartir a lo largo del día.',
@@ -113,6 +123,8 @@ export const guias: Guia[] = [
   },
   {
     slug: 'misterios-del-rosario-por-dia',
+    appHook:
+      '¿Vas a rezarlo ahora? En la app tienes el Rosario guiado con audio, con los misterios que elijas.',
     title: 'Misterios del Rosario: cuáles se rezan cada día de la semana',
     shortTitle: 'Misterios del Rosario por día',
     description:
@@ -127,6 +139,8 @@ export const guias: Guia[] = [
     sections: [
       {
         heading: 'Qué se reza cada día',
+        appTip:
+          'En la app eliges los misterios al empezar y el audio te acompaña en cada uno, sin tener que recordar el orden.',
         list: [
           'Lunes: misterios gozosos.',
           'Martes: misterios dolorosos.',
@@ -211,6 +225,8 @@ export const guias: Guia[] = [
   },
   {
     slug: 'lectio-divina-que-es-y-como-hacerla',
+    appHook:
+      '¿Quieres el Evangelio de hoy ya preparado, con una reflexión? Está en la app.',
     title: 'Lectio Divina: qué es y cómo hacerla en cuatro pasos',
     shortTitle: 'Qué es la Lectio Divina',
     description:
@@ -225,6 +241,8 @@ export const guias: Guia[] = [
     sections: [
       {
         heading: 'Antes de empezar',
+        appTip:
+          'En la app tienes cada día las lecturas de la misa, así que no hay que buscar el pasaje.',
         paragraphs: [
           'Elige un pasaje corto. Lo más sencillo es tomar el Evangelio del día, el que se lee en la misa de hoy. Busca un sitio tranquilo, deja el móvil en silencio y pide ayuda al Espíritu Santo con tus palabras.',
         ],
@@ -253,6 +271,8 @@ export const guias: Guia[] = [
       },
       {
         heading: 'Errores frecuentes',
+        appTip:
+          'Si un pasaje te deja con dudas, puedes preguntarlas al Compañero de fe de la app, que responde a partir del Catecismo y la Escritura. Es una inteligencia artificial y puede equivocarse: no sustituye a un sacerdote.',
         list: [
           'Elegir un texto demasiado largo. Con unos pocos versículos basta.',
           'Convertirla en un estudio: buscar datos y comentarios en vez de escuchar.',
@@ -283,6 +303,8 @@ export const guias: Guia[] = [
   },
   {
     slug: 'evangelio-del-dia-como-leerlo',
+    appHook:
+      '¿Quieres leer el de hoy con una reflexión que lo explique? Está en la app.',
     title: 'Evangelio del día: qué es y cómo leerlo para que te sirva',
     shortTitle: 'Cómo leer el Evangelio del día',
     description:
@@ -315,6 +337,8 @@ export const guias: Guia[] = [
       },
       {
         heading: 'Si no entiendes el pasaje',
+        appTip:
+          'En la app, cada Evangelio lleva una reflexión, y las dudas que te queden puedes preguntarlas al Compañero de fe. Es una inteligencia artificial y puede equivocarse: no sustituye a un sacerdote.',
         paragraphs: [
           'Pasa a menudo: hay textos difíciles, parábolas que desconciertan y costumbres de otra época. Ayuda leer un comentario breve, mirar el contexto (qué pasa justo antes y después) o preguntar a un sacerdote o a alguien con formación.',
           'No hace falta entenderlo todo para que el rato sirva. Basta con una frase que se te quede.',
@@ -322,6 +346,8 @@ export const guias: Guia[] = [
       },
       {
         heading: 'Cuándo leerlo',
+        appTip:
+          'Tenerlo en el móvil ayuda a no saltárselo: en la app lo abres en el mismo sitio cada día.',
         paragraphs: [
           'El mejor momento es el que puedas mantener. A mucha gente le funciona por la mañana, antes de mirar el correo o las redes, porque así la frase del día le acompaña. Otros prefieren la noche. Lo que más ayuda es que sea siempre a la misma hora.',
         ],
