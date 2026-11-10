@@ -21,7 +21,9 @@ export default function SiteHeader() {
   const pathname = usePathname();
   const isHome = pathname === '/';
   // Desde una subpágina (p. ej. /actualidad) los anclas deben llevar a la home.
-  const sectionHref = (id: string) => (isHome ? `#${id}` : `/#${id}`);
+  // Excepción: fuera de la home, «Quiénes somos» va a su página propia.
+  const sectionHref = (id: string) =>
+    isHome ? `#${id}` : id === 'nosotros' ? '/quienes-somos' : `/#${id}`;
 
   // Header gana sombra al bajar
   useEffect(() => {

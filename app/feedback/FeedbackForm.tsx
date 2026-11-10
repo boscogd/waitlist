@@ -122,7 +122,7 @@ export default function FeedbackForm() {
               </button>
             ))}
           </div>
-          <p className="text-center text-sm text-texto/60" aria-live="polite">
+          <p className="text-center text-sm text-texto/70" aria-live="polite">
             {formData.rating > 0 && `Has seleccionado ${formData.rating} estrella${formData.rating > 1 ? 's' : ''}`}
           </p>
         </div>
@@ -146,7 +146,7 @@ export default function FeedbackForm() {
             placeholder="Por ejemplo: Me encanta el rosario guiado porque..."
             className="w-full px-4 py-3 text-base text-texto bg-white border border-azul/20 rounded-lg
                      focus:outline-none focus:ring-2 focus:ring-albero focus:border-transparent
-                     placeholder:text-texto/50 transition-all duration-200 resize-y"
+                     placeholder:text-texto/70 transition-all duration-200 resize-y"
           />
         </div>
 
@@ -169,7 +169,7 @@ export default function FeedbackForm() {
             placeholder="Por ejemplo: Me cuesta encontrar... o No me gusta que..."
             className="w-full px-4 py-3 text-base text-texto bg-white border border-azul/20 rounded-lg
                      focus:outline-none focus:ring-2 focus:ring-albero focus:border-transparent
-                     placeholder:text-texto/50 transition-all duration-200 resize-y"
+                     placeholder:text-texto/70 transition-all duration-200 resize-y"
           />
         </div>
 
@@ -192,7 +192,7 @@ export default function FeedbackForm() {
             placeholder="Por ejemplo: Sería genial si pudiera... o Me gustaría que..."
             className="w-full px-4 py-3 text-base text-texto bg-white border border-azul/20 rounded-lg
                      focus:outline-none focus:ring-2 focus:ring-albero focus:border-transparent
-                     placeholder:text-texto/50 transition-all duration-200 resize-y"
+                     placeholder:text-texto/70 transition-all duration-200 resize-y"
           />
         </div>
 
@@ -215,7 +215,7 @@ export default function FeedbackForm() {
             placeholder="Cualquier otro comentario, sugerencia o idea que quieras compartir..."
             className="w-full px-4 py-3 text-base text-texto bg-white border border-azul/20 rounded-lg
                      focus:outline-none focus:ring-2 focus:ring-albero focus:border-transparent
-                     placeholder:text-texto/50 transition-all duration-200 resize-y"
+                     placeholder:text-texto/70 transition-all duration-200 resize-y"
           />
         </div>
 
@@ -233,7 +233,7 @@ export default function FeedbackForm() {
           </button>
         </div>
 
-        <p className="text-xs text-center text-texto/60 leading-relaxed pt-2">
+        <p className="text-xs text-center text-texto/70 leading-relaxed pt-2">
           Recuerda: Este formulario es totalmente anónimo. No guardamos ningún dato que pueda identificarte.
         </p>
       </form>

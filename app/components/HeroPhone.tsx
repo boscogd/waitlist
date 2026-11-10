@@ -45,6 +45,9 @@ const nextOf = (i: number) => (i + 1) % CLIPS.length;
 export default function HeroPhone() {
   const [active, setActive] = useState(0);
   const [reduce, setReduce] = useState(false);
+  // En móvil el teléfono queda bajo el primer pantallazo: hasta que asoma no
+  // se descarga ni se reproduce ningún vídeo (solo se ve el póster).
+  const [inView, setInView] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
   const tiltRef = useRef<HTMLDivElement>(null);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
@@ -54,10 +57,26 @@ export default function HeroPhone() {
     setReduce(window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   }, []);
 
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '150px 0px' }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   // Reproduce solo el clip activo; al terminar, pasa al siguiente.
   useEffect(() => {
     activeRef.current = active;
-    if (reduce) {
+    if (reduce || !inView) {
       videoRefs.current.forEach((v) => v?.pause());
       return;
     }
@@ -71,7 +90,7 @@ export default function HeroPhone() {
         v.pause();
       }
     });
-  }, [active, reduce]);
+  }, [active, reduce, inView]);
 
   // Inclinación con el ratón (solo puntero fino y sin reduced-motion).
   useEffect(() => {
@@ -139,9 +158,9 @@ export default function HeroPhone() {
                 poster={clip.poster}
                 muted
                 playsInline
-                autoPlay={i === 0}
-                // El activo y el siguiente se precargan enteros; el resto, solo metadatos.
-                preload={on || i === nextOf(active) ? 'auto' : 'metadata'}
+                // Cuando se ve: el activo y el siguiente se precargan enteros; el
+                // resto, solo metadatos. Antes de verse, nada.
+                preload={!inView ? 'none' : on || i === nextOf(active) ? 'auto' : 'metadata'}
                 disablePictureInPicture
                 onEnded={() => setActive((a) => nextOf(a))}
                 // Si el navegador lo pausa por su cuenta (ahorro de energía,

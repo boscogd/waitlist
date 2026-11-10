@@ -142,7 +142,7 @@ export default async function ActualidadPage() {
               <p className="text-base text-texto/80 leading-relaxed mt-5 italic">{edition.intro}</p>
             )}
             {updatedAt && (
-              <p className="text-sm text-texto/50 mt-4">
+              <p className="text-sm text-texto/70 mt-4">
                 Actualizado el <time dateTime={updatedAt}>{formatDate(updatedAt)}</time> · se
                 renueva cada lunes
                 {edition && (
@@ -166,7 +166,7 @@ export default async function ActualidadPage() {
           <div className="max-w-6xl mx-auto">
             {news.length === 0 ? (
               <div className="text-center py-16 px-6 bg-white rounded-2xl border border-azul/5 shadow-sm max-w-2xl mx-auto">
-                <p className="text-texto/60 text-lg">
+                <p className="text-texto/70 text-lg">
                   Estamos preparando las primeras noticias. Vuelve pronto. 🙏
                 </p>
               </div>
@@ -230,11 +230,12 @@ export default async function ActualidadPage() {
                 </p>
               </div>
               <div>
-                <h3 className="font-semibold text-azul mb-2">Elegidas y leídas una a una</h3>
+                <h3 className="font-semibold text-azul mb-2">Elegidas una a una</h3>
                 <p className="text-sm text-texto/70 leading-relaxed">
-                  Cada lunes repasamos medios como Vatican News, ACI Prensa, Alfa y Omega, Omnes,
-                  Vida Nueva, Ecclesia, Aleteia o El Debate, leemos cada artículo y nos quedamos con
-                  diez noticias de la Iglesia en España, Latinoamérica y el Vaticano.
+                  Cada semana repasamos medios como Vatican News, ACI Prensa, Alfa y Omega, Omnes,
+                  Vida Nueva, Ecclesia, Aleteia o El Debate con ayuda de herramientas de inteligencia
+                  artificial, y una persona de nuestro equipo revisa y aprueba la selección final de
+                  noticias de la Iglesia en España, Latinoamérica y el Vaticano.
                 </p>
               </div>
               <div>

@@ -39,7 +39,7 @@ export default function SiteFooter() {
             <ul className="space-y-3 text-sm text-white/70">
               <li><a href="/#caracteristicas" className="hover:text-white transition-colors">Características</a></li>
               <li><a href="/#como-funciona" className="hover:text-white transition-colors">Cómo funciona</a></li>
-              <li><a href="/#nosotros" className="hover:text-white transition-colors">Quiénes somos</a></li>
+              <li><Link href="/quienes-somos" className="hover:text-white transition-colors">Quiénes somos</Link></li>
               <li><a href="/#faq" className="hover:text-white transition-colors">Preguntas frecuentes</a></li>
               <li><Link href="/actualidad" className="hover:text-white transition-colors">Actualidad</Link></li>
               <li><DownloadLink where="footer" className="hover:text-white transition-colors">Descargar la app</DownloadLink></li>

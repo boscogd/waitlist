@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import AnimateOnScroll from '../AnimateOnScroll';
 import SectionHeader from '../ui/SectionHeader';
 
@@ -24,9 +25,15 @@ export default function AboutSection() {
                 eyebrowClassName="text-albero font-medium text-sm uppercase tracking-wider"
                 title="Somos Aida y Bosco"
                 titleClassName="font-[family-name:var(--font-lora)] text-3xl sm:text-4xl font-semibold mt-3 mb-4"
-                subtitle="Una pareja de España que un día se encontró con más preguntas que respuestas. Buscábamos algo que nos ayudara, pero no existía. Así que lo creamos juntos."
+                subtitle="Una pareja de España que un día se encontró con más preguntas que respuestas. Buscábamos algo que nos ayudara y no encontramos nada a nuestra medida. Así que lo creamos juntos."
                 subtitleClassName="text-white/70 md:mx-0"
               />
+              <Link
+                href="/quienes-somos"
+                className="inline-block mt-6 font-medium text-albero underline underline-offset-4 decoration-albero/50 hover:decoration-albero transition-colors"
+              >
+                Conoce nuestra historia
+              </Link>
             </div>
           </AnimateOnScroll>
 

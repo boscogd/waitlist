@@ -41,7 +41,7 @@ export default function StatsBand() {
   const items: Item[] = [];
   if (stats) {
     if (stats.people !== null && stats.people > 0) {
-      items.push({ key: 'people', value: stats.people, prefix: '+', label: 'personas ya rezan con Refugio' });
+      items.push({ key: 'people', value: stats.people, prefix: '+', label: 'personas se han unido a Refugio' });
     }
     if (stats.rosaries !== null && stats.rosaries >= 100) {
       items.push({ key: 'rosaries', value: stats.rosaries, prefix: '+', label: 'rosarios rezados en la app' });
@@ -84,7 +84,7 @@ export default function StatsBand() {
                     prefix={item.prefix}
                     className="font-[family-name:var(--font-lora)] text-3xl sm:text-4xl font-semibold text-azul leading-none"
                   />
-                  <span className="text-xs sm:text-sm text-texto/60 text-center leading-snug">{item.label}</span>
+                  <span className="text-sm text-texto/75 text-center leading-snug">{item.label}</span>
                 </>
               );
               const cls =

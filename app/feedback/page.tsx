@@ -106,10 +106,10 @@ export default function FeedbackPage() {
 
           {/* Información adicional */}
           <div className="text-center space-y-2 pt-6">
-            <p className="text-xs text-texto/60 leading-relaxed">
+            <p className="text-xs text-texto/70 leading-relaxed">
               Este formulario es completamente anónimo. No recopilamos ningún dato personal.
             </p>
-            <p className="text-xs text-texto/60 leading-relaxed">
+            <p className="text-xs text-texto/70 leading-relaxed">
               Las respuestas nos ayudarán a mejorar Refugio en la Palabra para toda la comunidad.
             </p>
           </div>
@@ -119,7 +119,7 @@ export default function FeedbackPage() {
 
       {/* Footer */}
       <footer className="py-6 px-6 text-center border-t border-azul/10">
-        <p className="text-xs text-texto/50">
+        <p className="text-xs text-texto/70">
           © {new Date().getFullYear()} Refugio en la Palabra. Todos los derechos reservados.
         </p>
       </footer>

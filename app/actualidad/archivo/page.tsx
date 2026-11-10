@@ -84,7 +84,7 @@ export default async function ArchivoPage() {
       <main className="flex-1 pt-20">
         <section className="px-6 pt-14 md:pt-20 pb-10">
           <div className="max-w-3xl mx-auto text-center">
-            <nav aria-label="Migas de pan" className="text-sm text-texto/50 mb-4">
+            <nav aria-label="Migas de pan" className="text-sm text-texto/70 mb-4">
               <Link href="/actualidad" className="hover:text-azul transition-colors">
                 Actualidad católica
               </Link>
@@ -105,7 +105,7 @@ export default async function ArchivoPage() {
           <div className="max-w-3xl mx-auto">
             {groups.length === 0 ? (
               <div className="text-center py-16 px-6 bg-white rounded-2xl border border-azul/5 shadow-sm">
-                <p className="text-texto/60 text-lg mb-4">
+                <p className="text-texto/70 text-lg mb-4">
                   El archivo empieza a llenarse esta semana.
                 </p>
                 <Link href="/actualidad" className="font-medium text-azul hover:text-albero transition-colors">

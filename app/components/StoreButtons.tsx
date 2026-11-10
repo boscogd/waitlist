@@ -47,7 +47,7 @@ export function GooglePlayBadge({ where, className = '' }: { where: string; clas
     >
       <PlayLogo className="h-7 w-7 shrink-0" />
       <span className="flex flex-col items-start leading-none whitespace-nowrap">
-        <span className="text-[10px] font-medium uppercase tracking-wider text-white/80">Disponible en</span>
+        <span className="text-[11px] font-medium uppercase tracking-wider text-white/85">Disponible en</span>
         <span className="mt-1 text-xl font-semibold tracking-tight">Google Play</span>
       </span>
     </a>
@@ -77,7 +77,7 @@ export function IphoneButton({ where, className = '' }: { where: string; classNa
     >
       <DeviceIcon className="h-7 w-7 shrink-0" />
       <span className="flex flex-col items-start leading-none whitespace-nowrap">
-        <span className="text-[10px] font-medium uppercase tracking-wider text-texto/60">Instálala en</span>
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-texto/80">Instálala en</span>
         <span className="mt-1 text-xl font-semibold tracking-tight">iPhone y PC</span>
       </span>
     </Link>

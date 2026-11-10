@@ -43,7 +43,7 @@ export default async function NewsTeaserSection() {
           {items.slice(0, SHOWN).map((n, i) => (
             <AnimateOnScroll key={n.id} delay={i * 80} className="h-full">
               <article className="h-full bg-white rounded-2xl p-6 border border-azul/5 shadow-sm flex flex-col">
-                <p className="text-xs text-texto/50 mb-3">
+                <p className="text-xs text-texto/70 mb-3">
                   {n.country || 'Internacional'} · {n.source_name}
                 </p>
                 <h3 className="font-[family-name:var(--font-lora)] text-lg font-semibold text-azul leading-snug mb-3">

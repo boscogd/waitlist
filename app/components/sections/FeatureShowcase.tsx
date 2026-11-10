@@ -21,6 +21,9 @@ const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
 export default function FeatureShowcase() {
   const [active, setActive] = useState(0);
   const [mode, setMode] = useState<Mode>('static');
+  // Hasta que la sección se acerca a la pantalla no se reproduce nada.
+  const [sectionVisible, setSectionVisible] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
   const itemRefs = useRef<(HTMLLIElement | null)[]>([]);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const barRef = useRef<HTMLDivElement>(null);
@@ -118,23 +121,34 @@ export default function FeatureShowcase() {
     return () => observer.disconnect();
   }, [mode]);
 
-  // Reproduce solo el vídeo activo (y solo en modo autoplay).
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setSectionVisible(entry.isIntersecting),
+      { rootMargin: '200px 0px' }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  // Reproduce solo el vídeo activo (y solo en modo autoplay, con la sección a la vista).
   useEffect(() => {
     videoRefs.current.forEach((v, i) => {
       if (!v) return;
-      if (mode === 'autoplay' && i === active) {
+      if (mode === 'autoplay' && sectionVisible && i === active) {
         v.muted = true;
         v.play().catch(() => {});
       } else {
         v.pause();
       }
     });
-  }, [active, mode]);
+  }, [active, mode, sectionVisible]);
 
   const current = features[active];
 
   return (
-    <section id="caracteristicas" className="px-6 py-20 scroll-mt-20">
+    <section ref={sectionRef} id="caracteristicas" className="px-6 py-20 scroll-mt-20">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12 lg:mb-16">
           <SectionHeader
@@ -252,7 +266,7 @@ export default function FeatureShowcase() {
                           {feature.title}
                         </h3>
                         <p className="mt-2 text-texto/70 leading-relaxed">{feature.description}</p>
-                        <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-sm text-texto/60">
+                        <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-sm text-texto/70">
                           {feature.bullets.map((bullet) => (
                             <li key={bullet} className="flex items-center gap-1.5">
                               <IconCheckAlbero className="w-4 h-4 text-albero" />
