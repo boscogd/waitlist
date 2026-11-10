@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { supabase } from "@/lib/supabase";
 import { getEditions } from "@/lib/news/queries";
+import { guias } from "@/lib/content/guias";
 
 const BASE_URL = "https://www.refugioenlapalabra.com";
 
@@ -60,6 +61,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     ...baseEntries(actualidadLastModified),
+    ...guiasEntries(),
     ...archiveEntries,
   ];
 }
@@ -109,5 +111,25 @@ function baseEntries(actualidadLastModified: Date): MetadataRoute.Sitemap {
       changeFrequency: "yearly",
       priority: 0.3,
     },
+  ];
+}
+
+// Guías de oración: el índice y una URL por guía, con su fecha real de revisión.
+function guiasEntries(): MetadataRoute.Sitemap {
+  if (guias.length === 0) return [];
+  const latest = guias.map((g) => g.updated).sort().at(-1)!;
+  return [
+    {
+      url: `${BASE_URL}/guias`,
+      lastModified: new Date(latest),
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    ...guias.map((g) => ({
+      url: `${BASE_URL}/guias/${g.slug}`,
+      lastModified: new Date(g.updated),
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+    })),
   ];
 }

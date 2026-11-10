@@ -113,6 +113,12 @@ export default function SiteHeader() {
             </a>
           ))}
           <Link
+            href="/guias"
+            className="text-sm text-texto/70 hover:text-azul transition-colors"
+          >
+            Guías
+          </Link>
+          <Link
             href="/actualidad"
             className="text-sm text-texto/70 hover:text-azul transition-colors"
           >
@@ -153,7 +159,7 @@ export default function SiteHeader() {
         id="mobile-menu"
         inert={!open}
         className={`lg:hidden overflow-hidden border-t border-azul/5 transition-all duration-300 ease-out ${
-          open ? 'max-h-72 opacity-100' : 'max-h-0 opacity-0'
+          open ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
         }`}
       >
         <nav className="px-6 py-2 flex flex-col">
@@ -171,6 +177,14 @@ export default function SiteHeader() {
               {label}
             </a>
           ))}
+          <Link
+            href="/guias"
+            onClick={() => setOpen(false)}
+            tabIndex={open ? undefined : -1}
+            className="py-3 text-base border-b border-azul/5 last:border-0 text-texto/80 hover:text-azul transition-colors"
+          >
+            Guías
+          </Link>
           <Link
             href="/actualidad"
             onClick={() => setOpen(false)}
