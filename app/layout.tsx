@@ -132,6 +132,7 @@ const jsonLd = [
       { "@type": "Person", name: "Aida" },
       { "@type": "Person", name: "Bosco" },
     ],
+    foundingDate: "2025-10",
     areaServed: "ES",
     sameAs: ["https://www.instagram.com/refugioenlapalabra_", PLAY_URL],
   },
