@@ -57,6 +57,13 @@ export const ADVIENTO_FAQS = [
       'Apúntate aquí con el mismo correo que usas en tu cuenta de la app. La semana del 28 de diciembre activamos el Premium en esa cuenta y te avisamos por correo. No tienes que poner ninguna tarjeta y al terminar los tres meses no se renueva ni se cobra nada.',
   },
   {
+    // Pendiente de confirmar con la app que el cobro se puede retrasar en
+    // Stripe y en Google Play. Si no se puede, se entrega con un código.
+    question: '¿Y si ya pago Premium?',
+    answer:
+      'También recibes el regalo: tus tres meses siguientes son gratis. Si pagas mes a mes, dejamos de cobrarte durante tres meses; si tienes el plan anual, tu renovación se retrasa tres meses. No pierdes nada de lo que ya has pagado.',
+  },
+  {
     question: '¿Cuesta algo participar?',
     answer: 'No. Rezar con la app es gratis y apuntarse al reto también.',
   },

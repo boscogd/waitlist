@@ -18,6 +18,12 @@
 --   * El Premium se concede a mano la semana del 28-dic, con fecha de
 --     caducidad a 3 meses, sin pasar por Google Play ni Stripe y sin
 --     renovación. Al concederlo se rellena premium_granted_at.
+--   * Quien ya paga Premium también lo recibe (decisión de Bosco, 12-nov):
+--     al de pago mensual no se le cobra durante 3 meses; al del plan anual
+--     se le retrasa la renovación 3 meses. Es decir, en los dos casos se
+--     mueve 3 meses la próxima fecha de cobro. Si en algún medio de pago no
+--     se puede (por confirmar en Stripe y en Google Play), se le da un
+--     código de 3 meses para canjear cuando cancele.
 --   * Las reglas (fechas, mínimo, meses) están en lib/content/adviento.ts.
 
 create table if not exists public.advent_signups (
