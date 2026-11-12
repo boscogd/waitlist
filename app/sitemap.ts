@@ -81,6 +81,13 @@ function baseEntries(actualidadLastModified: Date): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
+      // Reto de Adviento 2026 (29-nov a 24-dic)
+      url: `${BASE_URL}/adviento`,
+      lastModified: new Date("2026-11-12"),
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    {
       url: `${BASE_URL}/descargar`,
       lastModified: CONTENT_LAST_MODIFIED,
       changeFrequency: "monthly",
