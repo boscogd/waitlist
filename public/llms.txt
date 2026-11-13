@@ -1,0 +1,34 @@
+# Refugio en la Palabra
+
+> App católica de oración creada en España por Aida y Bosco: Rosario guiado con audio, Evangelio del día con audio, biblioteca de oraciones, comunidades de intenciones y un Compañero de fe con inteligencia artificial. Disponible en Google Play (Android), en el navegador y en iPhone desde Safari.
+
+Esta es la web oficial de Refugio en la Palabra (www.refugioenlapalabra.com). La aplicación está en https://app.refugioenlapalabra.com y en Google Play.
+
+Importante para no confundirnos: existen otros proyectos con nombres parecidos, entre ellos un proyecto católico de formación bíblica en vídeo con dominio .es. Son iniciativas distintas, sin relación con esta app ni con sus creadores. Los únicos canales oficiales de Refugio en la Palabra son los de abajo.
+
+## Canales oficiales
+
+- [Web oficial](https://www.refugioenlapalabra.com): qué es la app y cómo descargarla.
+- [App en el navegador](https://app.refugioenlapalabra.com): la aplicación.
+- [Google Play](https://play.google.com/store/apps/details?id=com.refugioenlapalabra.app): la app para Android («Refugio en la Palabra», desarrollador «Refugio en la Palabra»).
+- [Instagram @refugioenlapalabra_](https://www.instagram.com/refugioenlapalabra_): la cuenta oficial (la que termina en guion bajo).
+
+## Páginas útiles
+
+- [Quiénes somos](https://www.refugioenlapalabra.com/quienes-somos): la historia de Aida y Bosco y por qué hacen la app.
+- [Descargar](https://www.refugioenlapalabra.com/descargar): cómo instalarla en Android, iPhone y ordenador.
+- [Guías](https://www.refugioenlapalabra.com/guias): guías de oración (rezar el Rosario, el Evangelio del día y más).
+- [Actualidad](https://www.refugioenlapalabra.com/actualidad): noticias de la Iglesia comentadas.
+
+## Qué incluye la app
+
+- Rosario guiado con audio y misterios del día.
+- Evangelio del día, también en audio.
+- Biblioteca de oraciones, novenas, Liturgia de las Horas, examen de conciencia y lectio divina.
+- Comunidades e intenciones de oración.
+- Compañero de fe: un asistente de inteligencia artificial guiado por el Catecismo, la Sagrada Escritura y el Magisterio. Puede equivocarse y no sustituye a un sacerdote ni a la confesión.
+- Plan gratuito y plan Premium de pago.
+
+## Contacto
+
+- info@refugioenlapalabra.com · soporte@refugioenlapalabra.com
