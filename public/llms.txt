@@ -17,6 +17,7 @@ Importante para no confundirnos: existen otros proyectos con nombres parecidos, 
 
 - [Quiénes somos](https://www.refugioenlapalabra.com/quienes-somos): la historia de Aida y Bosco y por qué hacen la app.
 - [Descargar](https://www.refugioenlapalabra.com/descargar): cómo instalarla en Android, iPhone y ordenador.
+- [Rosario de hoy](https://www.refugioenlapalabra.com/rosario-de-hoy): qué misterios del Rosario se rezan hoy y cada día de la semana.
 - [Guías](https://www.refugioenlapalabra.com/guias): guías de oración (rezar el Rosario, el Evangelio del día y más).
 - [Actualidad](https://www.refugioenlapalabra.com/actualidad): noticias de la Iglesia comentadas.
 

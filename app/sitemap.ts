@@ -94,6 +94,14 @@ function baseEntries(actualidadLastModified: Date): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     {
+      // La respuesta cambia cada día; la fecha es la de la última revisión
+      // de los textos, no la de hoy.
+      url: `${BASE_URL}/rosario-de-hoy`,
+      lastModified: new Date("2026-11-13"),
+      changeFrequency: "daily",
+      priority: 0.9,
+    },
+    {
       url: `${BASE_URL}/feedback`,
       lastModified: CONTENT_LAST_MODIFIED,
       changeFrequency: "monthly",

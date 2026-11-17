@@ -155,6 +155,17 @@ export default async function GuiaPage({ params }: PageProps) {
               </DownloadLink>
             </p>
 
+            {guia.related ? (
+              <p className="mt-4">
+                <Link
+                  href={guia.related.href}
+                  className="font-medium text-azul underline underline-offset-4 decoration-albero/60 hover:decoration-azul transition-colors"
+                >
+                  {guia.related.label}
+                </Link>
+              </p>
+            ) : null}
+
             {guia.sections.map((s) => {
               const ListTag = s.ordered ? 'ol' : 'ul';
               return (
