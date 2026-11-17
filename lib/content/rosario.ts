@@ -45,7 +45,7 @@ export const GRUPOS: Record<GrupoId, GrupoMisterios> = {
       {
         titulo: 'La Visitación de María a su prima Isabel',
         cita: 'Lucas 1, 39-56',
-        texto: 'María va deprisa a la montaña para ayudar a Isabel, que la recibe llamándola bendita entre las mujeres.',
+        texto: 'María va deprisa a la montaña a visitar a Isabel, que la recibe llamándola bendita entre las mujeres.',
       },
       {
         titulo: 'El Nacimiento de Jesús en Belén',
@@ -140,12 +140,12 @@ export const GRUPOS: Record<GrupoId, GrupoMisterios> = {
       },
       {
         titulo: 'La Ascensión de Jesús al cielo',
-        cita: 'Hechos 1, 6-11',
+        cita: 'Hechos 1, 3-11',
         texto: 'Cuarenta días después de resucitar, Jesús sube al cielo a la vista de sus discípulos.',
       },
       {
         titulo: 'La venida del Espíritu Santo en Pentecostés',
-        cita: 'Hechos 2, 1-13',
+        cita: 'Hechos 1, 14; 2, 1-13',
         texto: 'El Espíritu Santo desciende sobre los apóstoles, reunidos en oración con María.',
       },
       {
