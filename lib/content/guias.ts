@@ -44,11 +44,14 @@ export interface Guia {
   appHook: string;
   /** Cómo ayuda la app en esto (una frase, sin exagerar). */
   appNote: string;
+  /** Enlace a una página propia relacionada (p. ej. /rosario-de-hoy). */
+  related?: { href: string; label: string };
 }
 
 export const guias: Guia[] = [
   {
     slug: 'como-rezar-el-rosario',
+    related: { href: '/rosario-de-hoy', label: 'Ver qué misterios se rezan hoy' },
     appHook:
       '¿Prefieres que te lo vayan rezando? En la app tienes el Rosario guiado con audio.',
     title: 'Cómo rezar el Rosario paso a paso',
@@ -126,6 +129,7 @@ export const guias: Guia[] = [
   },
   {
     slug: 'misterios-del-rosario-por-dia',
+    related: { href: '/rosario-de-hoy', label: 'Ver qué misterios se rezan hoy' },
     appHook:
       '¿Vas a rezarlo ahora? En la app tienes el Rosario guiado con audio, con los misterios que elijas.',
     title: 'Misterios del Rosario: cuáles se rezan cada día de la semana',
