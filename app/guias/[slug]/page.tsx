@@ -40,7 +40,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!guia) return {};
   const url = `${GUIAS_URL}/${guia.slug}`;
   return {
-    title: guia.title,
+    // Sin « | Refugio en la Palabra» detrás: con la marca, Google cortaba el
+    // título a la mitad. El nombre del sitio ya sale encima del resultado.
+    title: { absolute: guia.metaTitle },
     description: guia.description,
     alternates: { canonical: url },
     openGraph: {
