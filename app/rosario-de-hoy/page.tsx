@@ -27,7 +27,8 @@ const DESCRIPTION =
   'Qué misterios del Santo Rosario tocan hoy, con los cinco misterios del día, explicados y con su cita. Y el reparto de toda la semana: gozosos, luminosos, dolorosos y gloriosos.';
 
 export const metadata: Metadata = {
-  title: TITLE,
+  // Sin la marca detrás: con ella pasaba de 60 caracteres y Google lo cortaba.
+  title: { absolute: TITLE },
   description: DESCRIPTION,
   alternates: { canonical: PAGE_URL },
   openGraph: {
