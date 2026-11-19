@@ -157,6 +157,8 @@ const jsonLd = [
     inLanguage: "es-ES",
     installUrl: PLAY_URL,
     downloadUrl: PLAY_URL,
+    // La app web vive en su propio subdominio: así cuenta como la misma app.
+    sameAs: ["https://app.refugioenlapalabra.com", PLAY_URL],
     offers: {
       "@type": "Offer",
       price: "0",

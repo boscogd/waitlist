@@ -40,7 +40,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!guia) return {};
   const url = `${GUIAS_URL}/${guia.slug}`;
   return {
-    title: guia.title,
+    // Sin « | Refugio en la Palabra» detrás: con la marca, Google cortaba el
+    // título a la mitad. El nombre del sitio ya sale encima del resultado.
+    title: { absolute: guia.metaTitle },
     description: guia.description,
     alternates: { canonical: url },
     openGraph: {
@@ -154,6 +156,17 @@ export default async function GuiaPage({ params }: PageProps) {
                 Abrir la app
               </DownloadLink>
             </p>
+
+            {guia.related ? (
+              <p className="mt-4">
+                <Link
+                  href={guia.related.href}
+                  className="font-medium text-azul underline underline-offset-4 decoration-albero/60 hover:decoration-azul transition-colors"
+                >
+                  {guia.related.label}
+                </Link>
+              </p>
+            ) : null}
 
             {guia.sections.map((s) => {
               const ListTag = s.ordered ? 'ol' : 'ul';

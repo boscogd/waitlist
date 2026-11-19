@@ -28,6 +28,8 @@ export interface Guia {
   slug: string;
   /** Título de la página (h1). */
   title: string;
+  /** Título para el resultado de Google: completo en menos de 60 caracteres, sin la marca detrás. */
+  metaTitle: string;
   /** Título corto para tarjetas y migas. */
   shortTitle: string;
   description: string;
@@ -42,17 +44,21 @@ export interface Guia {
   appHook: string;
   /** Cómo ayuda la app en esto (una frase, sin exagerar). */
   appNote: string;
+  /** Enlace a una página propia relacionada (p. ej. /rosario-de-hoy). */
+  related?: { href: string; label: string };
 }
 
 export const guias: Guia[] = [
   {
     slug: 'como-rezar-el-rosario',
+    related: { href: '/rosario-de-hoy', label: 'Ver qué misterios se rezan hoy' },
     appHook:
       '¿Prefieres que te lo vayan rezando? En la app tienes el Rosario guiado con audio.',
     title: 'Cómo rezar el Rosario paso a paso',
+    metaTitle: 'Cómo rezar el Rosario paso a paso: guía para empezar',
     shortTitle: 'Cómo rezar el Rosario',
     description:
-      'Guía sencilla para rezar el Santo Rosario desde cero: qué se reza en cada cuenta, en qué orden y cuánto se tarda. Con las oraciones y los misterios.',
+      'Cómo se reza el Santo Rosario desde cero: qué oración va en cada cuenta, en qué orden y con qué misterios. Entero lleva unos veinte minutos.',
     published: '2026-11-10',
     updated: '2026-11-10',
     minutes: 5,
@@ -123,12 +129,14 @@ export const guias: Guia[] = [
   },
   {
     slug: 'misterios-del-rosario-por-dia',
+    related: { href: '/rosario-de-hoy', label: 'Ver qué misterios se rezan hoy' },
     appHook:
       '¿Vas a rezarlo ahora? En la app tienes el Rosario guiado con audio, con los misterios que elijas.',
     title: 'Misterios del Rosario: cuáles se rezan cada día de la semana',
+    metaTitle: 'Misterios del Rosario por día: la semana completa',
     shortTitle: 'Misterios del Rosario por día',
     description:
-      'Qué misterios del Rosario tocan hoy: gozosos, dolorosos, gloriosos y luminosos, día por día, con los cinco misterios de cada grupo.',
+      'Lunes y sábado, gozosos; martes y viernes, dolorosos; miércoles y domingo, gloriosos; jueves, luminosos. Los veinte misterios del Rosario, grupo por grupo.',
     published: '2026-11-10',
     updated: '2026-11-10',
     minutes: 4,
@@ -228,6 +236,7 @@ export const guias: Guia[] = [
     appHook:
       '¿Quieres el Evangelio de hoy ya preparado, con una reflexión? Está en la app.',
     title: 'Lectio Divina: qué es y cómo hacerla en cuatro pasos',
+    metaTitle: 'Lectio Divina: qué es y cómo se hace en 4 pasos',
     shortTitle: 'Qué es la Lectio Divina',
     description:
       'La Lectio Divina es una forma de rezar con la Biblia en cuatro pasos: leer, meditar, orar y contemplar. Cómo hacerla sola o en grupo, en quince minutos.',
@@ -306,6 +315,7 @@ export const guias: Guia[] = [
     appHook:
       '¿Quieres leer el de hoy con una reflexión que lo explique? Está en la app.',
     title: 'Evangelio del día: qué es y cómo leerlo para que te sirva',
+    metaTitle: 'Evangelio del día: qué es y cómo leerlo en 5 minutos',
     shortTitle: 'Cómo leer el Evangelio del día',
     description:
       'Qué es el Evangelio del día, por qué cambia cada jornada y cómo leerlo en cinco minutos para sacarle algo: una forma sencilla de empezar a rezar con la Biblia.',
