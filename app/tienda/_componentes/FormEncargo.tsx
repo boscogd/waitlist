@@ -28,20 +28,20 @@ export default function FormEncargo() {
 
   if (hecho) {
     return (
-      <div className="rounded-2xl bg-white p-8 text-texto" role="status">
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-azul/55">Demo</p>
-        <p className="mt-2 font-[family-name:var(--font-lora)] text-2xl text-azul">Petición recibida</p>
+      <div className="rounded-[4px] bg-white p-8 text-texto" role="status">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-texto/55">Demo</p>
+        <p className="mt-2 text-xl font-semibold text-texto">Petición recibida</p>
         <p className="mt-3 text-sm leading-relaxed text-texto/75">
           En la tienda real, Bosco os escribiría en un día con el presupuesto por tramos y una prueba del diseño. En esta demo no se ha enviado nada.
         </p>
-        <button type="button" onClick={() => setHecho(false)} className="mt-5 text-sm font-medium text-azul underline underline-offset-2 cursor-pointer">
+        <button type="button" onClick={() => setHecho(false)} className="mt-5 text-sm font-medium text-texto underline underline-offset-2 cursor-pointer">
           Hacer otra petición
         </button>
       </div>
     );
   }
 
-  const campo = 'w-full rounded-lg border border-azul/20 bg-white px-4 py-3 text-base text-texto focus:border-azul focus:outline-2 focus:outline-albero';
+  const campo = 'w-full rounded-[4px] border border-black/15 bg-white px-4 py-3 text-base text-texto focus:border-texto focus:outline-2 focus:outline-azul';
   const err = (k: string) =>
     errores[k] ? (
       <p id={`enc-${k}-err`} className="mt-1 text-sm text-[#9B2C2C]">
@@ -50,7 +50,7 @@ export default function FormEncargo() {
     ) : null;
 
   return (
-    <form onSubmit={enviar} noValidate className="grid gap-4 rounded-2xl bg-white p-6 text-texto sm:grid-cols-2 sm:p-8">
+    <form onSubmit={enviar} noValidate className="grid gap-4 rounded-[4px] bg-white p-6 text-texto sm:grid-cols-2 sm:p-8">
       <div className="sm:col-span-2">
         <label htmlFor="enc-grupo" className="mb-1.5 block text-sm font-medium">Nombre del grupo</label>
         <input id="enc-grupo" name="grupo" className={campo} aria-invalid={!!errores.grupo} aria-describedby={errores.grupo ? 'enc-grupo-err' : undefined} />
@@ -78,7 +78,7 @@ export default function FormEncargo() {
         <input id="enc-correo" name="correo" type="email" autoComplete="email" className={campo} aria-invalid={!!errores.correo} aria-describedby={errores.correo ? 'enc-correo-err' : undefined} />
         {err('correo')}
       </div>
-      <button type="submit" className="mt-2 rounded-full bg-azul py-3.5 text-base font-medium text-white hover:bg-azul-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-albero sm:col-span-2 cursor-pointer">
+      <button type="submit" className="mt-2 rounded-[4px] bg-azul py-3.5 text-base font-medium text-white hover:bg-azul-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-azul sm:col-span-2 cursor-pointer">
         Pedir presupuesto
       </button>
     </form>

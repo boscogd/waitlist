@@ -7,8 +7,8 @@
 // real, «Ir a pagar» abrirá Stripe Checkout con tarjeta, Bizum y Apple/Google Pay.
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { ENVIO, euros, maximo, producto } from '@/lib/tienda/catalogo';
-import ProductoArte from './ProductoArte';
+import { ENVIO, euros, maximo, producto, sePuedeComprar } from '@/lib/tienda/catalogo';
+import Foto from './Foto';
 
 export interface LineaCesta {
   slug: string;
@@ -47,18 +47,29 @@ const tope = (slug: string) => {
   return p ? maximo(p) : 0;
 };
 
+/** Unidades de un producto en la cesta, sumando todas sus tallas (menos la línea «salvo»). */
+const enCesta = (lineas: LineaCesta[], slug: string, salvo = -1) =>
+  lineas.reduce((s, l, i) => (l.slug === slug && i !== salvo ? s + l.cantidad : s), 0);
+
 /** Lo guardado en el navegador puede venir de otra versión o estar tocado a mano: solo pasa lo válido. */
 function limpiar(guardada: unknown): LineaCesta[] {
   if (!Array.isArray(guardada)) return [];
-  return guardada.flatMap((l) => {
+  const limpias: LineaCesta[] = [];
+  for (const l of guardada) {
     const p = producto(typeof l?.slug === 'string' ? l.slug : '');
-    if (!p) return [];
-    const cantidad = Number.isInteger(l.cantidad) ? Math.min(l.cantidad, maximo(p)) : 0;
+    if (!p || !sePuedeComprar(p) || !Number.isInteger(l.cantidad) || l.cantidad < 1) continue;
     const talla = typeof l.talla === 'string' && p.tallas?.includes(l.talla) ? l.talla : undefined;
     const nota = typeof l.nota === 'string' && l.nota.trim() ? l.nota.trim().slice(0, 40) : undefined;
-    if (cantidad < 1 || (p.tallas && !talla) || (p.personalizable && !nota)) return [];
-    return [{ slug: p.slug, talla, nota, cantidad }];
-  });
+    if (p.tallas && !talla) continue;
+    // Nunca más de lo que queda, sumando todas las líneas del producto; las repetidas se juntan.
+    const cabe = Math.min(l.cantidad, maximo(p) - enCesta(limpias, p.slug));
+    if (cabe < 1) continue;
+    const linea = { slug: p.slug, talla, nota };
+    const i = limpias.findIndex((x) => mismaLinea(x, linea));
+    if (i === -1) limpias.push({ ...linea, cantidad: cabe });
+    else limpias[i] = { ...limpias[i], cantidad: limpias[i].cantidad + cabe };
+  }
+  return limpias;
 }
 
 export function CestaProvider({ children }: { children: React.ReactNode }) {
@@ -86,9 +97,10 @@ export function CestaProvider({ children }: { children: React.ReactNode }) {
 
   const anadir = useCallback((l: Omit<LineaCesta, 'cantidad'>) => {
     setLineas((prev) => {
+      if (enCesta(prev, l.slug) >= tope(l.slug)) return prev;
       const i = prev.findIndex((x) => mismaLinea(x, l));
-      if (i === -1) return tope(l.slug) > 0 ? [...prev, { ...l, cantidad: 1 }] : prev;
-      return prev.map((x, j) => (j === i ? { ...x, cantidad: Math.min(tope(x.slug), x.cantidad + 1) } : x));
+      if (i === -1) return [...prev, { ...l, cantidad: 1 }];
+      return prev.map((x, j) => (j === i ? { ...x, cantidad: x.cantidad + 1 } : x));
     });
     setAbierta(true);
   }, []);
@@ -97,7 +109,7 @@ export function CestaProvider({ children }: { children: React.ReactNode }) {
     setLineas((prev) =>
       cantidad <= 0
         ? prev.filter((_, j) => j !== i)
-        : prev.map((x, j) => (j === i ? { ...x, cantidad: Math.min(tope(x.slug), cantidad) } : x))
+        : prev.map((x, j) => (j === i ? { ...x, cantidad: Math.min(tope(x.slug) - enCesta(prev, x.slug, i), cantidad) } : x))
     );
   }, []);
 
@@ -141,22 +153,21 @@ export function BotonCesta() {
       type="button"
       onClick={abrir}
       data-boton-cesta
-      className="relative inline-flex items-center gap-2 rounded-full bg-azul px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-azul-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-albero cursor-pointer"
+      className="relative -mr-2 grid h-11 w-11 place-items-center rounded-full text-texto transition-colors hover:bg-black/[0.04] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-azul cursor-pointer"
       aria-label={unidades ? `Cesta, ${unidades} ${unidades === 1 ? 'producto' : 'productos'}` : 'Cesta vacía'}
     >
-      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+      <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
         <path d="M5 9h14l-1.2 10.2a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8L5 9Z" strokeLinejoin="round" />
         <path d="M9 9V7a3 3 0 0 1 6 0v2" strokeLinecap="round" />
       </svg>
-      <span className="hidden sm:inline">Cesta</span>
-      <span
-        className={`min-w-6 rounded-full px-1.5 text-center text-xs font-semibold tabular-nums ${
-          unidades ? 'bg-albero text-azul' : 'bg-white/15 text-white/80'
-        }`}
-        aria-hidden="true"
-      >
-        {unidades}
-      </span>
+      {unidades > 0 && (
+        <span
+          className="absolute right-0.5 top-0.5 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-azul px-1 text-[11px] font-semibold tabular-nums text-white"
+          aria-hidden="true"
+        >
+          {unidades}
+        </span>
+      )}
     </button>
   );
 }
@@ -228,20 +239,20 @@ function CestaPanel() {
         aria-modal="true"
         aria-labelledby="cesta-titulo"
         inert={!abierta}
-        className={`absolute right-0 top-0 flex h-full w-full max-w-md flex-col bg-marfil shadow-2xl transition-transform duration-300 ease-out motion-reduce:transition-none ${
-          abierta ? 'translate-x-0' : 'translate-x-full'
+        className={`absolute right-0 top-0 flex h-full w-full max-w-md flex-col bg-white transition-[translate,box-shadow] duration-300 ease-out motion-reduce:transition-none ${
+          abierta ? 'translate-x-0 shadow-2xl' : 'translate-x-full'
         }`}
         style={{ paddingTop: 'env(safe-area-inset-top, 0px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
       >
-        <div className="flex items-center justify-between border-b border-azul/10 px-6 py-5">
-          <h2 id="cesta-titulo" className="font-[family-name:var(--font-lora)] text-2xl font-semibold text-azul">
+        <div className="flex items-center justify-between border-b border-black/[0.08] px-6 py-5">
+          <h2 id="cesta-titulo" className="text-lg font-semibold text-texto">
             Tu cesta
           </h2>
           <button
             ref={cerrarRef}
             type="button"
             onClick={cerrar}
-            className="-mr-2 grid h-11 w-11 place-items-center rounded-full text-azul hover:bg-azul/5 focus-visible:outline-2 focus-visible:outline-albero cursor-pointer"
+            className="-mr-2 grid h-11 w-11 place-items-center rounded-full text-texto hover:bg-black/[0.04] focus-visible:outline-2 focus-visible:outline-azul cursor-pointer"
             aria-label="Cerrar la cesta"
           >
             <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -252,20 +263,20 @@ function CestaPanel() {
 
         {lineas.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-4 px-8 text-center">
-            <p className="font-[family-name:var(--font-lora)] text-xl text-azul">La cesta está vacía</p>
-            <p className="text-sm text-texto/70">Empieza por el misterio de crochet: es lo que más se pide en Adviento.</p>
+            <p className="text-lg font-semibold text-texto">La cesta está vacía</p>
+            <p className="text-sm text-texto/70">Empieza por el misterio de ganchillo: es lo que más se pide en Adviento.</p>
             <Link
-              href="/tienda/misterio-crochet"
+              href="/tienda/misterio-ganchillo"
               onClick={cerrar}
-              className="rounded-full border border-azul/20 px-5 py-2.5 text-sm font-medium text-azul hover:border-azul"
+              className="rounded-[4px] border border-black/15 px-5 py-2.5 text-sm font-medium text-texto hover:border-texto"
             >
               Ver el misterio
             </Link>
           </div>
         ) : pagando ? (
           <div className="flex flex-1 flex-col justify-center gap-5 px-8">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-azul/60">Esto es una demo</p>
-            <p ref={pagoRef} tabIndex={-1} className="font-[family-name:var(--font-lora)] text-2xl text-azul text-balance focus:outline-none">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-texto/55">Esto es una demo</p>
+            <p ref={pagoRef} tabIndex={-1} className="text-xl font-semibold text-texto text-balance focus:outline-none">
               Aquí se abriría el pago seguro de Stripe.
             </p>
             <p className="text-sm leading-relaxed text-texto/75">
@@ -278,7 +289,7 @@ function CestaPanel() {
                   vaciar();
                   cerrar();
                 }}
-                className="rounded-full bg-azul px-5 py-3 text-sm font-medium text-white hover:bg-azul-800 cursor-pointer"
+                className="rounded-[4px] bg-azul px-5 py-3 text-sm font-medium text-white hover:bg-azul-800 cursor-pointer"
               >
                 Vaciar la cesta
               </button>
@@ -288,7 +299,7 @@ function CestaPanel() {
                   setPagando(false);
                   requestAnimationFrame(() => pagarRef.current?.focus());
                 }}
-                className="rounded-full border border-azul/20 px-5 py-3 text-sm font-medium text-azul hover:border-azul cursor-pointer"
+                className="rounded-[4px] border border-black/15 px-5 py-3 text-sm font-medium text-texto hover:border-texto cursor-pointer"
               >
                 Volver a la cesta
               </button>
@@ -296,15 +307,15 @@ function CestaPanel() {
           </div>
         ) : (
           <>
-            <ul className="flex-1 divide-y divide-azul/10 overflow-y-auto px-6">
+            <ul className="flex-1 divide-y divide-black/[0.08] overflow-y-auto px-6">
               {lineas.map((l, i) => {
                 const p = producto(l.slug)!;
                 return (
                   <li key={`${l.slug}-${l.talla}-${l.nota}`} className="flex gap-4 py-5">
-                    <ProductoArte arte={p.arte} titulo="" className="h-20 w-20 shrink-0 rounded-md" />
+                    <Foto foto={p.fotos[0]} sizes="80px" decorativa className="aspect-[4/5] w-20 shrink-0 bg-[#F2F1EE]" />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-3">
-                        <Link href={`/tienda/${p.slug}`} onClick={cerrar} className="font-medium text-azul hover:underline">
+                        <Link href={`/tienda/${p.slug}`} onClick={cerrar} className="font-medium text-texto hover:underline">
                           {p.nombre}
                         </Link>
                         <span className="text-sm font-medium tabular-nums text-texto">{euros(p.precio * l.cantidad)}</span>
@@ -318,11 +329,11 @@ function CestaPanel() {
                       )}
                       {p.entrega.tipo === 'preventa' && <p className="mt-0.5 text-xs text-texto/60">Preventa · {p.entrega.texto}</p>}
                       <div className="mt-3 flex items-center gap-3">
-                        <div className="inline-flex items-center rounded-full border border-azul/15">
+                        <div className="inline-flex items-center rounded-full border border-black/15">
                           <button
                             type="button"
                             onClick={() => cambiar(i, l.cantidad - 1)}
-                            className="grid h-9 w-9 place-items-center text-azul hover:bg-azul/5 rounded-l-full cursor-pointer"
+                            className="grid h-9 w-9 place-items-center text-texto hover:bg-black/[0.04] rounded-l-full cursor-pointer"
                             aria-label={`Quitar una unidad de ${p.nombre}`}
                           >
                             −
@@ -333,9 +344,9 @@ function CestaPanel() {
                           <button
                             type="button"
                             onClick={() => cambiar(i, l.cantidad + 1)}
-                            disabled={l.cantidad >= maximo(p)}
-                            className="grid h-9 w-9 place-items-center text-azul hover:bg-azul/5 rounded-r-full cursor-pointer disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:bg-transparent"
-                            aria-label={l.cantidad >= maximo(p) ? `No quedan más unidades de ${p.nombre}` : `Añadir una unidad de ${p.nombre}`}
+                            disabled={enCesta(lineas, p.slug) >= maximo(p)}
+                            className="grid h-9 w-9 place-items-center text-texto hover:bg-black/[0.04] rounded-r-full cursor-pointer disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:bg-transparent"
+                            aria-label={enCesta(lineas, p.slug) >= maximo(p) ? `No quedan más unidades de ${p.nombre}` : `Añadir una unidad de ${p.nombre}`}
                           >
                             +
                           </button>
@@ -350,7 +361,7 @@ function CestaPanel() {
               })}
             </ul>
 
-            <div className="border-t border-azul/10 bg-white/60 px-6 py-5">
+            <div className="border-t border-black/[0.08] bg-[#FAFAF9] px-6 py-5">
               <dl className="space-y-1.5 text-sm">
                 <div className="flex justify-between">
                   <dt className="text-texto/70">Productos</dt>
@@ -360,7 +371,7 @@ function CestaPanel() {
                   <dt className="text-texto/70">Envío en península</dt>
                   <dd className="tabular-nums">{envio === 0 ? 'Gratis' : euros(envio)}</dd>
                 </div>
-                <div className="flex justify-between border-t border-azul/10 pt-2 text-base font-semibold text-azul">
+                <div className="flex justify-between border-t border-black/[0.08] pt-2 text-base font-semibold text-texto">
                   <dt>Total</dt>
                   <dd className="tabular-nums">{euros(subtotal + envio)}</dd>
                 </div>
@@ -375,7 +386,7 @@ function CestaPanel() {
                 ref={pagarRef}
                 type="button"
                 onClick={() => setPagando(true)}
-                className="mt-4 w-full rounded-full bg-azul py-3.5 text-base font-medium text-white transition-colors hover:bg-azul-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-albero cursor-pointer"
+                className="mt-4 w-full rounded-[4px] bg-azul py-3.5 text-base font-medium text-white transition-colors hover:bg-azul-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-azul cursor-pointer"
               >
                 Ir a pagar
               </button>
