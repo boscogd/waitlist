@@ -268,7 +268,7 @@ function CestaPanel() {
             <Link
               href="/tienda/misterio-ganchillo"
               onClick={cerrar}
-              className="rounded-[4px] border border-black/15 px-5 py-2.5 text-sm font-medium text-texto hover:border-texto"
+              className="border border-black/15 px-5 py-2.5 text-sm font-medium text-texto hover:border-texto"
             >
               Ver el misterio
             </Link>
@@ -289,7 +289,7 @@ function CestaPanel() {
                   vaciar();
                   cerrar();
                 }}
-                className="rounded-[4px] bg-azul px-5 py-3 text-sm font-medium text-white hover:bg-azul-800 cursor-pointer"
+                className="bg-azul px-5 py-3 text-sm font-medium text-white hover:bg-azul-800 cursor-pointer"
               >
                 Vaciar la cesta
               </button>
@@ -299,7 +299,7 @@ function CestaPanel() {
                   setPagando(false);
                   requestAnimationFrame(() => pagarRef.current?.focus());
                 }}
-                className="rounded-[4px] border border-black/15 px-5 py-3 text-sm font-medium text-texto hover:border-texto cursor-pointer"
+                className="border border-black/15 px-5 py-3 text-sm font-medium text-texto hover:border-texto cursor-pointer"
               >
                 Volver a la cesta
               </button>
@@ -386,7 +386,7 @@ function CestaPanel() {
                 ref={pagarRef}
                 type="button"
                 onClick={() => setPagando(true)}
-                className="mt-4 w-full rounded-[4px] bg-azul py-3.5 text-base font-medium text-white transition-colors hover:bg-azul-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-azul cursor-pointer"
+                className="mt-4 w-full bg-azul py-3.5 text-base font-medium text-white transition-colors hover:bg-azul-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-azul cursor-pointer"
               >
                 Ir a pagar
               </button>

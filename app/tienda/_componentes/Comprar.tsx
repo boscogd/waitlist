@@ -6,7 +6,7 @@ import { maximo, sePuedeComprar, type Producto } from '@/lib/tienda/catalogo';
 import { useCesta } from './Cesta';
 
 const BOTON =
-  'w-full rounded-[4px] py-4 text-base font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-azul';
+  'w-full py-4 text-[15px] font-bold uppercase tracking-wide transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-azul';
 
 export function Comprar({ p }: { p: Producto }) {
   const { anadir, lineas } = useCesta();
@@ -63,7 +63,7 @@ export function Comprar({ p }: { p: Producto }) {
                   }}
                   className="peer sr-only"
                 />
-                <span className="grid h-11 min-w-14 place-items-center rounded-[4px] border border-black/15 px-3 text-sm text-texto transition-colors hover:border-texto peer-checked:border-texto peer-checked:bg-texto peer-checked:text-white peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-azul">
+                <span className="grid h-11 min-w-14 place-items-center border-2 border-azul/25 px-3 text-sm text-texto transition-colors hover:border-texto peer-checked:border-texto peer-checked:bg-texto peer-checked:text-white peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-azul">
                   {t}
                 </span>
               </label>

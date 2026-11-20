@@ -2,22 +2,34 @@
 // TIENDA · CATÁLOGO DE EJEMPLO (DEMO)
 // =====================================================
 // Productos, precios y existencias son de ejemplo para enseñar la tienda.
-// Las fotos son de muestra (Unsplash, licencia libre): se cambiarán por las
-// de las piezas reales. Cuando sea real, esto vivirá en Supabase y el pago
+// Las fotos y el vídeo son de muestra (Unsplash y Pexels, licencia libre): se
+// cambiarán por los de las piezas reales. Cuando sea real, esto vivirá en Supabase y el pago
 // irá por Stripe Checkout.
 
 export type Linea = 'belenes' | 'devocion' | 'ropa';
 
 export const LINEAS: Record<Linea, { nombre: string; ancla: string }> = {
-  belenes: { nombre: 'Belenes de ganchillo', ancla: 'belenes' },
+  belenes: { nombre: 'Belenes de ganchillo', ancla: 'reparto' },
   devocion: { nombre: 'Devoción', ancla: 'devocion' },
   ropa: { nombre: 'Ropa', ancla: 'ropa' },
 };
 
-/** Foto de Unsplash: id de la imagen y texto alternativo. */
+/** Colores de la tienda: cada producto tiene el suyo y su foto se enseña sobre él. */
+export const TONOS = {
+  celeste: { fondo: '#A9C9EC', tinta: '#1F3A5F' },
+  albero: { fondo: '#F1BC45', tinta: '#3A2A10' },
+  rosa: { fondo: '#F5C3CD', tinta: '#5A1F2E' },
+  verde: { fondo: '#2E7A56', tinta: '#FFFFFF' },
+  azul: { fondo: '#1F3A5F', tinta: '#FFFFFF' },
+  morado: { fondo: '#4B2F6F', tinta: '#FFFFFF' },
+} as const;
+export type Tono = keyof typeof TONOS;
+
+/** Foto de muestra: id en Unsplash («photo-…») o en Pexels (número), y texto alternativo. */
 export interface Foto {
   id: string;
   alt: string;
+  fuente?: 'unsplash' | 'pexels';
   /** Recorte centrado en un punto: x e y de 0 a 1, y el zoom (1 = sin zoom). */
   foco?: [number, number, number];
 }
@@ -33,6 +45,8 @@ export interface Producto {
   slug: string;
   nombre: string;
   linea: Linea;
+  /** Color sobre el que se enseña el producto. */
+  tono: Tono;
   precio: number;
   /** «desde» delante del precio (encargos con precio variable). */
   desde?: boolean;
@@ -60,10 +74,11 @@ export const PRODUCTOS: Producto[] = [
     slug: 'misterio-ganchillo',
     nombre: 'Misterio de ganchillo',
     linea: 'belenes',
+    tono: 'celeste',
     precio: 55,
     fotos: [
-      { id: 'photo-1607172567746-5f2ea1e4b12b', alt: 'La Virgen de punto, con manto azul, junto al Niño en su pesebre', foco: [0.47, 0.6, 2] },
-      { id: 'photo-1606915634445-ef81ad3709bb', alt: 'La Virgen y el Niño de punto sobre una tela blanca', foco: [0.4, 0.6, 1.8] },
+      { id: 'photo-1607172567746-5f2ea1e4b12b', alt: 'La Virgen de punto, con manto azul, junto al Niño en su pesebre', foco: [0.47, 0.58, 1.5] },
+      { id: 'photo-1606915634445-ef81ad3709bb', alt: 'La Virgen y el Niño de punto sobre una tela blanca', foco: [0.4, 0.6, 1.4] },
     ],
     resumen: 'La Virgen, san José y el Niño. Tres piezas de 9 a 12 cm.',
     descripcion: [
@@ -85,6 +100,7 @@ export const PRODUCTOS: Producto[] = [
     slug: 'reyes-magos',
     nombre: 'Reyes Magos de ganchillo',
     linea: 'belenes',
+    tono: 'albero',
     precio: 45,
     fotos: [{ id: 'photo-1765672479078-7f2c14e3163a', alt: 'Los tres Reyes Magos de ganchillo con sus camellos' }],
     resumen: 'Melchor, Gaspar y Baltasar, a la escala del misterio.',
@@ -104,17 +120,18 @@ export const PRODUCTOS: Producto[] = [
   },
   {
     slug: 'pastor-ovejas',
-    nombre: 'Pastor con ovejas',
+    nombre: 'Pastor y rebaño',
     linea: 'belenes',
+    tono: 'verde',
     precio: 28,
     fotos: [
+      { id: '40966102', fuente: 'pexels', alt: 'Rebaño de ovejas de ganchillo con sus ropitas de colores' },
       { id: 'photo-1607172567746-5f2ea1e4b12b', alt: 'Pastor de punto con túnica de rayas y su cayado', foco: [0.86, 0.55, 2] },
-      { id: 'photo-1607172567746-5f2ea1e4b12b', alt: 'Ovejas de punto tumbadas junto al pesebre', foco: [0.72, 0.82, 2.6] },
     ],
-    resumen: 'Un pastor y dos ovejas para completar el misterio.',
-    descripcion: ['Un pastor con su cayado y dos ovejas de lana rizada, a la escala del misterio.'],
+    resumen: 'Un pastor y cuatro ovejas para completar el misterio.',
+    descripcion: ['Un pastor con su cayado y cuatro ovejas de lana, cada una con su ropita, a la escala del misterio.'],
     detalles: [
-      { etiqueta: 'Piezas', valor: 'Pastor y dos ovejas' },
+      { etiqueta: 'Piezas', valor: 'Pastor y cuatro ovejas' },
       { etiqueta: 'Medidas', valor: 'Pastor de 10 cm; ovejas de 5 cm' },
       { etiqueta: 'Material', valor: 'Algodón y lana rizada, relleno de fibra' },
       { etiqueta: 'Cuidado', valor: CUIDADO_GANCHILLO },
@@ -128,6 +145,7 @@ export const PRODUCTOS: Producto[] = [
     slug: 'angel-ganchillo',
     nombre: 'Ángel de ganchillo',
     linea: 'belenes',
+    tono: 'rosa',
     precio: 18,
     fotos: [{ id: 'photo-1792591768727-99dcc34b3e41', alt: 'Ángel de ganchillo con vestido blanco y alas rosas' }],
     resumen: 'Para lo alto del portal o para colgar del árbol.',
@@ -146,6 +164,7 @@ export const PRODUCTOS: Producto[] = [
     slug: 'belen-completo',
     nombre: 'Belén completo, por encargo',
     linea: 'belenes',
+    tono: 'azul',
     precio: 220,
     desde: true,
     fotos: [
@@ -172,6 +191,7 @@ export const PRODUCTOS: Producto[] = [
     slug: 'escapulario-carmen',
     nombre: 'Escapulario del Carmen',
     linea: 'devocion',
+    tono: 'albero',
     precio: 15,
     fotos: [
       { id: 'photo-1695437229606-40c602d9e444', alt: 'Escapulario de tela marrón con la imagen de la Virgen y su cordón' },
@@ -195,10 +215,11 @@ export const PRODUCTOS: Producto[] = [
     slug: 'rosario-madera',
     nombre: 'Rosario de madera',
     linea: 'devocion',
+    tono: 'celeste',
     precio: 19,
     fotos: [
-      { id: 'photo-1570336684085-f8453342cfd7', alt: 'Rosario de cuentas de madera oscura con cruz de madera' },
-      { id: 'photo-1570336684344-36ad86ec7288', alt: 'Rosario de madera sobre una Biblia abierta' },
+      { id: '7543087', fuente: 'pexels', alt: 'Rosario de cuentas de madera con cruz de madera, sobre blanco' },
+      { id: '1556713', fuente: 'pexels', alt: 'Rosario de madera en forma de corazón sobre fondo amarillo' },
     ],
     resumen: 'Cuentas de madera de 8 mm y cruz de madera, montado a mano.',
     descripcion: [
@@ -215,14 +236,18 @@ export const PRODUCTOS: Producto[] = [
   },
   {
     slug: 'rosario-claro',
-    nombre: 'Rosario de cuentas claras',
+    nombre: 'Rosario de cuentas rojas',
     linea: 'devocion',
+    tono: 'rosa',
     precio: 17,
-    fotos: [{ id: 'photo-1640794296019-ab6b5de045c2', alt: 'Rosario de cuentas de madera clara con cruz, sobre fondo azul' }],
-    resumen: 'Madera clara y cruz dorada. Un buen regalo de Primera Comunión.',
-    descripcion: ['Rosario de cuentas de madera clara con cruz de metal dorado. Va en una bolsita de tela, listo para regalar.'],
+    fotos: [
+      { id: '4202951', fuente: 'pexels', alt: 'Rosario de cuentas rojas con cruz roja sobre fondo rosa' },
+      { id: '4202953', fuente: 'pexels', alt: 'La cruz roja del rosario, de cerca' },
+    ],
+    resumen: 'Cuentas rojas y cruz a juego. Un buen regalo de Primera Comunión.',
+    descripcion: ['Rosario de cuentas rojas con la cruz a juego. Va en una bolsita de tela, listo para regalar.'],
     detalles: [
-      { etiqueta: 'Material', valor: 'Madera de haya, cruz de metal dorado' },
+      { etiqueta: 'Material', valor: 'Cuentas de resina y cordón de nailon' },
       { etiqueta: 'Medidas', valor: '42 cm de largo' },
     ],
     hechoPor: 'Montado a mano por Aida',
@@ -233,6 +258,7 @@ export const PRODUCTOS: Producto[] = [
     slug: 'medalla-milagrosa',
     nombre: 'Medalla de la Milagrosa',
     linea: 'devocion',
+    tono: 'morado',
     precio: 29,
     fotos: [
       { id: 'photo-1778000000815-5b06539b1f85', alt: 'Medalla ovalada dorada de la Virgen sobre fondo blanco' },
@@ -251,6 +277,7 @@ export const PRODUCTOS: Producto[] = [
     slug: 'crucifijo-pared',
     nombre: 'Crucifijo de pared',
     linea: 'devocion',
+    tono: 'verde',
     precio: 39,
     fotos: [{ id: 'photo-1630892116465-8bb147daf88f', alt: 'Crucifijo de madera oscura con Cristo plateado colgado en una pared blanca' }],
     resumen: 'Madera de nogal y Cristo de metal. 25 cm.',
@@ -265,6 +292,7 @@ export const PRODUCTOS: Producto[] = [
     slug: 'altar-mayo',
     nombre: 'Altar de mayo',
     linea: 'devocion',
+    tono: 'celeste',
     precio: 35,
     fotos: [
       { id: 'photo-1565567246634-990fb94afff1', alt: 'Imagen blanca de la Virgen rodeada de orquídeas' },
@@ -285,6 +313,7 @@ export const PRODUCTOS: Producto[] = [
     slug: 'polar-inmaculada',
     nombre: 'Polar Inmaculada',
     linea: 'ropa',
+    tono: 'celeste',
     precio: 45,
     fotos: [{ id: 'photo-1794699793044-95933253e125', alt: 'Chico con el polar de media cremallera en color crudo' }],
     resumen: 'Media cremallera, color crudo, bordado en el pecho. Edición de 50.',
@@ -305,6 +334,7 @@ export const PRODUCTOS: Producto[] = [
     slug: 'sudadera-refugio',
     nombre: 'Sudadera Refugio',
     linea: 'ropa',
+    tono: 'rosa',
     precio: 39.9,
     fotos: [{ id: 'photo-1549653233-423867e8feab', alt: 'Chica con la sudadera azul marino de cuello redondo' }],
     resumen: 'Azul marino, cuello redondo, algodón orgánico.',
@@ -324,6 +354,7 @@ export const PRODUCTOS: Producto[] = [
     slug: 'camiseta-fiat',
     nombre: 'Camiseta «Fiat»',
     linea: 'ropa',
+    tono: 'albero',
     precio: 22,
     fotos: [
       { id: 'photo-1778671394516-8270eac13c42', alt: 'Camiseta blanca colgada de una percha de madera' },
@@ -345,9 +376,13 @@ export const PRODUCTOS: Producto[] = [
 ];
 
 /** Fotos de ambiente que no son de un producto. */
-export const AMBIENTE = {
+export const AMBIENTE: Record<'lana' | 'manos', Foto> = {
   lana: { id: 'photo-1532629804872-98086b058cae', alt: 'Cesta de mimbre con ovillos de lana blanca y gris' },
+  manos: { id: '7585268', fuente: 'pexels', alt: 'Manos tejiendo con ganchillo e hilo blanco' },
 };
+
+/** Vídeo de la portada (Pexels, licencia libre): manos haciendo ganchillo. */
+export const VIDEO_PORTADA = { mp4: '/tienda/video/10474567.mp4', poster: '/tienda/video/10474567.webp' };
 
 export const ENVIO = { coste: 4.9, gratisDesde: 60 };
 
@@ -360,13 +395,17 @@ export function porLinea(linea: Linea) {
 }
 
 /** URL de la foto recortada al tamaño pedido (el CDN de Unsplash la sirve en AVIF/WebP). */
-export function urlFoto(id: string, ancho: number, proporcion = 1.25, foco?: Foto['foco']) {
-  const recorte = foco ? `&crop=focalpoint&fp-x=${foco[0]}&fp-y=${foco[1]}&fp-z=${foco[2]}` : '';
-  return `https://images.unsplash.com/${id}?auto=format&fit=crop&q=70&w=${ancho}&h=${Math.round(ancho * proporcion)}${recorte}`;
+export function urlFoto(f: Foto, ancho: number, proporcion = 1.25) {
+  const alto = Math.round(ancho * proporcion);
+  if (f.fuente === 'pexels') {
+    return `https://images.pexels.com/photos/${f.id}/pexels-photo-${f.id}.jpeg?auto=compress&cs=tinysrgb&fit=crop&w=${ancho}&h=${alto}`;
+  }
+  const recorte = f.foco ? `&crop=focalpoint&fp-x=${f.foco[0]}&fp-y=${f.foco[1]}&fp-z=${f.foco[2]}` : '';
+  return `https://images.unsplash.com/${f.id}?auto=format&fit=crop&q=70&w=${ancho}&h=${alto}${recorte}`;
 }
 
-export function srcSetFoto(id: string, anchos: number[], proporcion = 1.25, foco?: Foto['foco']) {
-  return anchos.map((w) => `${urlFoto(id, w, proporcion, foco)} ${w}w`).join(', ');
+export function srcSetFoto(f: Foto, anchos: number[], proporcion = 1.25) {
+  return anchos.map((w) => `${urlFoto(f, w, proporcion)} ${w}w`).join(', ');
 }
 
 export function euros(n: number) {

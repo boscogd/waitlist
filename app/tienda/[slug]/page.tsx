@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { PRODUCTOS, LINEAS, producto, distintivo, ENVIO, euros } from '@/lib/tienda/catalogo';
+import { PRODUCTOS, LINEAS, TONOS, producto, distintivo, ENVIO, euros } from '@/lib/tienda/catalogo';
 import Tarjeta, { BarraPreventa, EstadoEntrega, Precio } from '../_componentes/Tarjeta';
 import Galeria from '../_componentes/Galeria';
 import { Comprar } from '../_componentes/Comprar';
@@ -49,9 +49,9 @@ export default async function FichaProducto({ params }: { params: Promise<{ slug
 
   return (
     <>
-      <section className="mx-auto grid max-w-7xl gap-6 pb-16 sm:gap-8 sm:px-6 sm:pt-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-14">
+      <section className="mx-auto grid max-w-[1400px] gap-6 pb-16 sm:gap-8 sm:px-6 sm:pt-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-14">
         <div className="lg:sticky lg:top-24 lg:self-start">
-          <Galeria fotos={p.fotos} aviso={distintivo(p)} />
+          <Galeria fotos={p.fotos} aviso={distintivo(p)} fondo={TONOS[p.tono].fondo} tinta={TONOS[p.tono].tinta} />
         </div>
 
         <div className="min-w-0 px-4 sm:px-0 lg:max-w-md lg:pt-2">
@@ -64,8 +64,8 @@ export default async function FichaProducto({ params }: { params: Promise<{ slug
               {linea.nombre}
             </Link>
           </nav>
-          <h1 className="mt-2 text-[1.75rem] font-semibold leading-tight tracking-tight text-texto sm:text-3xl">{p.nombre}</h1>
-          <p className="mt-2 text-xl text-texto">
+          <h1 className="tienda-titular mt-3 text-[13vw] text-azul sm:text-6xl lg:text-[4.2rem]">{p.nombre}</h1>
+          <p className="mt-4 text-2xl font-semibold text-texto">
             <Precio p={p} />
           </p>
           {p.hechoPor && <p className="mt-3 text-[15px] text-texto/70">{p.hechoPor}</p>}
@@ -119,9 +119,9 @@ export default async function FichaProducto({ params }: { params: Promise<{ slug
       </section>
 
       <section className="border-t border-black/[0.06]">
-        <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
-          <h2 className="text-xl font-semibold tracking-tight text-texto">También te puede gustar</h2>
-          <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-10 lg:grid-cols-4 lg:gap-x-6">
+        <div className="mx-auto max-w-[1400px] px-4 py-14 sm:px-8 lg:px-10">
+          <h2 className="tienda-titular text-5xl text-azul sm:text-6xl">También te puede gustar</h2>
+          <div className="mt-8 grid grid-cols-2 gap-x-3 gap-y-10 sm:gap-x-5 lg:grid-cols-4">
             {relacionados.map((r) => (
               <Tarjeta key={r.slug} p={r} />
             ))}

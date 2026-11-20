@@ -1,0 +1,44 @@
+/* Tienda: lo que Tailwind no cubre bien (cinta en movimiento y titulares). */
+
+.tienda-titular {
+  font-family: var(--font-bricolage), var(--font-inter), system-ui, sans-serif;
+  font-weight: 800;
+  font-stretch: 85%;
+  letter-spacing: -0.035em;
+  line-height: 0.86;
+  text-transform: uppercase;
+}
+
+/* Cinta: dos copias del texto que se desplazan; se queda quieta si se pide menos movimiento. */
+.tienda-cinta {
+  display: flex;
+  width: max-content;
+  animation: tienda-cinta 38s linear infinite;
+}
+.tienda-cinta:hover {
+  animation-play-state: paused;
+}
+@keyframes tienda-cinta {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Reparto: las figuras se desplazan con el dedo y se ajustan a cada tarjeta. */
+.tienda-reparto {
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  scroll-padding-inline: 1rem;
+}
+.tienda-reparto::-webkit-scrollbar {
+  display: none;
+}
+.tienda-reparto > * {
+  scroll-snap-align: start;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tienda-cinta {
+    animation: none;
+  }
+}

@@ -6,7 +6,7 @@ import { useRef, useState } from 'react';
 import type { Foto as TFoto } from '@/lib/tienda/catalogo';
 import Foto from './Foto';
 
-export default function Galeria({ fotos, aviso }: { fotos: TFoto[]; aviso?: string | null }) {
+export default function Galeria({ fotos, aviso, fondo, tinta }: { fotos: TFoto[]; aviso?: string | null; fondo: string; tinta: string }) {
   const carril = useRef<HTMLDivElement>(null);
   const [activa, setActiva] = useState(0);
 
@@ -27,11 +27,11 @@ export default function Galeria({ fotos, aviso }: { fotos: TFoto[]; aviso?: stri
 
   return (
     <div>
-      <div className="relative">
+      <div className="relative p-[7%] sm:p-[8%]" style={{ backgroundColor: fondo }}>
         <div
           ref={carril}
           onScroll={alDeslizar}
-          className="flex snap-x snap-mandatory overflow-x-auto bg-[#F2F1EE] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="flex snap-x snap-mandatory overflow-x-auto bg-black/10 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           aria-label="Fotos del producto"
           role="region"
           tabIndex={fotos.length > 1 ? 0 : undefined}
@@ -48,12 +48,15 @@ export default function Galeria({ fotos, aviso }: { fotos: TFoto[]; aviso?: stri
           ))}
         </div>
         {aviso && (
-          <span className="absolute left-3 top-3 rounded-[3px] bg-white px-2 py-1 text-xs font-medium text-texto shadow-sm">
+          <span
+            className="absolute left-[7%] top-[7%] -translate-y-1/2 px-2 py-1 text-[11px] font-bold uppercase tracking-wide sm:left-[8%] sm:top-[8%]"
+            style={{ backgroundColor: tinta, color: fondo }}
+          >
             {aviso}
           </span>
         )}
         {fotos.length > 1 && (
-          <span className="absolute bottom-3 right-3 rounded-[3px] bg-black/55 px-2 py-0.5 text-xs tabular-nums text-white sm:hidden" aria-hidden="true">
+          <span className="absolute bottom-[9%] right-[9%] bg-black/60 px-2 py-0.5 text-xs tabular-nums text-white sm:hidden" aria-hidden="true">
             {activa + 1} / {fotos.length}
           </span>
         )}
@@ -67,11 +70,11 @@ export default function Galeria({ fotos, aviso }: { fotos: TFoto[]; aviso?: stri
               onClick={() => ir(i)}
               aria-label={`Ver foto ${i + 1} de ${fotos.length}`}
               aria-current={activa === i}
-              className={`w-20 overflow-hidden bg-[#F2F1EE] outline-offset-2 focus-visible:outline-2 focus-visible:outline-azul cursor-pointer ${
-                activa === i ? 'ring-1 ring-texto' : 'opacity-70 hover:opacity-100'
+              className={`w-20 overflow-hidden bg-black/5 outline-offset-2 focus-visible:outline-2 focus-visible:outline-azul cursor-pointer ${
+                activa === i ? 'ring-2 ring-azul' : 'opacity-70 hover:opacity-100'
               }`}
             >
-              <Foto foto={f} sizes="80px" decorativa className="aspect-[4/5] h-full w-full" />
+              <Foto foto={f} sizes="80px" decorativa inmediata className="aspect-[4/5] h-full w-full" />
             </button>
           ))}
         </div>
