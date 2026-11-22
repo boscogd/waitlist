@@ -31,7 +31,7 @@ export default function Galeria({ fotos, aviso, fondo, tinta }: { fotos: TFoto[]
         <div
           ref={carril}
           onScroll={alDeslizar}
-          className="flex snap-x snap-mandatory overflow-x-auto bg-black/10 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="flex snap-x snap-mandatory overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           aria-label="Fotos del producto"
           role="region"
           tabIndex={fotos.length > 1 ? 0 : undefined}

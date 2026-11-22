@@ -26,7 +26,7 @@ export default function TiendaLayout({ children }: { children: React.ReactNode }
         <CabeceraTienda />
         <main id="main">{children}</main>
         <p className="border-t border-black/[0.06] px-4 py-4 text-center text-xs text-texto/55">
-          Demo de la tienda: fotos y vídeo de muestra (Unsplash y Pexels), productos y precios de ejemplo. No se cobra nada.
+          Demo de la tienda: dibujos, productos y precios de ejemplo. No se cobra nada.
         </p>
       </div>
       <SiteFooter />

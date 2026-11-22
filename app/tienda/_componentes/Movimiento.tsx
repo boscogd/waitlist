@@ -1,8 +1,8 @@
 'use client';
 
-// Lo que se mueve en la portada: el vídeo de las manos y la cinta. Los dos se
-// pueden pausar y se quedan quietos si el móvil pide menos movimiento.
-import { useEffect, useRef, useState } from 'react';
+// La cinta de la portada: se puede pausar y se queda quieta si el móvil pide
+// menos movimiento.
+import { useEffect, useState } from 'react';
 
 function usaMenosMovimiento() {
   const [menos, setMenos] = useState(false);
@@ -35,37 +35,6 @@ function BotonPausa({ parado, onClick, que, className = '' }: { parado: boolean;
         </svg>
       )}
     </button>
-  );
-}
-
-export function VideoPortada({ mp4, poster }: { mp4: string; poster: string }) {
-  const ref = useRef<HTMLVideoElement>(null);
-  const menos = usaMenosMovimiento();
-  const [pausado, setPausado] = useState(false);
-  const parado = menos || pausado;
-
-  useEffect(() => {
-    const v = ref.current;
-    if (!v) return;
-    if (parado) v.pause();
-    else v.play().catch(() => setPausado(true));
-  }, [parado]);
-
-  return (
-    <>
-      <video
-        ref={ref}
-        className="absolute inset-0 h-full w-full origin-bottom scale-[1.22] object-cover lg:scale-[1.4] object-[50%_100%]"
-        src={mp4}
-        poster={poster}
-        muted
-        loop
-        playsInline
-        preload="metadata"
-        aria-label="Manos tejiendo con ganchillo"
-      />
-      <BotonPausa parado={parado} onClick={() => setPausado(!parado)} que="el vídeo" className="absolute bottom-4 right-4" />
-    </>
   );
 }
 

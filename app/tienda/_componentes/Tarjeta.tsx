@@ -74,13 +74,13 @@ export default function Tarjeta({ p, prioridad = false }: { p: Producto; priorid
   const sizes = '(min-width: 1024px) 300px, 45vw';
   return (
     <article className="group relative">
-      <div className="relative aspect-[4/5] p-[8%]" style={{ backgroundColor: tono.fondo }}>
-        <div className="relative h-full overflow-hidden bg-black/5">
+      <div className="relative aspect-[4/5] p-[5%]" style={{ backgroundColor: tono.panel }}>
+        <div className="relative h-full overflow-hidden">
           <Foto
             foto={primera}
             sizes={sizes}
             prioridad={prioridad}
-            className="absolute inset-0 h-full w-full transition-transform duration-500 ease-out group-hover:scale-[1.04] motion-reduce:transition-none"
+            className="absolute inset-0 h-full w-full transition-transform duration-500 ease-out group-hover:scale-[1.05] group-hover:-rotate-1 motion-reduce:transition-none"
           />
           {segunda && (
             <Foto
@@ -93,8 +93,8 @@ export default function Tarjeta({ p, prioridad = false }: { p: Producto; priorid
         </div>
         {aviso && (
           <span
-            className="absolute left-[8%] top-[8%] -translate-y-1/2 px-2 py-1 text-[11px] font-bold uppercase tracking-wide"
-            style={{ backgroundColor: tono.tinta, color: tono.fondo }}
+            className="absolute left-3 top-3 px-2 py-1 text-[11px] font-bold uppercase tracking-wide"
+            style={{ backgroundColor: tono.tintaPanel, color: tono.panel }}
           >
             {aviso}
           </span>
@@ -120,18 +120,18 @@ export function TarjetaFigura({ p, nombre, prioridad = false }: { p: Producto; n
   return (
     <article
       className="group relative flex w-[78vw] max-w-[340px] shrink-0 flex-col p-4 sm:w-[320px] sm:p-5"
-      style={{ backgroundColor: tono.fondo, color: tono.tinta }}
+      style={{ backgroundColor: tono.panel, color: tono.tintaPanel }}
     >
       <div className="flex items-center justify-between text-[13px] font-semibold tabular-nums">
         <span className="uppercase tracking-wide">{aviso ?? 'Hecho y listo'}</span>
         <Precio p={p} />
       </div>
-      <div className="relative mt-3 aspect-[4/5] overflow-hidden bg-black/10">
+      <div className="relative mt-1 aspect-[4/5] overflow-hidden">
         <Foto
           foto={p.fotos[0]}
           sizes="340px"
           prioridad={prioridad}
-          className="absolute inset-0 h-full w-full transition-transform duration-500 ease-out group-hover:scale-[1.04] motion-reduce:transition-none"
+          className="absolute inset-0 h-full w-full transition-transform duration-500 ease-out group-hover:scale-[1.05] group-hover:-rotate-1 motion-reduce:transition-none"
         />
       </div>
       <h3 className="tienda-titular mt-4 text-[2.6rem] sm:text-5xl">

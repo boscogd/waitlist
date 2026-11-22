@@ -35,7 +35,7 @@ export default function Foto({
       loading={prioridad || inmediata ? 'eager' : 'lazy'}
       fetchPriority={prioridad ? 'high' : undefined}
       decoding="async"
-      className={`object-cover ${className}`}
+      className={`${foto.fuente === 'dibujo' ? 'object-contain mix-blend-multiply' : 'object-cover'} ${className}`}
     />
   );
 }

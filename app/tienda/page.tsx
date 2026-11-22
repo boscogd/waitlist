@@ -1,9 +1,9 @@
 import Link from 'next/link';
-import { AMBIENTE, ENVIO, TONOS, VIDEO_PORTADA, euros, porLinea, producto } from '@/lib/tienda/catalogo';
+import { AMBIENTE, ENVIO, TONOS, euros, porLinea, producto } from '@/lib/tienda/catalogo';
 import Foto from './_componentes/Foto';
 import Tarjeta, { BarraPreventa, TarjetaFigura } from './_componentes/Tarjeta';
 import FormEncargo from './_componentes/FormEncargo';
-import { Cinta, VideoPortada } from './_componentes/Movimiento';
+import { Cinta } from './_componentes/Movimiento';
 
 export const metadata = {
   title: { absolute: 'Tienda | Refugio en la Palabra' },
@@ -67,8 +67,8 @@ export default function TiendaPage() {
             </Link>
           </div>
         </div>
-        <div className="relative aspect-[4/5] overflow-hidden bg-[#E9D9C4] sm:aspect-[16/10] lg:aspect-auto">
-          <VideoPortada mp4={VIDEO_PORTADA.mp4} poster={VIDEO_PORTADA.poster} />
+        <div className="relative aspect-[4/5] overflow-hidden bg-white sm:aspect-[16/10] lg:aspect-auto">
+          <Foto foto={AMBIENTE.madre} sizes="(min-width: 1024px) 45vw, 100vw" prioridad className="absolute inset-0 h-full w-full p-[6%]" />
         </div>
       </section>
 
@@ -118,7 +118,7 @@ export default function TiendaPage() {
           </Link>
         </div>
         <div className="relative order-1 aspect-[4/3] lg:order-2 lg:aspect-auto lg:min-h-[640px]">
-          <Foto foto={AMBIENTE.manos} sizes="(min-width: 1024px) 50vw, 100vw" proporcion={1} className="absolute inset-0 h-full w-full" />
+          <Foto foto={AMBIENTE.belen} sizes="(min-width: 1024px) 50vw, 100vw" className="absolute inset-0 h-full w-full p-[6%]" />
         </div>
       </section>
 
@@ -144,7 +144,7 @@ export default function TiendaPage() {
       {/* ─── Ropa: el polar en grande ─── */}
       <section aria-labelledby="ropa" className="border-t-4 border-azul">
         <div className="grid lg:grid-cols-2">
-          <div className="p-[7%] lg:p-14" style={{ backgroundColor: celeste.fondo }}>
+          <div className="p-[7%] lg:p-14" style={{ backgroundColor: celeste.panel }}>
             <Foto foto={polar.fotos[0]} sizes="(min-width: 1024px) 45vw, 90vw" className="aspect-[4/5] w-full" />
           </div>
           <div className="flex flex-col justify-center px-4 py-12 sm:px-8 lg:px-14">

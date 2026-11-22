@@ -51,7 +51,7 @@ export default async function FichaProducto({ params }: { params: Promise<{ slug
     <>
       <section className="mx-auto grid max-w-[1400px] gap-6 pb-16 sm:gap-8 sm:px-6 sm:pt-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-14">
         <div className="lg:sticky lg:top-24 lg:self-start">
-          <Galeria fotos={p.fotos} aviso={distintivo(p)} fondo={TONOS[p.tono].fondo} tinta={TONOS[p.tono].tinta} />
+          <Galeria fotos={p.fotos} aviso={distintivo(p)} fondo={TONOS[p.tono].panel} tinta={TONOS[p.tono].tintaPanel} />
         </div>
 
         <div className="min-w-0 px-4 sm:px-0 lg:max-w-md lg:pt-2">
