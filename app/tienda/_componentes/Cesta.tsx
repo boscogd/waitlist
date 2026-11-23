@@ -1,14 +1,21 @@
 'use client';
 
 // =====================================================
-// TIENDA · CESTA (DEMO)
+// TIENDA · CESTA
 // =====================================================
-// La cesta vive en el navegador (localStorage) y no se cobra nada: en la tienda
-// real, «Ir a pagar» abrirá Stripe Checkout con tarjeta, Bizum y Apple/Google Pay.
+// La cesta vive en el navegador (localStorage). Con NEXT_PUBLIC_TIENDA_PAGOS=1,
+// «Ir a pagar» manda la ropa bajo demanda (lo que tiene `pod`) a
+// /api/tienda/checkout y abre Stripe Checkout; lo demás es de muestra y no se
+// cobra. Sin esa variable, todo sigue siendo la demo de siempre.
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { ENVIO, euros, maximo, producto, sePuedeComprar } from '@/lib/tienda/catalogo';
+import { ENVIO, euros, maximo, precioDe, producto, sePuedeComprar } from '@/lib/tienda/catalogo';
 import Foto from './Foto';
+
+/** Cobro real de la ropa activado (se fija al construir). */
+export const PAGOS = process.env.NEXT_PUBLIC_TIENDA_PAGOS === '1';
+
+const esRopaReal = (slug: string) => PAGOS && !!producto(slug)?.pod;
 
 export interface LineaCesta {
   slug: string;
@@ -19,6 +26,8 @@ export interface LineaCesta {
 
 interface CestaCtx {
   lineas: LineaCesta[];
+  /** Ya se ha leído la cesta guardada en el navegador. */
+  cargada: boolean;
   unidades: number;
   subtotal: number;
   abierta: boolean;
@@ -28,10 +37,14 @@ interface CestaCtx {
   cambiar: (i: number, cantidad: number) => void;
   quitar: (i: number) => void;
   vaciar: () => void;
+  /** Tras pagar: descuenta de la cesta lo pagado en esa sesión, una sola vez por sesión. */
+  quitarPagadas: (sesion: string, pagadas: { slug: string; talla: string; cantidad: number }[]) => void;
 }
 
 const Ctx = createContext<CestaCtx | null>(null);
 const CLAVE = 'refugio-tienda-demo-cesta';
+/** Sesiones de pago ya descontadas de la cesta (volver al justificante no debe quitar nada más). */
+const CLAVE_PAGADAS = 'refugio-tienda-sesiones-pagadas';
 
 export function useCesta() {
   const c = useContext(Ctx);
@@ -119,12 +132,40 @@ export function CestaProvider({ children }: { children: React.ReactNode }) {
 
   const quitar = useCallback((i: number) => setLineas((prev) => prev.filter((_, j) => j !== i)), []);
   const vaciar = useCallback(() => setLineas([]), []);
+  const quitarPagadas = useCallback((sesion: string, pagadas: { slug: string; talla: string; cantidad: number }[]) => {
+    let hechas: string[] = [];
+    try {
+      const g = JSON.parse(localStorage.getItem(CLAVE_PAGADAS) || '[]');
+      if (Array.isArray(g)) hechas = g.filter((x): x is string => typeof x === 'string');
+    } catch {
+      /* sin almacenamiento: se descuenta igual */
+    }
+    if (hechas.includes(sesion)) return;
+    try {
+      localStorage.setItem(CLAVE_PAGADAS, JSON.stringify([...hechas, sesion].slice(-20)));
+    } catch {
+      /* navegación privada */
+    }
+    // Solo lo pagado: lo que se añadió después (u otra talla) se queda.
+    setLineas((prev) =>
+      prev
+        .map((l) => {
+          const p = pagadas.find((x) => x.slug === l.slug && x.talla === (l.talla ?? ''));
+          return p ? { ...l, cantidad: l.cantidad - p.cantidad } : l;
+        })
+        .filter((l) => l.cantidad > 0)
+    );
+  }, []);
 
   const valor = useMemo<CestaCtx>(() => {
     const unidades = lineas.reduce((s, l) => s + l.cantidad, 0);
-    const subtotal = lineas.reduce((s, l) => s + (producto(l.slug)?.precio ?? 0) * l.cantidad, 0);
+    const subtotal = lineas.reduce((s, l) => {
+      const p = producto(l.slug);
+      return s + (p ? precioDe(p, l.talla) : 0) * l.cantidad;
+    }, 0);
     return {
       lineas,
+      cargada,
       unidades,
       subtotal,
       abierta,
@@ -134,8 +175,9 @@ export function CestaProvider({ children }: { children: React.ReactNode }) {
       cambiar,
       quitar,
       vaciar,
+      quitarPagadas,
     };
-  }, [lineas, abierta, abrir, cerrar, anadir, cambiar, quitar, vaciar]);
+  }, [lineas, cargada, abierta, abrir, cerrar, anadir, cambiar, quitar, vaciar, quitarPagadas]);
 
   return (
     <Ctx.Provider value={valor}>
@@ -264,13 +306,17 @@ function CestaPanel() {
         {lineas.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-4 px-8 text-center">
             <p className="text-lg font-semibold text-texto">La cesta está vacía</p>
-            <p className="text-sm text-texto/70">Empieza por el misterio de ganchillo: es lo que más se pide en Adviento.</p>
+            <p className="text-sm text-texto/70">
+              {PAGOS
+                ? 'Las camisetas y la sudadera se hacen al pedirlas y llegan en 5 a 10 días laborables.'
+                : 'Empieza por el misterio de ganchillo: es lo que más se pide en Adviento.'}
+            </p>
             <Link
-              href="/tienda/misterio-ganchillo"
+              href={PAGOS ? '/tienda#ropa' : '/tienda/misterio-ganchillo'}
               onClick={cerrar}
               className="border border-black/15 px-5 py-2.5 text-sm font-medium text-texto hover:border-texto"
             >
-              Ver el misterio
+              {PAGOS ? 'Ver la ropa' : 'Ver el misterio'}
             </Link>
           </div>
         ) : pagando ? (
@@ -318,7 +364,7 @@ function CestaPanel() {
                         <Link href={`/tienda/${p.slug}`} onClick={cerrar} className="font-medium text-texto hover:underline">
                           {p.nombre}
                         </Link>
-                        <span className="text-sm font-medium tabular-nums text-texto">{euros(p.precio * l.cantidad)}</span>
+                        <span className="text-sm font-medium tabular-nums text-texto">{euros(precioDe(p, l.talla) * l.cantidad)}</span>
                       </div>
                       {(l.talla || l.nota) && (
                         <p className="mt-0.5 text-sm text-texto/65 break-words">
@@ -328,6 +374,11 @@ function CestaPanel() {
                         </p>
                       )}
                       {p.entrega.tipo === 'preventa' && <p className="mt-0.5 text-xs text-texto/60">Preventa · {p.entrega.texto}</p>}
+                      {PAGOS && !p.pod && (
+                        <p className="mt-1 inline-block bg-black/[0.06] px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-texto/60">
+                          De muestra
+                        </p>
+                      )}
                       <div className="mt-3 flex items-center gap-3">
                         <div className="inline-flex items-center rounded-full border border-black/15">
                           <button
@@ -361,40 +412,136 @@ function CestaPanel() {
               })}
             </ul>
 
-            <div className="border-t border-black/[0.08] bg-[#FAFAF9] px-6 py-5">
-              <dl className="space-y-1.5 text-sm">
-                <div className="flex justify-between">
-                  <dt className="text-texto/70">Productos</dt>
-                  <dd className="tabular-nums">{euros(subtotal)}</dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt className="text-texto/70">Envío en península</dt>
-                  <dd className="tabular-nums">{envio === 0 ? 'Gratis' : euros(envio)}</dd>
-                </div>
-                <div className="flex justify-between border-t border-black/[0.08] pt-2 text-base font-semibold text-texto">
-                  <dt>Total</dt>
-                  <dd className="tabular-nums">{euros(subtotal + envio)}</dd>
-                </div>
-              </dl>
-              <p className="mt-2 text-xs text-texto/60">
-                {faltaParaGratis > 0
-                  ? `Te faltan ${euros(faltaParaGratis)} para el envío gratis.`
-                  : 'Tienes el envío gratis.'}{' '}
-                Precios con IVA.
-              </p>
-              <button
-                ref={pagarRef}
-                type="button"
-                onClick={() => setPagando(true)}
-                className="mt-4 w-full bg-azul py-3.5 text-base font-medium text-white transition-colors hover:bg-azul-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-azul cursor-pointer"
-              >
-                Ir a pagar
-              </button>
-              <p className="mt-2 text-center text-xs text-texto/55">Tarjeta, Bizum, Apple Pay o Google Pay</p>
-            </div>
+            {PAGOS ? (
+              <PagoRopa />
+            ) : (
+              <div className="border-t border-black/[0.08] bg-[#FAFAF9] px-6 py-5">
+                <dl className="space-y-1.5 text-sm">
+                  <div className="flex justify-between">
+                    <dt className="text-texto/70">Productos</dt>
+                    <dd className="tabular-nums">{euros(subtotal)}</dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt className="text-texto/70">Envío en península</dt>
+                    <dd className="tabular-nums">{envio === 0 ? 'Gratis' : euros(envio)}</dd>
+                  </div>
+                  <div className="flex justify-between border-t border-black/[0.08] pt-2 text-base font-semibold text-texto">
+                    <dt>Total</dt>
+                    <dd className="tabular-nums">{euros(subtotal + envio)}</dd>
+                  </div>
+                </dl>
+                <p className="mt-2 text-xs text-texto/60">
+                  {faltaParaGratis > 0
+                    ? `Te faltan ${euros(faltaParaGratis)} para el envío gratis.`
+                    : 'Tienes el envío gratis.'}{' '}
+                  Precios con IVA.
+                </p>
+                <button
+                  ref={pagarRef}
+                  type="button"
+                  onClick={() => setPagando(true)}
+                  className="mt-4 w-full bg-azul py-3.5 text-base font-medium text-white transition-colors hover:bg-azul-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-azul cursor-pointer"
+                >
+                  Ir a pagar
+                </button>
+                <p className="mt-2 text-center text-xs text-texto/55">Tarjeta, Bizum, Apple Pay o Google Pay</p>
+              </div>
+            )}
           </>
         )}
       </div>
+    </div>
+  );
+}
+
+/**
+ * Pie de la cesta cuando la ropa se cobra de verdad: suma solo la ropa bajo
+ * demanda, avisa de lo que es de muestra y abre Stripe Checkout.
+ */
+function PagoRopa() {
+  const { lineas } = useCesta();
+  const [cargando, setCargando] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const ropa = lineas.filter((l) => esRopaReal(l.slug));
+  const hayMuestra = ropa.length < lineas.length;
+  const subtotal = ropa.reduce((s, l) => s + precioDe(producto(l.slug)!, l.talla) * l.cantidad, 0);
+  const envio = subtotal === 0 || subtotal >= ENVIO.gratisDesde ? 0 : ENVIO.coste;
+  const faltaParaGratis = Math.max(0, ENVIO.gratisDesde - subtotal);
+
+  const pagar = async () => {
+    setCargando(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/tienda/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lineas: ropa.map(({ slug, talla, cantidad }) => ({ slug, talla, cantidad })) }),
+      });
+      const datos = await res.json().catch(() => ({}));
+      if (res.ok && typeof datos.url === 'string') {
+        // Se queda «cargando» mientras el navegador se va a Stripe.
+        window.location.assign(datos.url);
+        return;
+      }
+      setError(typeof datos.error === 'string' ? datos.error : 'No se ha podido abrir el pago. Inténtalo otra vez.');
+    } catch {
+      setError('Sin conexión. Comprueba internet e inténtalo otra vez.');
+    }
+    setCargando(false);
+  };
+
+  return (
+    <div className="border-t border-black/[0.08] bg-[#FAFAF9] px-6 py-5">
+      {ropa.length === 0 ? (
+        <p className="text-sm leading-relaxed text-texto/75">
+          Todo lo que tienes en la cesta es de muestra: todavía no se vende. Por ahora solo se venden las camisetas y la sudadera.
+        </p>
+      ) : (
+        <>
+          <dl className="space-y-1.5 text-sm">
+            <div className="flex justify-between">
+              <dt className="text-texto/70">{hayMuestra ? 'Ropa' : 'Productos'}</dt>
+              <dd className="tabular-nums">{euros(subtotal)}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-texto/70">Envío (península y Baleares)</dt>
+              <dd className="tabular-nums">{envio === 0 ? 'Gratis' : euros(envio)}</dd>
+            </div>
+            <div className="flex justify-between border-t border-black/[0.08] pt-2 text-base font-semibold text-texto">
+              <dt>Total</dt>
+              <dd className="tabular-nums">{euros(subtotal + envio)}</dd>
+            </div>
+          </dl>
+          <p className="mt-2 text-xs text-texto/60">
+            {faltaParaGratis > 0 ? `Te faltan ${euros(faltaParaGratis)} para el envío gratis.` : 'Tienes el envío gratis.'} Precios con IVA. No
+            enviamos a Canarias, Ceuta ni Melilla.
+          </p>
+          {hayMuestra && (
+            <p className="mt-3 border-l-2 border-azul/40 pl-3 text-xs leading-relaxed text-texto/75">
+              Lo marcado «De muestra» aún no se vende: no se cobra y se queda en la cesta.
+            </p>
+          )}
+        </>
+      )}
+      <button
+        type="button"
+        onClick={pagar}
+        disabled={ropa.length === 0 || cargando}
+        aria-busy={cargando}
+        className="mt-4 w-full bg-azul py-3.5 text-base font-medium text-white transition-colors hover:bg-azul-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-azul cursor-pointer disabled:cursor-not-allowed disabled:bg-black/[0.08] disabled:text-texto/50 aria-busy:cursor-wait aria-busy:bg-azul aria-busy:text-white/80"
+      >
+        {cargando ? 'Abriendo el pago…' : hayMuestra && ropa.length > 0 ? 'Pagar solo la ropa' : 'Ir a pagar'}
+      </button>
+      <p role="alert" className="mt-2 text-center text-sm text-[#9B2C2C]">
+        {error}
+      </p>
+      <p className="mt-2 text-center text-xs text-texto/55">
+        Pago seguro con Stripe ·{' '}
+        <Link href="/tienda/condiciones" className="underline underline-offset-2 hover:text-texto">
+          Condiciones de venta
+        </Link>
+      </p>
     </div>
   );
 }

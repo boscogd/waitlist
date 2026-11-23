@@ -2,8 +2,8 @@
 
 // Botón de compra de la ficha, con la talla cuando la hay.
 import { useId, useState } from 'react';
-import { maximo, sePuedeComprar, type Producto } from '@/lib/tienda/catalogo';
-import { useCesta } from './Cesta';
+import { euros, maximo, sePuedeComprar, type Producto } from '@/lib/tienda/catalogo';
+import { PAGOS, useCesta } from './Cesta';
 
 const BOTON =
   'w-full py-4 text-[15px] font-bold uppercase tracking-wide transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-azul';
@@ -48,9 +48,12 @@ export function Comprar({ p }: { p: Producto }) {
         <fieldset>
           <legend id={`${id}-tallas`} tabIndex={-1} className="mb-2.5 text-sm text-texto focus:outline-none">
             Talla{talla && <span className="text-texto/60">: {talla}</span>}
+            {p.pod && talla === '2XL' && <span className="text-texto/60"> (+{euros(p.pod.extra2XL)})</span>}
           </legend>
           <div className="flex flex-wrap gap-2">
-            {p.tallas.map((t) => (
+            {p.tallas.map((t) => {
+              const extra = p.pod && t === '2XL' ? p.pod.extra2XL : 0;
+              return (
               <label key={t} className="cursor-pointer">
                 <input
                   type="radio"
@@ -64,10 +67,21 @@ export function Comprar({ p }: { p: Producto }) {
                   className="peer sr-only"
                 />
                 <span className="grid h-11 min-w-14 place-items-center border-2 border-azul/25 px-3 text-sm text-texto transition-colors hover:border-texto peer-checked:border-texto peer-checked:bg-texto peer-checked:text-white peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-azul">
-                  {t}
+                  {extra ? (
+                    <span className="flex items-baseline gap-1">
+                      {t}
+                      <span className="text-xs opacity-70" aria-hidden="true">
+                        +{euros(extra)}
+                      </span>
+                      <span className="sr-only">, {euros(extra)} más</span>
+                    </span>
+                  ) : (
+                    t
+                  )}
                 </span>
               </label>
-            ))}
+              );
+            })}
           </div>
         </fieldset>
       )}
@@ -79,6 +93,9 @@ export function Comprar({ p }: { p: Producto }) {
         <p role="alert" className="mt-2 min-h-5 text-sm text-[#9B2C2C]">
           {error}
         </p>
+        {PAGOS && !p.pod && (
+          <p className="text-sm text-texto/60">Producto de muestra: aún no se vende. Por ahora solo se venden las camisetas y la sudadera.</p>
+        )}
       </div>
     </div>
   );

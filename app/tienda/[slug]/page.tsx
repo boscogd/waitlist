@@ -108,10 +108,22 @@ export default async function FichaProducto({ params }: { params: Promise<{ slug
             </Plegable>
             <Plegable titulo="Envío y devoluciones">
               <div className="space-y-2">
-                <p>
-                  {euros(ENVIO.coste)} a la península, gratis desde {euros(ENVIO.gratisDesde)}. Baleares y Canarias, con su tarifa.
-                </p>
-                <p>Tienes 14 días para devolverlo. Lo hecho por encargo no se puede devolver, salvo que llegue dañado.</p>
+                {p.pod ? (
+                  <>
+                    <p>
+                      {euros(ENVIO.coste)} a la península y Baleares, gratis desde {euros(ENVIO.gratisDesde)}. No enviamos a Canarias, Ceuta ni
+                      Melilla.
+                    </p>
+                    <p>Se fabrica en Barcelona al pedirla y llega en 5 a 10 días laborables. Tienes 14 días desde que te llega para devolverla.</p>
+                  </>
+                ) : (
+                  <>
+                    <p>
+                      {euros(ENVIO.coste)} a la península, gratis desde {euros(ENVIO.gratisDesde)}. Baleares y Canarias, con su tarifa.
+                    </p>
+                    <p>Tienes 14 días para devolverlo. Lo hecho por encargo no se puede devolver, salvo que llegue dañado.</p>
+                  </>
+                )}
               </div>
             </Plegable>
           </div>

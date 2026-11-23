@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Bricolage_Grotesque } from 'next/font/google';
+import Link from 'next/link';
 import SiteFooter from '../components/sections/SiteFooter';
 import CabeceraTienda from './_componentes/CabeceraTienda';
 import { CestaProvider } from './_componentes/Cesta';
@@ -26,7 +27,17 @@ export default function TiendaLayout({ children }: { children: React.ReactNode }
         <CabeceraTienda />
         <main id="main">{children}</main>
         <p className="border-t border-black/[0.06] px-4 py-4 text-center text-xs text-texto/55">
-          Demo de la tienda: dibujos, productos y precios de ejemplo. No se cobra nada.
+          {process.env.NEXT_PUBLIC_TIENDA_PAGOS === '1' ? (
+            <>
+              Las camisetas y la sudadera se venden de verdad: se cobran con Stripe y se fabrican en Barcelona al pedirlas. Lo demás
+              (belenes, devoción y el polar) es de muestra y no se vende todavía.{' '}
+              <Link href="/tienda/condiciones" className="underline underline-offset-2 hover:text-texto">
+                Condiciones de venta
+              </Link>
+            </>
+          ) : (
+            'Demo de la tienda: dibujos, productos y precios de ejemplo. No se cobra nada.'
+          )}
         </p>
       </div>
       <SiteFooter />

@@ -28,10 +28,23 @@ const CINTA = [
   'Para Navidad, pide antes del 10 de diciembre',
 ];
 
+// Con la ropa a la venta de verdad (NEXT_PUBLIC_TIENDA_PAGOS=1), el envío y el pago dicen lo real.
+const PAGOS = process.env.NEXT_PUBLIC_TIENDA_PAGOS === '1';
+
 const INFO = [
-  { titulo: 'Envío', texto: `${euros(ENVIO.coste)} a la península, gratis desde ${euros(ENVIO.gratisDesde)}. Lo hecho a mano sale en 48 h; el plazo de la ropa va en cada ficha.` },
-  { titulo: 'Devoluciones', texto: '14 días para devolverlo. Lo que se hace por encargo no se puede devolver.' },
-  { titulo: 'Pago', texto: 'Tarjeta, Bizum, Apple Pay o Google Pay.' },
+  {
+    titulo: 'Envío',
+    texto: PAGOS
+      ? `${euros(ENVIO.coste)} a la península y Baleares, gratis desde ${euros(ENVIO.gratisDesde)}. No enviamos a Canarias, Ceuta ni Melilla. El plazo de la ropa va en cada ficha.`
+      : `${euros(ENVIO.coste)} a la península, gratis desde ${euros(ENVIO.gratisDesde)}. Lo hecho a mano sale en 48 h; el plazo de la ropa va en cada ficha.`,
+  },
+  {
+    titulo: 'Devoluciones',
+    texto: PAGOS
+      ? '14 días desde que te llega para devolverlo, también la ropa que se fabrica al pedirla. Todo en las condiciones de venta.'
+      : '14 días para devolverlo. Lo que se hace por encargo no se puede devolver.',
+  },
+  { titulo: 'Pago', texto: PAGOS ? 'Tarjeta, Apple Pay o Google Pay, con el pago seguro de Stripe.' : 'Tarjeta, Bizum, Apple Pay o Google Pay.' },
   { titulo: 'Sin bendecir', texto: 'Escapularios, rosarios y medallas van sin bendecir: llévalos a tu parroquia.' },
 ];
 
@@ -170,7 +183,7 @@ export default function TiendaPage() {
             </Link>
           </div>
         </div>
-        <div className="mx-auto grid max-w-[1400px] grid-cols-2 gap-x-3 gap-y-10 px-4 py-10 sm:gap-x-5 sm:px-8 lg:grid-cols-3 lg:px-10 lg:py-14">
+        <div className="mx-auto grid max-w-[1400px] grid-cols-2 gap-x-3 gap-y-10 px-4 py-10 sm:gap-x-5 sm:px-8 lg:grid-cols-4 lg:px-10 lg:py-14">
           {otraRopa.map((p) => (
             <Tarjeta key={p.slug} p={p} />
           ))}

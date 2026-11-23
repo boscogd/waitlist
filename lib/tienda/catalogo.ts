@@ -1,11 +1,13 @@
 // =====================================================
-// TIENDA · CATÁLOGO DE EJEMPLO (DEMO)
+// TIENDA · CATÁLOGO
 // =====================================================
-// Productos, precios y existencias son de ejemplo para enseñar la tienda.
+// La ropa con `pod` (camisetas y sudadera) se vende de verdad cuando
+// NEXT_PUBLIC_TIENDA_PAGOS=1: la cobra Stripe y la fabrica Printful. El resto
+// (belenes, devoción y polar) sigue siendo de muestra: productos, precios y
+// existencias de ejemplo para enseñar la tienda.
 // Los productos se enseñan con dibujos en el estilo de los monigotes de Refugio
 // (hechos en Google Flow con Nano Banana sobre la referencia del pódcast). Las
-// fotos de las piezas reales irán en la ficha cuando las haya. Cuando sea real, esto vivirá en Supabase y el pago
-// irá por Stripe Checkout.
+// fotos de las piezas reales irán en la ficha cuando las haya.
 
 export type Linea = 'belenes' | 'devocion' | 'ropa';
 
@@ -65,11 +67,39 @@ export interface Producto {
   tallas?: string[];
   /** Aviso que la ley o la devoción piden decir antes de comprar. */
   aviso?: string;
+  /** Ropa bajo demanda que se vende de verdad (Stripe + Printful). Lo que no lo tiene es de muestra. */
+  pod?: Pod;
+}
+
+/** Impresión bajo demanda: qué variante del catálogo de Printful se pide en cada talla y qué archivo se imprime. */
+export interface Pod {
+  proveedor: 'printful';
+  /** Ruta pública del PNG que se imprime en el frente (Printful lo descarga de la web publicada). */
+  archivo: string;
+  /** variant_id del catálogo de Printful por talla. */
+  variantes: Record<string, number>;
+  /** Lo que se suma al precio en la talla 2XL (a Printful le cuesta más). */
+  extra2XL: number;
 }
 
 const NO_JUGUETE = 'Objeto decorativo, no es un juguete. No apto para menores de 14 años.';
 const CUIDADO_GANCHILLO = 'Quitar el polvo con un pincel; no lavar a máquina';
 const MADRE = 'Tejido a mano por mi madre, en Sevilla';
+
+// ─── Ropa bajo demanda (Printful) ───
+const PLAZO_POD = 'Se fabrica al pedirla, casi siempre en Barcelona. Llega en 5 a 10 días laborables.';
+const CUIDADO_POD = 'Lavar del revés a 30 °C; sin secadora y sin planchar sobre el estampado';
+const TALLAS_POD = ['S', 'M', 'L', 'XL', '2XL'];
+/** Catálogo de Printful, producto 456 (Stanley/Stella STTU169), color White. */
+const VARIANTES_CAMISETA_BLANCA = { S: 11864, M: 11865, L: 11866, XL: 11867, '2XL': 11868 };
+const DETALLES_CAMISETA = [
+  { etiqueta: 'Composición', valor: '100 % algodón orgánico peinado, 180 g/m²' },
+  { etiqueta: 'Estampado', valor: 'Impreso en el pecho' },
+  { etiqueta: 'Tallas', valor: 'S, M, L, XL y 2XL. Corte unisex, ajuste medio' },
+  { etiqueta: 'Plazo', valor: PLAZO_POD },
+  { etiqueta: 'Cuidado', valor: CUIDADO_POD },
+  { etiqueta: 'Fabricante', valor: 'Prenda de Stanley/Stella; la imprime y la envía Printful' },
+];
 
 export const PRODUCTOS: Producto[] = [
   // ─── Belenes de ganchillo ───
@@ -294,15 +324,18 @@ export const PRODUCTOS: Producto[] = [
     linea: 'ropa',
     tono: 'celeste',
     precio: 45,
-    fotos: [{ id: 'polar', fuente: 'dibujo', alt: 'Dibujo del polar de media cremallera con la cruz bordada' }],
-    resumen: 'Media cremallera, color crudo, bordado en el pecho. Edición de 50.',
+    fotos: [
+      { id: 'polar', fuente: 'dibujo', alt: 'Dibujo del polar de media cremallera con el logo de Refugio bordado en el pecho' },
+      { id: 'diseno-polar', fuente: 'dibujo', alt: 'El logo de Refugio que va bordado: la cruz azul, un aro ocre y una paloma' },
+    ],
+    resumen: 'Media cremallera, color crudo, con el logo de Refugio bordado. Edición de 50.',
     descripcion: [
-      'El polar de media cremallera de toda la vida, en color crudo, con la cruz de Refugio bordada en azul sobre el pecho.',
+      'El polar de media cremallera de toda la vida, en color crudo, con el logo de Refugio bordado en el pecho: la cruz en azul marino y el aro con la paloma en ocre.',
       'Va en preventa: pagas ahora, el taller de Sevilla hace exactamente los que se pidan y te llega antes de Reyes. Cuando se cierra la preventa, no se vuelve a hacer igual.',
     ],
     detalles: [
       { etiqueta: 'Composición', valor: '100 % poliéster reciclado, 300 g/m²' },
-      { etiqueta: 'Bordado', valor: 'Taller de Sevilla' },
+      { etiqueta: 'Bordado', valor: 'Logo de Refugio, unos 8 cm, en dos hilos. Taller de Sevilla' },
       { etiqueta: 'Corte', valor: 'Unisex, holgado' },
       { etiqueta: 'Cuidado', valor: 'Lavar del revés a 30 °C' },
     ],
@@ -315,39 +348,84 @@ export const PRODUCTOS: Producto[] = [
     linea: 'ropa',
     tono: 'rosa',
     precio: 39.9,
-    fotos: [{ id: 'sudadera', fuente: 'dibujo', alt: 'Dibujo de la sudadera azul marino con una cruz pequeña' }],
+    fotos: [
+      { id: 'sudadera', fuente: 'dibujo', alt: 'Dibujo de la sudadera azul marino con «Refugio en la Palabra» pequeño en el pecho' },
+      { id: 'diseno-refugio', fuente: 'dibujo', alt: 'El texto «Refugio en la Palabra» que va impreso en el pecho' },
+    ],
     resumen: 'Azul marino, cuello redondo, algodón orgánico.',
     descripcion: [
-      'Sudadera de cuello redondo en algodón orgánico, con «Refugio en la Palabra» bordado pequeño en el pecho.',
+      'Sudadera de cuello redondo en azul marino, con «Refugio en la Palabra» impreso pequeño en el pecho. Por fuera es todo algodón orgánico; por dentro, felpa suave.',
       'Se fabrica cuando la pides: así no sobra ropa en ningún almacén y siempre están todas las tallas.',
     ],
     detalles: [
-      { etiqueta: 'Composición', valor: '85 % algodón orgánico, 15 % poliéster reciclado' },
-      { etiqueta: 'Corte', valor: 'Unisex' },
-      { etiqueta: 'Cuidado', valor: 'Lavar del revés a 30 °C' },
+      { etiqueta: 'Prenda', valor: "SOL'S Comet (03574), color French Navy" },
+      { etiqueta: 'Composición', valor: '80 % algodón orgánico y 20 % poliéster reciclado; la cara exterior es 100 % algodón' },
+      { etiqueta: 'Estampado', valor: 'Impreso (no bordado), pequeño en el pecho' },
+      { etiqueta: 'Tallas', valor: 'S, M, L, XL y 2XL. Corte unisex, de talla europea. La 2XL puede salir del taller de Printful en Letonia y tardar algún día más' },
+      { etiqueta: 'Plazo', valor: PLAZO_POD },
+      { etiqueta: 'Cuidado', valor: CUIDADO_POD },
+      { etiqueta: 'Fabricante', valor: "Prenda de SOL'S; la imprime y la envía Printful" },
     ],
-    entrega: { tipo: 'bajo-demanda', texto: 'Se hace al pedirla. Llega en 5 a 8 días.' },
-    tallas: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
+    entrega: { tipo: 'bajo-demanda', texto: PLAZO_POD },
+    tallas: TALLAS_POD,
+    pod: {
+      proveedor: 'printful',
+      archivo: '/tienda/impresion/sudadera-refugio.png',
+      // Catálogo de Printful, producto 506 (SOL'S 03574), color French Navy. La 2XL (12713) no está en
+      // stock en Barcelona (EU_ES) a 23-11-2026, sí en Letonia (EU_LV).
+      variantes: { S: 12709, M: 12710, L: 12711, XL: 12712, '2XL': 12713 },
+      extra2XL: 2,
+    },
   },
   {
     slug: 'camiseta-fiat',
     nombre: 'Camiseta «Fiat»',
     linea: 'ropa',
     tono: 'albero',
-    precio: 22,
-    fotos: [{ id: 'camiseta', fuente: 'dibujo', alt: 'Dibujo de la camiseta blanca con la palabra Fiat' }],
+    precio: 25,
+    fotos: [
+      { id: 'camiseta', fuente: 'dibujo', alt: 'Dibujo de la camiseta blanca con la palabra Fiat' },
+      { id: 'diseno-fiat', fuente: 'dibujo', alt: 'La palabra «Fiat» que va impresa en el pecho' },
+    ],
     resumen: 'El «hágase» de María, pequeño en el pecho. Algodón orgánico.',
     descripcion: [
-      '«Fiat» es lo que respondió María al ángel. Una palabra, impresa pequeña en azul sobre una camiseta blanca de algodón orgánico.',
+      '«Fiat» es lo que respondió María al ángel. Una palabra, impresa pequeña en el pecho de una camiseta blanca de algodón orgánico.',
       'Se fabrica cuando la pides.',
     ],
-    detalles: [
-      { etiqueta: 'Composición', valor: '100 % algodón orgánico' },
-      { etiqueta: 'Corte', valor: 'Unisex' },
-      { etiqueta: 'Cuidado', valor: 'Lavar del revés a 30 °C' },
+    detalles: [{ etiqueta: 'Prenda', valor: 'Stanley/Stella Creator 2.0 (STTU169), blanca' }, ...DETALLES_CAMISETA],
+    entrega: { tipo: 'bajo-demanda', texto: PLAZO_POD },
+    tallas: TALLAS_POD,
+    pod: {
+      proveedor: 'printful',
+      archivo: '/tienda/impresion/camiseta-fiat.png',
+      variantes: VARIANTES_CAMISETA_BLANCA,
+      extra2XL: 2,
+    },
+  },
+  {
+    slug: 'camiseta-belen',
+    nombre: 'Camiseta del Belén',
+    linea: 'ropa',
+    tono: 'celeste',
+    precio: 25,
+    fotos: [
+      { id: 'camiseta-belen', fuente: 'dibujo', alt: 'Dibujo de la camiseta blanca con el portal de Belén impreso en el pecho' },
+      { id: 'diseno-belen', fuente: 'dibujo', alt: 'El portal de Belén con los monigotes de Refugio en azul marino y ocre, tal como va impreso' },
     ],
-    entrega: { tipo: 'bajo-demanda', texto: 'Se hace al pedirla. Llega en 5 a 8 días.' },
-    tallas: ['XS', 'S', 'M', 'L', 'XL'],
+    resumen: 'El portal de Belén con los monigotes de Refugio. Algodón orgánico.',
+    descripcion: [
+      'El portal de Belén dibujado con los monigotes de Refugio, en azul marino y ocre, impreso en el pecho de una camiseta blanca de algodón orgánico.',
+      'Se fabrica cuando la pides.',
+    ],
+    detalles: [{ etiqueta: 'Prenda', valor: 'Stanley/Stella Creator 2.0 (STTU169), blanca' }, ...DETALLES_CAMISETA],
+    entrega: { tipo: 'bajo-demanda', texto: PLAZO_POD },
+    tallas: TALLAS_POD,
+    pod: {
+      proveedor: 'printful',
+      archivo: '/tienda/impresion/camiseta-belen.png',
+      variantes: VARIANTES_CAMISETA_BLANCA,
+      extra2XL: 2,
+    },
   },
 ];
 
@@ -357,7 +435,13 @@ export const AMBIENTE: Record<'madre' | 'belen', Foto> = {
   belen: { id: 'belen', fuente: 'dibujo', alt: 'Dibujo del portal de Belén con la Sagrada Familia' },
 };
 
-export const ENVIO = { coste: 4.9, gratisDesde: 60 };
+// Solo península y Baleares; gratis desde 75 €.
+export const ENVIO = { coste: 4.9, gratisDesde: 75 };
+
+/** Precio de una unidad en esa talla (la 2XL de la ropa bajo demanda cuesta algo más). */
+export function precioDe(p: Producto, talla?: string) {
+  return talla === '2XL' && p.pod ? p.precio + p.pod.extra2XL : p.precio;
+}
 
 export function producto(slug: string) {
   return PRODUCTOS.find((p) => p.slug === slug);
