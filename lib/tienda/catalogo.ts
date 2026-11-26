@@ -1,10 +1,12 @@
 // =====================================================
 // TIENDA · CATÁLOGO
 // =====================================================
-// La ropa con `pod` (camisetas y sudadera) se vende de verdad cuando
-// NEXT_PUBLIC_TIENDA_PAGOS=1: la cobra Stripe y la fabrica Printful. El resto
-// (belenes, devoción y polar) sigue siendo de muestra: productos, precios y
-// existencias de ejemplo para enseñar la tienda.
+// Con NEXT_PUBLIC_TIENDA_PAGOS=1 se vende de verdad:
+// - la ropa con `pod` (camisetas y sudadera): la cobra Stripe y la fabrica Printful;
+// - lo hecho a mano con `aMano` (los belenes): lo cobra Stripe, las existencias
+//   están en Supabase (tabla tienda_existencias) y el envío lo hacemos nosotros.
+// El resto (devoción y polar) sigue siendo de muestra. Sin esa variable, todo es
+// la demo, con las existencias de ejemplo de `quedan`.
 // Los productos se enseñan con dibujos en el estilo de los monigotes de Refugio
 // (hechos en Google Flow con Nano Banana sobre la referencia del pódcast). Las
 // fotos de las piezas reales irán en la ficha cuando las haya.
@@ -34,7 +36,8 @@ export type Tono = keyof typeof TONOS;
 export interface Foto {
   id: string;
   alt: string;
-  fuente?: 'dibujo' | 'unsplash' | 'pexels';
+  /** «foto»: foto propia de la pieza real, en public/tienda/fotos/<id>.webp. */
+  fuente?: 'dibujo' | 'foto' | 'unsplash' | 'pexels';
   /** Recorte centrado en un punto: x e y de 0 a 1, y el zoom (1 = sin zoom). */
   foco?: [number, number, number];
 }
@@ -67,8 +70,30 @@ export interface Producto {
   tallas?: string[];
   /** Aviso que la ley o la devoción piden decir antes de comprar. */
   aviso?: string;
-  /** Ropa bajo demanda que se vende de verdad (Stripe + Printful). Lo que no lo tiene es de muestra. */
+  /** Ropa bajo demanda que se vende de verdad (Stripe + Printful). */
   pod?: Pod;
+  /**
+   * Hecho a mano que se vende de verdad: se cobra con Stripe, las unidades que quedan se leen de Supabase
+   * (tienda_existencias, no de `quedan`) y el pedido nos llega por correo para enviarlo. Sin `pod` ni `aMano`, es de muestra.
+   */
+  aMano?: boolean;
+}
+
+/** Se vende de verdad cuando los pagos están encendidos (lo demás es de muestra). */
+export const seVende = (p: Producto) => !!p.pod || !!p.aMano;
+
+/** Unidades que quedan de cada pieza hecha a mano (de Supabase; ver lib/tienda/existencias.ts). */
+export type Existencias = Record<string, number>;
+
+/**
+ * El producto con lo que queda de verdad. Solo con los pagos encendidos y en lo hecho a mano: una pieza sin
+ * fila en Supabase está agotada; si Supabase no ha respondido (`ex` null), se enseña sin número y el pago lo
+ * vuelve a comprobar. Sin pagos, manda `quedan` del catálogo (la demo).
+ */
+export function conExistencias(p: Producto, ex: Existencias | null, pagos = process.env.NEXT_PUBLIC_TIENDA_PAGOS === '1'): Producto {
+  if (!pagos || !p.aMano) return p;
+  if (!ex) return { ...p, quedan: undefined };
+  return { ...p, quedan: ex[p.slug] ?? 0 };
 }
 
 /** Impresión bajo demanda: qué variante del catálogo de Printful se pide en cada talla y qué archivo se imprime. */
@@ -125,6 +150,7 @@ export const PRODUCTOS: Producto[] = [
     quedan: 2,
     entrega: { tipo: 'stock', texto: 'Hecho y listo. Sale en 48 h.' },
     aviso: NO_JUGUETE,
+    aMano: true,
   },
   {
     slug: 'reyes-magos',
@@ -147,6 +173,7 @@ export const PRODUCTOS: Producto[] = [
     quedan: 3,
     entrega: { tipo: 'stock', texto: 'Se pueden pedir hasta el 2 de enero para Reyes.' },
     aviso: NO_JUGUETE,
+    aMano: true,
   },
   {
     slug: 'pastor-ovejas',
@@ -167,6 +194,7 @@ export const PRODUCTOS: Producto[] = [
     quedan: 4,
     entrega: { tipo: 'stock', texto: 'Hecho y listo. Sale en 48 h.' },
     aviso: NO_JUGUETE,
+    aMano: true,
   },
   {
     slug: 'angel-ganchillo',
@@ -186,6 +214,7 @@ export const PRODUCTOS: Producto[] = [
     quedan: 6,
     entrega: { tipo: 'stock', texto: 'Hecho y listo. Sale en 48 h.' },
     aviso: NO_JUGUETE,
+    aMano: true,
   },
   {
     slug: 'belen-completo',
@@ -454,6 +483,7 @@ export function porLinea(linea: Linea) {
 /** URL de la foto recortada al tamaño pedido (el CDN de Unsplash la sirve en AVIF/WebP). */
 export function urlFoto(f: Foto, ancho: number, proporcion = 1.25) {
   if (f.fuente === 'dibujo') return `/tienda/dibujos/${f.id}.webp`;
+  if (f.fuente === 'foto') return `/tienda/fotos/${f.id}.webp`;
   const alto = Math.round(ancho * proporcion);
   if (f.fuente === 'pexels') {
     return `https://images.pexels.com/photos/${f.id}/pexels-photo-${f.id}.jpeg?auto=compress&cs=tinysrgb&fit=crop&w=${ancho}&h=${alto}`;
@@ -463,7 +493,7 @@ export function urlFoto(f: Foto, ancho: number, proporcion = 1.25) {
 }
 
 export function srcSetFoto(f: Foto, anchos: number[], proporcion = 1.25) {
-  if (f.fuente === 'dibujo') return undefined;
+  if (f.fuente === 'dibujo' || f.fuente === 'foto') return undefined;
   return anchos.map((w) => `${urlFoto(f, w, proporcion)} ${w}w`).join(', ');
 }
 

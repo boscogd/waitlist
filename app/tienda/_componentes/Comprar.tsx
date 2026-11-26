@@ -2,7 +2,7 @@
 
 // Botón de compra de la ficha, con la talla cuando la hay.
 import { useId, useState } from 'react';
-import { euros, maximo, sePuedeComprar, type Producto } from '@/lib/tienda/catalogo';
+import { euros, maximo, sePuedeComprar, seVende, type Producto } from '@/lib/tienda/catalogo';
 import { PAGOS, useCesta } from './Cesta';
 
 const BOTON =
@@ -22,7 +22,19 @@ export function Comprar({ p }: { p: Producto }) {
         <button type="button" disabled className={`${BOTON} cursor-not-allowed bg-black/[0.06] text-texto/50`}>
           {texto}
         </button>
-        <p className="text-sm text-texto/60">En la tienda real, aquí dejas tu correo y te escribimos.</p>
+        <p className="text-sm text-texto/60">
+          {PAGOS && p.aMano ? (
+            <>
+              Se han acabado los de esta tanda. Si quieres que te avisemos cuando haya más, escríbenos a{' '}
+              <a href="mailto:info@refugioenlapalabra.com" className="underline underline-offset-2">
+                info@refugioenlapalabra.com
+              </a>
+              .
+            </>
+          ) : (
+            'En la tienda real, aquí dejas tu correo y te escribimos.'
+          )}
+        </p>
       </div>
     );
   }
@@ -93,8 +105,10 @@ export function Comprar({ p }: { p: Producto }) {
         <p role="alert" className="mt-2 min-h-5 text-sm text-[#9B2C2C]">
           {error}
         </p>
-        {PAGOS && !p.pod && (
-          <p className="text-sm text-texto/60">Producto de muestra: aún no se vende. Por ahora solo se venden las camisetas y la sudadera.</p>
+        {PAGOS && !seVende(p) && (
+          <p className="text-sm text-texto/60">
+            Producto de muestra: aún no se vende. Por ahora se venden los belenes de ganchillo, las camisetas y la sudadera.
+          </p>
         )}
       </div>
     </div>

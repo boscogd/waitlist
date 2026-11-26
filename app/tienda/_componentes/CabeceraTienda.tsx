@@ -18,7 +18,9 @@ export default function CabeceraTienda() {
         <Link href="/tienda" className="flex items-baseline gap-2 text-azul" aria-label="Tienda de Refugio en la Palabra, inicio">
           <span className="tienda-titular text-[2rem] leading-none">Refugio</span>
           <span className="text-xs font-bold uppercase tracking-[0.14em]">Tienda</span>
-          <span className="ml-1 self-center bg-azul px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">Demo</span>
+          {process.env.NEXT_PUBLIC_TIENDA_PAGOS !== '1' && (
+            <span className="ml-1 self-center bg-azul px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">Demo</span>
+          )}
         </Link>
         <nav aria-label="Secciones de la tienda" className="hidden items-center gap-8 md:flex">
           {SECCIONES.map((s) => (

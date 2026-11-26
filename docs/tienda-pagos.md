@@ -1,18 +1,23 @@
-# Tienda: venta real de la ropa (Stripe + Printful)
+# Tienda: venta real de los belenes y la ropa (Stripe, Supabase y Printful)
 
-Solo la ropa bajo demanda se vende de verdad: **Camiseta «Fiat»**, **Camiseta del Belén** y **Sudadera Refugio**. La cobra Stripe Checkout y la fabrica y envía Printful (centro de Barcelona). Lo demás de `/tienda` (belenes, devoción y el polar) sigue siendo de muestra.
+Se vende de verdad:
+- **Belenes de ganchillo** (`aMano` en el catálogo): Misterio, Reyes Magos, Pastor y rebaño y Ángel. Los cobra Stripe Checkout, las unidades que quedan están en Supabase (`tienda_existencias`) y **los enviamos nosotros** desde Sevilla: nos llega un correo con lo que hay que mandar.
+- **Ropa bajo demanda** (`pod`): Camiseta «Fiat», Camiseta del Belén y Sudadera Refugio. La cobra Stripe y la fabrica y envía Printful (centro de Barcelona).
+
+Lo demás de `/tienda` (belén completo por encargo, devoción y el polar) sigue siendo de muestra. Un pedido puede mezclar belenes y ropa: llega en dos paquetes y el envío se cobra una vez.
 
 Mientras `NEXT_PUBLIC_TIENDA_PAGOS` no valga `1`, la tienda entera sigue siendo la demo de siempre y no se cobra nada.
 
 ## Cómo funciona
 
-1. La cesta manda a `POST /api/tienda/checkout` solo slug, talla y cantidad. El servidor pone los precios desde `lib/tienda/catalogo.ts` (la 2XL vale 2 € más), calcula el envío (4,90 €, gratis desde 75 €) y abre Stripe Checkout. Máximo 9 por línea y 20 prendas por pedido.
+1. La cesta manda a `POST /api/tienda/checkout` solo slug, talla y cantidad. El servidor pone los precios desde `lib/tienda/catalogo.ts` (la 2XL vale 2 € más), comprueba en Supabase que queden los belenes pedidos, calcula el envío (4,90 €, gratis desde 75 €) y abre Stripe Checkout. Máximo 9 por línea y 20 unidades por pedido.
 2. Stripe avisa a `POST /api/tienda/stripe-webhook` (`checkout.session.completed`). Se comprueba la firma, se vuelve a leer la sesión y:
    - si el código postal es de Canarias, Ceuta o Melilla (35, 38, 51, 52), se devuelve todo el pago y se escribe al cliente;
-   - si no, se crea el pedido en Printful con `external_id = rp-` + 24 hex de sha256(id de la sesión). Si Stripe repite el aviso, no se duplica.
-   - Correo al cliente con el resumen y aviso a `TIENDA_AVISOS_EMAIL`. Si Printful falla, responde 500 (Stripe lo reintenta durante 3 días) y avisa.
+   - si lleva belenes, se descuentan de `tienda_existencias` con la función `tienda_descontar` (todo o nada, una sola vez por sesión). Si alguien se llevó la última unidad mientras este cliente pagaba, se le devuelve todo, se le escribe y no se pide nada a Printful;
+   - si lleva ropa, se crea el pedido en Printful (solo la ropa) con `external_id = rp-` + 24 hex de sha256(id de la sesión). Si Stripe repite el aviso, no se duplica.
+   - Correo al cliente con el resumen y aviso a `TIENDA_AVISOS_EMAIL` («Pedido nuevo RP-…: belenes para enviar + ropa en Printful»), con la dirección y el teléfono. Si algo falla, responde 500 (Stripe lo reintenta durante 3 días) y avisa. Los correos llevan clave de idempotencia: un reintento no los duplica.
 3. Printful avisa a `POST /api/tienda/printful-webhook?token=…`. Se vuelve a leer el pedido de la API y, si ha salido, se manda al cliente el correo con el seguimiento; si falla, se cancela o se retiene, aviso interno.
-4. Stripe vuelve a `/tienda/gracias?session_id=…`, que enseña el resumen y quita la ropa pagada de la cesta.
+4. Stripe vuelve a `/tienda/gracias?session_id=…`, que enseña el resumen y quita de la cesta lo pagado.
 
 **Por defecto los pedidos se crean en Printful en BORRADOR** (no se cobra ni se fabrica). Solo con `PRINTFUL_CONFIRMAR=1` se confirman solos.
 
@@ -22,12 +27,13 @@ Mientras `NEXT_PUBLIC_TIENDA_PAGOS` no valga `1`, la tienda entera sigue siendo 
 | --- | --- |
 | `STRIPE_SECRET_KEY` | Clave secreta de Stripe (`sk_test_…` en pruebas, `sk_live_…` en real). |
 | `STRIPE_WEBHOOK_SECRET` | Secreto del endpoint del webhook (`whsec_…`). Es distinto en modo prueba y en real. |
-| `PRINTFUL_API_TOKEN` | Token privado de la API de Printful (Developers → Private tokens), con permiso de pedidos y webhooks. |
+| `PRINTFUL_API_TOKEN` | Solo para la ropa. Token privado de la API de Printful (Developers → Private tokens), con permiso de pedidos y webhooks. |
 | `PRINTFUL_STORE_ID` | Opcional. Id de la tienda de Printful si el token sirve para varias. |
 | `PRINTFUL_WEBHOOK_TOKEN` | Cadena aleatoria larga (mín. 16) que va en la URL del webhook de Printful. |
 | `PRINTFUL_CONFIRMAR` | `1` para que los pedidos se confirmen solos (se cobran y fabrican). Sin ella, borrador. |
 | `TIENDA_AVISOS_EMAIL` | Correo que recibe los avisos internos (pedidos nuevos y problemas). |
-| `NEXT_PUBLIC_TIENDA_PAGOS` | `1` para activar el cobro real de la ropa. Se fija al construir: tras cambiarla, hay que volver a desplegar. |
+| `NEXT_PUBLIC_TIENDA_PAGOS` | `1` para activar el cobro real de belenes y ropa. Se fija al construir: tras cambiarla, hay que volver a desplegar. |
+| `SUPABASE_SERVICE_ROLE_KEY` | Ya está en Vercel. Hace falta para leer y descontar las existencias de los belenes. |
 | `TIENDA_URL_PUBLICA` | Opcional. De dónde descarga Printful los PNG de impresión y la URL del webhook. Por defecto `https://www.refugioenlapalabra.com`. |
 | `TIENDA_CORREO` | Opcional. Correo de atención (responder a, albarán). Por defecto `info@refugioenlapalabra.com`. |
 
@@ -78,6 +84,25 @@ Printful descarga los PNG de `https://<TIENDA_URL_PUBLICA>/tienda/impresion/*.pn
 4. Repite con CP 35001 (Las Palmas): el pago aparece reembolsado en Stripe, llega el correo de devolución y en Printful no hay pedido.
 5. Borra los borradores de prueba en Printful.
 
+### 6 bis. Belenes
+1. En Supabase → SQL Editor, ejecuta **una vez** `supabase/tienda-existencias.sql`. Crea la tabla `tienda_existencias` con las cuatro piezas a **0** (salen «Agotado»).
+2. En Supabase → Table Editor → `tienda_existencias`, pon en `quedan` las unidades que hay de verdad de cada pieza. Cuando se tejan más, súmalas ahí: la web lo enseña en menos de un minuto, sin publicar nada.
+3. Prueba: mete un ángel en la cesta y paga con `4242…`. Comprueba que `quedan` del ángel baja en 1, que en `tienda_reservas` hay una fila `ok` con la sesión y que te llega el aviso «belenes para enviar».
+4. Prueba el agotado: pon un ángel a 1, abre el pago en dos pestañas, paga en las dos. La segunda tiene que acabar reembolsada en Stripe, con su correo «se agotó mientras pagabas».
+5. **Antes de vender, revisa la ficha de cada figura en `lib/tienda/catalogo.ts`**: piezas, medidas, materiales y precio son los de la demo. Y añade fotos reales (ver abajo).
+
+Cuando te llegue un pedido de belenes: envíalo en 48 h laborables por Correos (o la mensajería que uséis) y escribe al cliente con el número de seguimiento respondiendo a su correo. La web no manda ese correo por ti.
+
+### Fotos reales de las piezas
+Guarda cada foto en `public/tienda/fotos/<nombre>.webp` (cuadrada o 4:5, unos 1600 px, fondo liso) y añádela en el catálogo **delante** del dibujo, para que sea la primera:
+```ts
+fotos: [
+  { id: 'misterio-1', fuente: 'foto', alt: 'El misterio de ganchillo: la Virgen, san José y el Niño en su pesebre' },
+  { id: 'misterio', fuente: 'dibujo', alt: '…' },
+],
+```
+La primera foto es también la que sale en la página de pago de Stripe.
+
 ### 7. Pasar a real
 1. En Stripe, activa la cuenta (datos fiscales y bancarios) y crea en **modo real** el mismo webhook (sale otro `whsec_…`).
 2. En Vercel (Production): `STRIPE_SECRET_KEY=sk_live_…`, el `STRIPE_WEBHOOK_SECRET` real, `NEXT_PUBLIC_TIENDA_PAGOS=1` y los `TIENDA_TITULAR_*`.
@@ -94,6 +119,7 @@ Printful descarga los PNG de `https://<TIENDA_URL_PUBLICA>/tienda/impresion/*.pn
 La sudadera en 2XL (12713) no figura en stock en el centro de Barcelona (EU_ES), sí en el de Letonia (EU_LV): Printful la mandaría desde allí y podría tardar algún día más. Para revisar: `https://api.printful.com/products/506` (público).
 
 ## Qué no hace (todavía)
-- No guarda los pedidos en una base de datos: la verdad está en Stripe y Printful.
+- No guarda los pedidos en una base de datos: la verdad está en Stripe y Printful. De los belenes solo guarda lo descontado por cada pago (`tienda_reservas`).
+- No manda el correo de «ya ha salido» de los belenes: lo escribes tú con el seguimiento.
+- Un pedido mixto paga un solo envío pero sale en dos paquetes (Printful cobra el suyo y Correos el de los belenes): en pedidos pequeños, el envío de los belenes corre de tu cuenta.
 - No emite factura: Stripe manda el recibo. Si hace falta factura completa, activar «Facturas tras el pago» en Checkout (`invoice_creation`) o hacerla aparte.
-- Si el proceso se cae entre crear el pedido en Printful y mandar el correo de confirmación, el reintento de Stripe ve el pedido creado y no manda el correo (el aviso de envío con seguimiento sí llega).

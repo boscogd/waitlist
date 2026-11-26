@@ -3,10 +3,11 @@
 // el resumen. Si el id es falso o Stripe no responde, un mensaje genérico.
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { cpSinEnvio } from '@/lib/tienda/pagos/cesta';
+import { cpSinEnvio, plazoPedido } from '@/lib/tienda/pagos/cesta';
 import { idExterno, referenciaDe } from '@/lib/tienda/pagos/printful';
 import { envioDeSesion, ID_SESION, leerLineas, leerSesion, stripeConfigurado, type LineaSesion, type SesionCheckout } from '@/lib/tienda/pagos/stripe';
 import VaciarRopa from './VaciarRopa';
+import { estadoReserva } from '@/lib/tienda/existencias';
 
 export const metadata: Metadata = { title: 'Gracias por tu pedido' };
 export const dynamic = 'force-dynamic';
@@ -85,10 +86,11 @@ export default async function Gracias({ searchParams }: { searchParams: Promise<
   const nombre = (envio?.name || s.customer_details?.name || '').split(' ')[0];
   const email = s.customer_details?.email;
   const referencia = referenciaDe(idExterno(s.id));
-  const pagadas = lineas.flatMap((l) => {
-    const m = l.price && typeof l.price.product === 'object' ? l.price.product.metadata : null;
-    return m?.slug && m.talla ? [{ slug: m.slug, talla: m.talla, cantidad: l.quantity }] : [];
-  });
+  const metas = lineas.map((l) => ({ l, m: l.price && typeof l.price.product === 'object' ? l.price.product.metadata : null }));
+  // Los belenes no tienen talla: en la cesta van con talla ''.
+  const pagadas = metas.flatMap(({ l, m }) => (m?.slug ? [{ slug: m.slug, talla: m.talla ?? '', cantidad: l.quantity }] : []));
+  const plazo = plazoPedido(metas.map(({ m }) => (m?.tipo === 'mano' ? 'mano' : 'pod')));
+  const hayMano = metas.some(({ m }) => m?.tipo === 'mano');
 
   if (cpSinEnvio(dir?.postal_code)) {
     return (
@@ -99,8 +101,24 @@ export default async function Gracias({ searchParams }: { searchParams: Promise<
           Canarias, Ceuta o Melilla.
         </p>
         <p>
-          Te devolvemos el pago completo ({eur(s.amount_total ?? 0)}) automáticamente y no se fabrica nada. Te lo confirmamos por correo
+          Te devolvemos el pago completo ({eur(s.amount_total ?? 0)}) automáticamente y no se prepara nada. Te lo confirmamos por correo
           {email ? ` a ${email}` : ''}.
+        </p>
+      </Marco>
+    );
+  }
+
+  // Si lo hecho a mano se agotó mientras pagaba, el webhook ya lo ha devuelto: no se enseña como «en marcha».
+  if (hayMano && (await estadoReserva(s.id)) === 'faltan') {
+    return (
+      <Marco titulo="Se ha agotado mientras pagabas">
+        <p>
+          Lo sentimos{nombre ? `, ${nombre}` : ''}: mientras pagabas, alguien se ha llevado la última unidad de una de las figuras. Cada una se teje a
+          mano y ahora mismo no hay más.
+        </p>
+        <p>
+          No hemos preparado nada del pedido y te devolvemos el pago completo ({eur(s.amount_total ?? 0)}). Según tu banco, tarda de 5 a 10 días en verse.
+          Te lo hemos explicado por correo{email ? ` a ${email}` : ''}.
         </p>
       </Marco>
     );
@@ -113,8 +131,13 @@ export default async function Gracias({ searchParams }: { searchParams: Promise<
     <Marco titulo={nombre ? `Gracias, ${nombre}` : 'Gracias por tu pedido'}>
       <VaciarRopa sesion={s.id} pagadas={pagadas} />
       <p className="text-lg text-texto">
-        Tu pedido <strong>{referencia}</strong> está en marcha. Cada prenda se fabrica al pedirla, casi siempre en Barcelona.
+        Tu pedido <strong>{referencia}</strong> está en marcha. {plazo.texto}
       </p>
+      {hayMano && (
+        <p className="text-sm text-texto/65">
+          Si justo mientras pagabas alguien se ha llevado la última figura, te avisamos por correo y te devolvemos todo el pago.
+        </p>
+      )}
 
       <div className="border-y border-black/[0.08] py-4">
         <ul className="space-y-2">
@@ -154,7 +177,8 @@ export default async function Gracias({ searchParams }: { searchParams: Promise<
         <div>
           <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-texto/55">Cuándo llega</dt>
           <dd className="mt-1">
-            Entre el {fecha(masLaborables(creado, 5))} y el {fecha(masLaborables(creado, 10))}, más o menos (5 a 10 días laborables).
+            Entre el {fecha(masLaborables(creado, plazo.min))} y el {fecha(masLaborables(creado, plazo.max))}, más o menos ({plazo.min} a{' '}
+            {plazo.max} días laborables).
           </dd>
         </div>
       </dl>

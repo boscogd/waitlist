@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { PRODUCTOS, euros } from '@/lib/tienda/catalogo';
 import { TITULAR, faltanDelTitular } from '@/lib/tienda/titular';
 
 export const metadata: Metadata = {
@@ -11,6 +12,7 @@ export const metadata: Metadata = {
 
 // Lo que de verdad se vende hoy. Si cambia, cambiar aquí y la fecha del pie.
 const ENVIO = { coste: '4,90 €', gratisDesde: '75 €' };
+const BELENES = PRODUCTOS.filter((p) => p.aMano);
 
 const INDICE = [
   { ancla: 'vendedor', titulo: 'Quién vende' },
@@ -140,7 +142,25 @@ export default function CondicionesDeVenta() {
         </Seccion>
 
         <Seccion id="productos" titulo="Qué vendemos">
-          <p>Por ahora solo vendemos dos prendas:</p>
+          <p>Por ahora vendemos figuras de belén de ganchillo y dos prendas.</p>
+          <h3 className="pt-2 text-lg font-semibold text-texto">Belenes de ganchillo</h3>
+          <ul className="list-disc space-y-3 pl-5">
+            {BELENES.map((p) => (
+              <li key={p.slug}>
+                <strong className="font-semibold text-texto">{p.nombre}.</strong> {p.resumen} {euros(p.precio)}.
+              </li>
+            ))}
+          </ul>
+          <p>
+            Están tejidas a mano en Sevilla, una a una, así que cada figura es un poco distinta de las fotos y de las
+            demás: el tono del hilo, la cara o el tamaño pueden variar algo. Hay pocas unidades: en cada ficha pone las
+            que quedan. Son objetos decorativos, no juguetes, y no son aptos para menores de 14 años.
+          </p>
+          <p>
+            Si dos personas pagan a la vez la última figura, la primera se la lleva y a la otra le devolvemos todo lo que
+            pagó, sin preparar nada de su pedido, y se lo explicamos por correo.
+          </p>
+          <h3 className="pt-2 text-lg font-semibold text-texto">Ropa</h3>
           <ul className="list-disc space-y-3 pl-5">
             <li>
               <strong className="font-semibold text-texto">Camiseta.</strong> Modelo Stanley/Stella Creator 2.0, 100 %
@@ -152,8 +172,9 @@ export default function CondicionesDeVenta() {
             </li>
           </ul>
           <p>
-            <strong className="font-semibold text-texto">Lo demás que ves en la tienda es de muestra</strong> (los belenes
-            de ganchillo, los rosarios y el resto de piezas): todavía no está a la venta y no se puede pedir.
+            <strong className="font-semibold text-texto">Lo demás que ves en la tienda es de muestra</strong> (el belén
+            completo por encargo, los rosarios, el polar y el resto de piezas): todavía no está a la venta y no se puede
+            pedir.
           </p>
           <p>
             Cada prenda se fabrica cuando la pides: la imprime Printful, nuestro proveedor, casi siempre en su taller de Barcelona (si una talla no está allí, en el de Letonia, y puede tardar algún día más). No
@@ -194,8 +215,8 @@ export default function CondicionesDeVenta() {
 
         <Seccion id="pedido" titulo="Cómo se hace un pedido">
           <ol className="list-decimal space-y-3 pl-5">
-            <li>Eliges la prenda y la talla y la añades a la cesta.</li>
-            <li>En la cesta revisas lo que llevas: puedes cambiar cantidades o quitar prendas.</li>
+            <li>Eliges la figura o la prenda (y su talla) y la añades a la cesta.</li>
+            <li>En la cesta revisas lo que llevas: puedes cambiar cantidades o quitar productos.</li>
             <li>
               Pasas a la página de pago de Stripe, donde pones tu correo, nombre, dirección y teléfono. Antes de pagar
               puedes corregir cualquier dato o volver a la cesta.
@@ -224,8 +245,16 @@ export default function CondicionesDeVenta() {
               Cuesta {ENVIO.coste} por pedido, y es gratis si los productos suman {ENVIO.gratisDesde} o más.
             </li>
             <li>
-              Fabricar la prenda lleva de 2 a 5 días laborables. Con el transporte, el pedido suele llegarte en 5 a 10
-              días laborables desde que lo haces. Cuando sale, te mandamos el número de seguimiento.
+              <strong className="font-semibold text-texto">Belenes:</strong> los enviamos nosotros desde Sevilla en 48
+              horas laborables. Suelen llegarte en 2 a 5 días laborables desde que haces el pedido.
+            </li>
+            <li>
+              <strong className="font-semibold text-texto">Ropa:</strong> fabricar la prenda lleva de 2 a 5 días
+              laborables. Con el transporte, suele llegarte en 5 a 10 días laborables desde que haces el pedido.
+            </li>
+            <li>
+              Si pides belenes y ropa juntos, te llegan en dos paquetes, sin pagar el envío dos veces. Cuando sale cada
+              uno, te mandamos el número de seguimiento.
             </li>
             <li>
               Si se retrasa, escríbenos. Si tampoco podemos entregártelo en el plazo adicional que nos des, puedes
@@ -287,6 +316,7 @@ export default function CondicionesDeVenta() {
               eso, podemos descontar lo que haya perdido de valor (art. 108.4 TRLGDCU).
             </li>
           </ul>
+          <p>Vale igual para los belenes y para la ropa. Envuélvelos bien para que no se dañen en el viaje de vuelta.</p>
           <p className="text-[15px] text-texto/70">
             Aunque cada prenda se fabrica cuando la pides, el diseño es de catálogo y no se hace a tu medida ni con tus
             datos. Por eso no se aplica la excepción para productos personalizados del art. 103.c del TRLGDCU y conservas
@@ -378,9 +408,9 @@ export default function CondicionesDeVenta() {
               usamos estos datos para mandarte publicidad salvo que tú te apuntes.
             </li>
             <li>
-              <strong className="font-semibold text-texto">Quién más los ve:</strong> Stripe, que cobra el pago, y
-              Printful, que fabrica la prenda y la entrega a la empresa de transporte (que recibe tu nombre, dirección y
-              teléfono). También los proveedores con los que alojamos la web y enviamos los correos. Todos tratan los
+              <strong className="font-semibold text-texto">Quién más los ve:</strong> Stripe, que cobra el pago;
+              Printful, que fabrica la ropa y la entrega a la empresa de transporte, y la empresa de transporte con la que
+              enviamos los belenes (las dos reciben tu nombre, dirección y teléfono). También los proveedores con los que alojamos la web y enviamos los correos. Todos tratan los
               datos por encargo nuestro y solo para esto.
             </li>
             <li>
@@ -447,7 +477,7 @@ export default function CondicionesDeVenta() {
       </div>
 
       <p className="mt-14 border-t border-black/[0.08] pt-6 text-sm text-texto/60">
-        Última actualización: 23 de noviembre de 2026.
+        Última actualización: 26 de noviembre de 2026.
       </p>
     </article>
   );

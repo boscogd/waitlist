@@ -2,7 +2,8 @@
 // TIENDA · CORREOS DE LOS PEDIDOS
 // =====================================================
 // Transaccionales (no llevan baja): confirmación, envío con seguimiento,
-// reembolso por destino sin envío y avisos internos a TIENDA_AVISOS_EMAIL.
+// reembolso (destino sin envío o agotado mientras pagaba) y avisos internos a
+// TIENDA_AVISOS_EMAIL.
 // Usan el mismo cliente y remitente que el resto de correos (lib/resend.ts).
 // Nunca lanzan: si Resend falla, se apunta en el registro y se sigue.
 import { resend } from '@/lib/resend';
@@ -61,18 +62,21 @@ export interface ResumenPedido {
   referencia: string;
   email: string;
   nombre: string;
+  /** talla '' si la pieza no tiene tallas (los belenes). */
   lineas: { nombre: string; talla: string; cantidad: number; importeCent: number }[];
   subtotalCent: number;
   envioCent: number;
   totalCent: number;
   direccion: string[];
+  /** Cuándo llega, explicado (plazoPedido). */
+  plazo: string;
 }
 
 function tablaLineas(r: ResumenPedido) {
   const filas = r.lineas
     .map(
       (l) =>
-        `<tr><td style="padding:6px 0;font-size:15px;">${esc(l.cantidad)} × ${esc(l.nombre)} <span style="color:#7A746C;">· talla ${esc(l.talla)}</span></td><td style="padding:6px 0;font-size:15px;text-align:right;white-space:nowrap;">${eur(l.importeCent)}</td></tr>`
+        `<tr><td style="padding:6px 0;font-size:15px;">${esc(l.cantidad)} × ${esc(l.nombre)}${l.talla ? ` <span style="color:#7A746C;">· talla ${esc(l.talla)}</span>` : ''}</td><td style="padding:6px 0;font-size:15px;text-align:right;white-space:nowrap;">${eur(l.importeCent)}</td></tr>`
     )
     .join('');
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #E7E4DF;border-bottom:1px solid #E7E4DF;margin:8px 0 16px;">
@@ -83,22 +87,22 @@ ${filas}
 }
 
 const textoLineas = (r: ResumenPedido) =>
-  r.lineas.map((l) => `${l.cantidad} x ${l.nombre} (talla ${l.talla}): ${eur(l.importeCent)}`).join('\n') +
+  r.lineas.map((l) => `${l.cantidad} x ${l.nombre}${l.talla ? ` (talla ${l.talla})` : ''}: ${eur(l.importeCent)}`).join('\n') +
   `\nEnvío: ${r.envioCent ? eur(r.envioCent) : 'gratis'}\nTotal (IVA incluido): ${eur(r.totalCent)}`;
 
-/** Al cliente, cuando el pago entra y el pedido está en Printful. */
+/** Al cliente, cuando el pago entra y el pedido está en marcha. */
 export function correoConfirmacion(r: ResumenPedido, clave?: string) {
   const saludo = r.nombre ? `Hola, ${esc(r.nombre.split(' ')[0])}:` : 'Hola:';
   const html = plantilla(
     'Tu pedido está en marcha',
     P(saludo) +
-      P('Hemos recibido el pago. Cada prenda se fabrica al pedirla (casi siempre en Barcelona) y llega en <strong>5 a 10 días laborables</strong>. Cuando salga, te escribimos con el número de seguimiento.') +
+      P(`Hemos recibido el pago. ${esc(r.plazo)} Cuando salga, te escribimos con el número de seguimiento.`) +
       tablaLineas(r) +
       P(`<strong>Se envía a:</strong><br>${r.direccion.map(esc).join('<br>')}`) +
       P(`Referencia del pedido: <strong>${esc(r.referencia)}</strong>`) +
       P('Tienes 14 días desde que te llegue para devolverlo. El recibo del pago te lo manda Stripe en otro correo.')
   );
-  const text = `${r.nombre ? `Hola, ${r.nombre.split(' ')[0]}:` : 'Hola:'}\n\nHemos recibido el pago. Cada prenda se fabrica al pedirla (casi siempre en Barcelona) y llega en 5 a 10 días laborables. Cuando salga, te escribimos con el seguimiento.\n\n${textoLineas(r)}\n\nSe envía a:\n${r.direccion.join('\n')}\n\nReferencia: ${r.referencia}\n\nCondiciones de venta: ${SITE_URL}/tienda/condiciones`;
+  const text = `${r.nombre ? `Hola, ${r.nombre.split(' ')[0]}:` : 'Hola:'}\n\nHemos recibido el pago. ${r.plazo} Cuando salga, te escribimos con el seguimiento.\n\n${textoLineas(r)}\n\nSe envía a:\n${r.direccion.join('\n')}\n\nReferencia: ${r.referencia}\n\nCondiciones de venta: ${SITE_URL}/tienda/condiciones`;
   return enviar(r.email, `Tu pedido ${r.referencia} está en marcha`, html, text, clave);
 }
 
@@ -132,6 +136,21 @@ export function correoReembolsoDestino(d: { email: string; nombre: string; impor
   return enviar(d.email, 'Te devolvemos el pago: no enviamos a tu dirección', html, text, clave);
 }
 
+/** Al cliente, cuando lo hecho a mano se ha agotado mientras pagaba y se le devuelve el dinero. */
+export function correoSinExistencias(d: { email: string; nombre: string; importeCent: number; piezas: string[] }, clave?: string) {
+  const saludo = d.nombre ? `Hola, ${esc(d.nombre.split(' ')[0])}:` : 'Hola:';
+  const piezas = d.piezas.join(', ');
+  const html = plantilla(
+    'Se ha agotado mientras pagabas',
+    P(saludo) +
+      P(`Lo sentimos mucho: mientras pagabas, alguien se ha llevado la última unidad de <strong>${esc(piezas)}</strong>. Cada figura se teje a mano y ahora mismo no hay más.`) +
+      P(`Por eso no hemos preparado nada del pedido y ya hemos dado la orden de devolverte el pago completo, <strong>${eur(d.importeCent)}</strong>. Según tu banco, tarda de 5 a 10 días en verse en la cuenta.`) +
+      P('Si quieres lo demás del pedido, puedes volver a pedirlo en la tienda. Y si quieres que te avisemos cuando haya más, responde a este correo.')
+  );
+  const text = `Lo sentimos: mientras pagabas, alguien se ha llevado la última unidad de ${piezas}. No hemos preparado nada del pedido y ya hemos dado la orden de devolverte el pago completo, ${eur(d.importeCent)}. Según tu banco, tarda de 5 a 10 días en verse. Si quieres que te avisemos cuando haya más, responde a este correo.`;
+  return enviar(d.email, 'Te devolvemos el pago: se agotó mientras pagabas', html, text, clave);
+}
+
 /** Aviso interno a TIENDA_AVISOS_EMAIL (pedidos nuevos y problemas). */
 export function avisoInterno(asunto: string, lineas: string[], clave?: string) {
   const to = process.env.TIENDA_AVISOS_EMAIL;
@@ -148,7 +167,7 @@ export function resumenTexto(r: ResumenPedido) {
   return [
     `Referencia: ${r.referencia}`,
     `Cliente: ${r.nombre} <${r.email}>`,
-    ...r.lineas.map((l) => `${l.cantidad} x ${l.nombre} (${l.talla}): ${eur(l.importeCent)}`),
+    ...r.lineas.map((l) => `${l.cantidad} x ${l.nombre}${l.talla ? ` (${l.talla})` : ''}: ${eur(l.importeCent)}`),
     `Envío: ${r.envioCent ? eur(r.envioCent) : 'gratis'} · Total: ${eur(r.totalCent)}`,
     `Dirección: ${r.direccion.join(', ')}`,
   ];

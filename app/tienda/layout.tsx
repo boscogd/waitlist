@@ -4,6 +4,7 @@ import Link from 'next/link';
 import SiteFooter from '../components/sections/SiteFooter';
 import CabeceraTienda from './_componentes/CabeceraTienda';
 import { CestaProvider } from './_componentes/Cesta';
+import { leerExistencias } from '@/lib/tienda/existencias';
 import './tienda.css';
 
 // Titulares de la tienda: grotesca condensada y pesada, en mayúsculas.
@@ -20,17 +21,21 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function TiendaLayout({ children }: { children: React.ReactNode }) {
+// Con los pagos encendidos, lo que queda de los belenes se vuelve a leer como mucho cada minuto.
+export const revalidate = 60;
+
+export default async function TiendaLayout({ children }: { children: React.ReactNode }) {
+  const existencias = await leerExistencias();
   return (
-    <CestaProvider>
+    <CestaProvider existencias={existencias}>
       <div className={`${bricolage.variable} bg-white text-texto`}>
         <CabeceraTienda />
         <main id="main">{children}</main>
         <p className="border-t border-black/[0.06] px-4 py-4 text-center text-xs text-texto/55">
           {process.env.NEXT_PUBLIC_TIENDA_PAGOS === '1' ? (
             <>
-              Las camisetas y la sudadera se venden de verdad: se cobran con Stripe y se fabrican en Barcelona al pedirlas. Lo demás
-              (belenes, devoción y el polar) es de muestra y no se vende todavía.{' '}
+              Se venden de verdad los belenes de ganchillo (los envía la familia desde Sevilla), las camisetas y la sudadera (se
+              fabrican al pedirlas, casi siempre en Barcelona). Lo demás (devoción y el polar) es de muestra y no se vende todavía.{' '}
               <Link href="/tienda/condiciones" className="underline underline-offset-2 hover:text-texto">
                 Condiciones de venta
               </Link>

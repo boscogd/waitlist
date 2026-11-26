@@ -4,18 +4,31 @@
 // TIENDA · CESTA
 // =====================================================
 // La cesta vive en el navegador (localStorage). Con NEXT_PUBLIC_TIENDA_PAGOS=1,
-// «Ir a pagar» manda la ropa bajo demanda (lo que tiene `pod`) a
-// /api/tienda/checkout y abre Stripe Checkout; lo demás es de muestra y no se
-// cobra. Sin esa variable, todo sigue siendo la demo de siempre.
+// «Ir a pagar» manda lo que se vende de verdad (la ropa con `pod` y los belenes
+// con `aMano`) a /api/tienda/checkout y abre Stripe Checkout; lo demás es de
+// muestra y no se cobra. Lo que queda de cada belén llega del servidor
+// (`existencias`). Sin esa variable, todo sigue siendo la demo de siempre.
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { ENVIO, euros, maximo, precioDe, producto, sePuedeComprar } from '@/lib/tienda/catalogo';
+import {
+  conExistencias,
+  ENVIO,
+  euros,
+  maximo,
+  precioDe,
+  producto,
+  sePuedeComprar,
+  seVende,
+  type Existencias,
+  type Producto,
+} from '@/lib/tienda/catalogo';
 import Foto from './Foto';
 
 /** Cobro real de la ropa activado (se fija al construir). */
 export const PAGOS = process.env.NEXT_PUBLIC_TIENDA_PAGOS === '1';
 
-const esRopaReal = (slug: string) => PAGOS && !!producto(slug)?.pod;
+/** El producto con lo que queda de verdad (en la demo, el del catálogo). */
+type Ver = (slug: string) => Producto | undefined;
 
 export interface LineaCesta {
   slug: string;
@@ -37,6 +50,8 @@ interface CestaCtx {
   cambiar: (i: number, cantidad: number) => void;
   quitar: (i: number) => void;
   vaciar: () => void;
+  /** El producto con las existencias reales puestas. */
+  ver: Ver;
   /** Tras pagar: descuenta de la cesta lo pagado en esa sesión, una sola vez por sesión. */
   quitarPagadas: (sesion: string, pagadas: { slug: string; talla: string; cantidad: number }[]) => void;
 }
@@ -55,8 +70,8 @@ export function useCesta() {
 const mismaLinea = (a: Omit<LineaCesta, 'cantidad'>, b: Omit<LineaCesta, 'cantidad'>) =>
   a.slug === b.slug && (a.talla ?? '') === (b.talla ?? '') && (a.nota ?? '') === (b.nota ?? '');
 
-const tope = (slug: string) => {
-  const p = producto(slug);
+const tope = (ver: Ver, slug: string) => {
+  const p = ver(slug);
   return p ? maximo(p) : 0;
 };
 
@@ -65,11 +80,11 @@ const enCesta = (lineas: LineaCesta[], slug: string, salvo = -1) =>
   lineas.reduce((s, l, i) => (l.slug === slug && i !== salvo ? s + l.cantidad : s), 0);
 
 /** Lo guardado en el navegador puede venir de otra versión o estar tocado a mano: solo pasa lo válido. */
-function limpiar(guardada: unknown): LineaCesta[] {
+function limpiar(guardada: unknown, ver: Ver): LineaCesta[] {
   if (!Array.isArray(guardada)) return [];
   const limpias: LineaCesta[] = [];
   for (const l of guardada) {
-    const p = producto(typeof l?.slug === 'string' ? l.slug : '');
+    const p = ver(typeof l?.slug === 'string' ? l.slug : '');
     if (!p || !sePuedeComprar(p) || !Number.isInteger(l.cantidad) || l.cantidad < 1) continue;
     const talla = typeof l.talla === 'string' && p.tallas?.includes(l.talla) ? l.talla : undefined;
     const nota = typeof l.nota === 'string' && l.nota.trim() ? l.nota.trim().slice(0, 40) : undefined;
@@ -85,19 +100,26 @@ function limpiar(guardada: unknown): LineaCesta[] {
   return limpias;
 }
 
-export function CestaProvider({ children }: { children: React.ReactNode }) {
+export function CestaProvider({ children, existencias = null }: { children: React.ReactNode; existencias?: Existencias | null }) {
+  const ver = useCallback<Ver>(
+    (slug) => {
+      const p = producto(slug);
+      return p && conExistencias(p, existencias, PAGOS);
+    },
+    [existencias]
+  );
   const [lineas, setLineas] = useState<LineaCesta[]>([]);
   const [cargada, setCargada] = useState(false);
   const [abierta, setAbierta] = useState(false);
 
   useEffect(() => {
     try {
-      setLineas(limpiar(JSON.parse(localStorage.getItem(CLAVE) || '[]')));
+      setLineas(limpiar(JSON.parse(localStorage.getItem(CLAVE) || '[]'), ver));
     } catch {
       /* sin almacenamiento: la cesta empieza vacía */
     }
     setCargada(true);
-  }, []);
+  }, [ver]);
 
   useEffect(() => {
     if (!cargada) return;
@@ -110,21 +132,21 @@ export function CestaProvider({ children }: { children: React.ReactNode }) {
 
   const anadir = useCallback((l: Omit<LineaCesta, 'cantidad'>) => {
     setLineas((prev) => {
-      if (enCesta(prev, l.slug) >= tope(l.slug)) return prev;
+      if (enCesta(prev, l.slug) >= tope(ver, l.slug)) return prev;
       const i = prev.findIndex((x) => mismaLinea(x, l));
       if (i === -1) return [...prev, { ...l, cantidad: 1 }];
       return prev.map((x, j) => (j === i ? { ...x, cantidad: x.cantidad + 1 } : x));
     });
     setAbierta(true);
-  }, []);
+  }, [ver]);
 
   const cambiar = useCallback((i: number, cantidad: number) => {
     setLineas((prev) =>
       cantidad <= 0
         ? prev.filter((_, j) => j !== i)
-        : prev.map((x, j) => (j === i ? { ...x, cantidad: Math.min(tope(x.slug) - enCesta(prev, x.slug, i), cantidad) } : x))
+        : prev.map((x, j) => (j === i ? { ...x, cantidad: Math.min(tope(ver, x.slug) - enCesta(prev, x.slug, i), cantidad) } : x))
     );
-  }, []);
+  }, [ver]);
 
   // Estables: el panel las usa en un efecto y no debe recolocar el foco con cada cambio de la cesta.
   const abrir = useCallback(() => setAbierta(true), []);
@@ -175,9 +197,10 @@ export function CestaProvider({ children }: { children: React.ReactNode }) {
       cambiar,
       quitar,
       vaciar,
+      ver,
       quitarPagadas,
     };
-  }, [lineas, cargada, abierta, abrir, cerrar, anadir, cambiar, quitar, vaciar, quitarPagadas]);
+  }, [lineas, cargada, abierta, abrir, cerrar, anadir, cambiar, quitar, vaciar, ver, quitarPagadas]);
 
   return (
     <Ctx.Provider value={valor}>
@@ -215,7 +238,7 @@ export function BotonCesta() {
 }
 
 function CestaPanel() {
-  const { lineas, subtotal, abierta, cerrar, cambiar, quitar, vaciar } = useCesta();
+  const { lineas, subtotal, abierta, cerrar, cambiar, quitar, vaciar, ver } = useCesta();
   const [pagando, setPagando] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const cerrarRef = useRef<HTMLButtonElement>(null);
@@ -308,15 +331,15 @@ function CestaPanel() {
             <p className="text-lg font-semibold text-texto">La cesta está vacía</p>
             <p className="text-sm text-texto/70">
               {PAGOS
-                ? 'Las camisetas y la sudadera se hacen al pedirlas y llegan en 5 a 10 días laborables.'
+                ? 'Los belenes de ganchillo salen de Sevilla en 48 h. Para Navidad, pídelos antes del 10 de diciembre.'
                 : 'Empieza por el misterio de ganchillo: es lo que más se pide en Adviento.'}
             </p>
             <Link
-              href={PAGOS ? '/tienda#ropa' : '/tienda/misterio-ganchillo'}
+              href={PAGOS ? '/tienda#reparto' : '/tienda/misterio-ganchillo'}
               onClick={cerrar}
               className="border border-black/15 px-5 py-2.5 text-sm font-medium text-texto hover:border-texto"
             >
-              {PAGOS ? 'Ver la ropa' : 'Ver el misterio'}
+              {PAGOS ? 'Ver los belenes' : 'Ver el misterio'}
             </Link>
           </div>
         ) : pagando ? (
@@ -355,7 +378,7 @@ function CestaPanel() {
           <>
             <ul className="flex-1 divide-y divide-black/[0.08] overflow-y-auto px-6">
               {lineas.map((l, i) => {
-                const p = producto(l.slug)!;
+                const p = ver(l.slug)!;
                 return (
                   <li key={`${l.slug}-${l.talla}-${l.nota}`} className="flex gap-4 py-5">
                     <Foto foto={p.fotos[0]} sizes="80px" decorativa className="aspect-[4/5] w-20 shrink-0 bg-[#F2F1EE]" />
@@ -374,7 +397,7 @@ function CestaPanel() {
                         </p>
                       )}
                       {p.entrega.tipo === 'preventa' && <p className="mt-0.5 text-xs text-texto/60">Preventa · {p.entrega.texto}</p>}
-                      {PAGOS && !p.pod && (
+                      {PAGOS && !seVende(p) && (
                         <p className="mt-1 inline-block bg-black/[0.06] px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-texto/60">
                           De muestra
                         </p>
@@ -413,7 +436,7 @@ function CestaPanel() {
             </ul>
 
             {PAGOS ? (
-              <PagoRopa />
+              <PagoReal />
             ) : (
               <div className="border-t border-black/[0.08] bg-[#FAFAF9] px-6 py-5">
                 <dl className="space-y-1.5 text-sm">
@@ -455,17 +478,20 @@ function CestaPanel() {
 }
 
 /**
- * Pie de la cesta cuando la ropa se cobra de verdad: suma solo la ropa bajo
- * demanda, avisa de lo que es de muestra y abre Stripe Checkout.
+ * Pie de la cesta cuando se cobra de verdad: suma solo lo que se vende (ropa y
+ * belenes), avisa de lo que es de muestra y abre Stripe Checkout.
  */
-function PagoRopa() {
-  const { lineas } = useCesta();
+function PagoReal() {
+  const { lineas, ver } = useCesta();
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const ropa = lineas.filter((l) => esRopaReal(l.slug));
-  const hayMuestra = ropa.length < lineas.length;
-  const subtotal = ropa.reduce((s, l) => s + precioDe(producto(l.slug)!, l.talla) * l.cantidad, 0);
+  const aPagar = lineas.filter((l) => {
+    const p = ver(l.slug);
+    return !!p && seVende(p);
+  });
+  const hayMuestra = aPagar.length < lineas.length;
+  const subtotal = aPagar.reduce((s, l) => s + precioDe(producto(l.slug)!, l.talla) * l.cantidad, 0);
   const envio = subtotal === 0 || subtotal >= ENVIO.gratisDesde ? 0 : ENVIO.coste;
   const faltaParaGratis = Math.max(0, ENVIO.gratisDesde - subtotal);
 
@@ -476,7 +502,7 @@ function PagoRopa() {
       const res = await fetch('/api/tienda/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lineas: ropa.map(({ slug, talla, cantidad }) => ({ slug, talla, cantidad })) }),
+        body: JSON.stringify({ lineas: aPagar.map(({ slug, talla, cantidad }) => ({ slug, talla, cantidad })) }),
       });
       const datos = await res.json().catch(() => ({}));
       if (res.ok && typeof datos.url === 'string') {
@@ -493,15 +519,16 @@ function PagoRopa() {
 
   return (
     <div className="border-t border-black/[0.08] bg-[#FAFAF9] px-6 py-5">
-      {ropa.length === 0 ? (
+      {aPagar.length === 0 ? (
         <p className="text-sm leading-relaxed text-texto/75">
-          Todo lo que tienes en la cesta es de muestra: todavía no se vende. Por ahora solo se venden las camisetas y la sudadera.
+          Todo lo que tienes en la cesta es de muestra: todavía no se vende. Por ahora se venden los belenes de ganchillo, las camisetas y la
+          sudadera.
         </p>
       ) : (
         <>
           <dl className="space-y-1.5 text-sm">
             <div className="flex justify-between">
-              <dt className="text-texto/70">{hayMuestra ? 'Ropa' : 'Productos'}</dt>
+              <dt className="text-texto/70">{hayMuestra ? 'Lo que se paga' : 'Productos'}</dt>
               <dd className="tabular-nums">{euros(subtotal)}</dd>
             </div>
             <div className="flex justify-between">
@@ -527,11 +554,11 @@ function PagoRopa() {
       <button
         type="button"
         onClick={pagar}
-        disabled={ropa.length === 0 || cargando}
+        disabled={aPagar.length === 0 || cargando}
         aria-busy={cargando}
         className="mt-4 w-full bg-azul py-3.5 text-base font-medium text-white transition-colors hover:bg-azul-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-azul cursor-pointer disabled:cursor-not-allowed disabled:bg-black/[0.08] disabled:text-texto/50 aria-busy:cursor-wait aria-busy:bg-azul aria-busy:text-white/80"
       >
-        {cargando ? 'Abriendo el pago…' : hayMuestra && ropa.length > 0 ? 'Pagar solo la ropa' : 'Ir a pagar'}
+        {cargando ? 'Abriendo el pago…' : hayMuestra && aPagar.length > 0 ? 'Pagar lo que se vende' : 'Ir a pagar'}
       </button>
       <p role="alert" className="mt-2 text-center text-sm text-[#9B2C2C]">
         {error}

@@ -1,17 +1,21 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { PRODUCTOS, LINEAS, TONOS, producto, distintivo, ENVIO, euros } from '@/lib/tienda/catalogo';
+import { PRODUCTOS, LINEAS, TONOS, distintivo, ENVIO, euros } from '@/lib/tienda/catalogo';
+import { catalogoVivo } from '@/lib/tienda/existencias';
 import Tarjeta, { BarraPreventa, EstadoEntrega, Precio } from '../_componentes/Tarjeta';
 import Galeria from '../_componentes/Galeria';
 import { Comprar } from '../_componentes/Comprar';
+
+const PAGOS = process.env.NEXT_PUBLIC_TIENDA_PAGOS === '1';
 
 export function generateStaticParams() {
   return PRODUCTOS.map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const p = producto((await params).slug);
+  const { slug } = await params;
+  const p = PRODUCTOS.find((x) => x.slug === slug);
   return p ? { title: p.nombre, description: p.resumen } : {};
 }
 
@@ -37,13 +41,15 @@ function Plegable({ titulo, abierto = false, children }: { titulo: string; abier
 }
 
 export default async function FichaProducto({ params }: { params: Promise<{ slug: string }> }) {
-  const p = producto((await params).slug);
+  const { slug } = await params;
+  const { productos, producto } = await catalogoVivo();
+  const p = producto(slug);
   if (!p) notFound();
 
   const linea = LINEAS[p.linea];
   const relacionados = [
-    ...PRODUCTOS.filter((x) => x.linea === p.linea && x.slug !== p.slug),
-    ...PRODUCTOS.filter((x) => x.linea !== p.linea),
+    ...productos.filter((x) => x.linea === p.linea && x.slug !== p.slug),
+    ...productos.filter((x) => x.linea !== p.linea),
   ].slice(0, 4);
   const pocas = p.quedan !== undefined && p.quedan > 0 && p.quedan <= 3;
 
@@ -115,6 +121,16 @@ export default async function FichaProducto({ params }: { params: Promise<{ slug
                       Melilla.
                     </p>
                     <p>Se fabrica en Barcelona al pedirla y llega en 5 a 10 días laborables. Tienes 14 días desde que te llega para devolverla.</p>
+                  </>
+                ) : PAGOS && p.aMano ? (
+                  <>
+                    <p>
+                      {euros(ENVIO.coste)} a la península y Baleares, gratis desde {euros(ENVIO.gratisDesde)}. No enviamos a Canarias, Ceuta ni
+                      Melilla.
+                    </p>
+                    <p>
+                      Sale de Sevilla en 48 h laborables y llega en 2 a 5 días laborables. Tienes 14 días desde que te llega para devolverlo.
+                    </p>
                   </>
                 ) : (
                   <>

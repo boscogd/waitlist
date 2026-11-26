@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { AMBIENTE, ENVIO, TONOS, euros, porLinea, producto } from '@/lib/tienda/catalogo';
+import { AMBIENTE, ENVIO, TONOS, euros } from '@/lib/tienda/catalogo';
+import { catalogoVivo } from '@/lib/tienda/existencias';
 import Foto from './_componentes/Foto';
 import Tarjeta, { BarraPreventa, TarjetaFigura } from './_componentes/Tarjeta';
 import FormEncargo from './_componentes/FormEncargo';
@@ -35,13 +36,13 @@ const INFO = [
   {
     titulo: 'Envío',
     texto: PAGOS
-      ? `${euros(ENVIO.coste)} a la península y Baleares, gratis desde ${euros(ENVIO.gratisDesde)}. No enviamos a Canarias, Ceuta ni Melilla. El plazo de la ropa va en cada ficha.`
+      ? `${euros(ENVIO.coste)} a la península y Baleares, gratis desde ${euros(ENVIO.gratisDesde)}. No enviamos a Canarias, Ceuta ni Melilla. Los belenes salen de Sevilla en 48 h; el plazo de la ropa va en cada ficha.`
       : `${euros(ENVIO.coste)} a la península, gratis desde ${euros(ENVIO.gratisDesde)}. Lo hecho a mano sale en 48 h; el plazo de la ropa va en cada ficha.`,
   },
   {
     titulo: 'Devoluciones',
     texto: PAGOS
-      ? '14 días desde que te llega para devolverlo, también la ropa que se fabrica al pedirla. Todo en las condiciones de venta.'
+      ? '14 días desde que te llega para devolverlo, también los belenes y la ropa que se fabrica al pedirla. Todo en las condiciones de venta.'
       : '14 días para devolverlo. Lo que se hace por encargo no se puede devolver.',
   },
   { titulo: 'Pago', texto: PAGOS ? 'Tarjeta, Apple Pay o Google Pay, con el pago seguro de Stripe.' : 'Tarjeta, Bizum, Apple Pay o Google Pay.' },
@@ -50,7 +51,8 @@ const INFO = [
 
 const BOTON = 'inline-block px-6 py-4 text-[15px] font-semibold uppercase tracking-wide transition-colors focus-visible:outline-2 focus-visible:outline-offset-2';
 
-export default function TiendaPage() {
+export default async function TiendaPage() {
+  const { porLinea, producto } = await catalogoVivo();
   const devocion = porLinea('devocion');
   const polar = producto('polar-inmaculada')!;
   const otraRopa = porLinea('ropa').filter((p) => p.slug !== polar.slug);

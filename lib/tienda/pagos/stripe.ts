@@ -114,8 +114,23 @@ export function envioDeSesion(s: SesionCheckout) {
 // ─── Checkout ───
 
 export interface DatosCheckout {
-  lineas: { nombre: string; descripcion: string; imagen?: string; unidadCent: number; cantidad: number; slug: string; talla: string; variante: number; archivo: string }[];
+  lineas: {
+    nombre: string;
+    descripcion: string;
+    imagen?: string;
+    unidadCent: number;
+    cantidad: number;
+    slug: string;
+    /** '' si no tiene tallas. */
+    talla: string;
+    tipo: 'pod' | 'mano';
+    /** Solo la ropa bajo demanda: variante de Printful y archivo que se imprime. */
+    variante?: number;
+    archivo?: string;
+  }[];
   envioCent: number;
+  /** Plazo de entrega en días laborables y el texto que lo explica (plazoPedido). */
+  plazo: { min: number; max: number; texto: string };
   cesta: string;
   base: string;
 }
@@ -131,10 +146,18 @@ export function crearSesionCheckout(d: DatosCheckout) {
         currency: 'eur',
         unit_amount: l.unidadCent,
         product_data: {
-          name: `${l.nombre} · talla ${l.talla}`,
+          name: l.talla ? `${l.nombre} · talla ${l.talla}` : l.nombre,
           description: l.descripcion,
           images: l.imagen ? [l.imagen] : undefined,
-          metadata: { slug: l.slug, talla: l.talla, nombre: l.nombre, variante: String(l.variante), archivo: l.archivo },
+          // Stripe no guarda valores vacíos: talla, variante y archivo solo van cuando los hay.
+          metadata: {
+            slug: l.slug,
+            nombre: l.nombre,
+            tipo: l.tipo,
+            talla: l.talla || undefined,
+            variante: l.variante ? String(l.variante) : undefined,
+            archivo: l.archivo,
+          },
         },
       },
     })),
@@ -147,8 +170,8 @@ export function crearSesionCheckout(d: DatosCheckout) {
           display_name: d.envioCent === 0 ? 'Envío gratis (península y Baleares)' : 'Envío a península y Baleares',
           fixed_amount: { amount: d.envioCent, currency: 'eur' },
           delivery_estimate: {
-            minimum: { unit: 'business_day', value: 5 },
-            maximum: { unit: 'business_day', value: 10 },
+            minimum: { unit: 'business_day', value: d.plazo.min },
+            maximum: { unit: 'business_day', value: d.plazo.max },
           },
         },
       },
@@ -158,7 +181,7 @@ export function crearSesionCheckout(d: DatosCheckout) {
         message: 'Solo enviamos a la península y Baleares. No a Canarias, Ceuta ni Melilla.',
       },
       submit: {
-        message: `Al pagar aceptas las [condiciones de venta](${d.base}/tienda/condiciones). Cada prenda se fabrica al pedirla (casi siempre en Barcelona) y llega en 5 a 10 días laborables.`,
+        message: `Al pagar aceptas las [condiciones de venta](${d.base}/tienda/condiciones). ${d.plazo.texto}`,
       },
     },
     success_url: `${d.base}/tienda/gracias?session_id={CHECKOUT_SESSION_ID}`,
@@ -182,6 +205,16 @@ export async function leerLineas(id: string) {
     expand: ['data.price.product'],
   });
   return r.data;
+}
+
+/** Céntimos ya devueltos de un pago (reembolsos hechos desde la web o a mano en el panel de Stripe). */
+export async function devueltoDe(paymentIntent: string) {
+  const pi = await llamar<{ latest_charge: { amount_refunded: number } | string | null }>(
+    'GET',
+    `/payment_intents/${encodeURIComponent(paymentIntent)}`,
+    { expand: ['latest_charge'] }
+  );
+  return pi.latest_charge && typeof pi.latest_charge === 'object' ? pi.latest_charge.amount_refunded : 0;
 }
 
 /** Devuelve todo el pago. Idempotente por sesión: aunque el webhook se repita, solo hay un reembolso. */
