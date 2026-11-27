@@ -8,11 +8,11 @@
 // también aquí: esta página no debe prometer nada que la app no haga.
 
 /** Primer día del calendario. */
-export const ADVIENTO_INICIO = '2026-12-01';
+export const ADVIENTO_INICIO = '2026-11-29';
 /** Último día: Navidad. */
 export const ADVIENTO_FIN = '2026-12-25';
-/** Días que dura (1 a 25 de diciembre, ambos incluidos). */
-export const ADVIENTO_DIAS = 25;
+/** Días que dura (29 de noviembre a 25 de diciembre, ambos incluidos). */
+export const ADVIENTO_DIAS = 27;
 /** Días que se pueden fallar sin perder el regalo. */
 export const ADVIENTO_FALLOS = 3;
 /** Días completados necesarios para recibir el regalo. */
@@ -22,7 +22,7 @@ export const ADVIENTO_MESES_PREMIUM = 3;
 
 /** Fechas señaladas del camino (solo calendario litúrgico, comprobable). */
 export const ADVIENTO_HITOS = [
-  { fecha: 'Martes 1 de diciembre', titulo: 'Se abre la primera ventana', texto: 'Empieza el calendario.' },
+  { fecha: 'Domingo 29 de noviembre', titulo: 'Primer domingo de Adviento', texto: 'Se abre la primera ventana. Primera vela de la corona.' },
   { fecha: 'Domingo 6 de diciembre', titulo: 'Segundo domingo de Adviento', texto: 'Segunda vela de la corona.' },
   { fecha: 'Martes 8 de diciembre', titulo: 'La Inmaculada Concepción', texto: 'Solemnidad de la Virgen, en pleno Adviento.' },
   { fecha: 'Domingo 13 de diciembre', titulo: 'Tercer domingo, «Gaudete»', texto: 'El domingo de la alegría. Tercera vela.' },
@@ -43,7 +43,7 @@ export const ADVIENTO_FAQS = [
   },
   {
     question: '¿Puedo empezar con el calendario ya en marcha?',
-    answer: `Sí, puedes empezar cualquier día y seguir hasta Navidad. Para optar al regalo solo se pueden fallar ${ADVIENTO_FALLOS} días, así que el último día para empezar y recibirlo es el viernes 4 de diciembre.`,
+    answer: `Sí, puedes empezar cualquier día y seguir hasta Navidad. Para optar al regalo solo se pueden fallar ${ADVIENTO_FALLOS} días, así que el último día para empezar y recibirlo es el miércoles 2 de diciembre.`,
   },
   {
     question: '¿Cómo recibo los 3 meses de Premium?',
@@ -56,9 +56,9 @@ export const ADVIENTO_FAQS = [
       'No. El calendario es gratis y está abierto a todo el que tenga la app. Solo necesitas una cuenta, que también es gratis, para que se guarden tus días.',
   },
   {
-    question: '¿Por qué empieza el día 1 si el Adviento empieza antes?',
+    question: '¿Por qué tiene 27 días y no 25?',
     answer:
-      'Este año el Adviento empieza el domingo 29 de noviembre. El calendario sigue la costumbre de los calendarios de Adviento de toda la vida: una ventana por día, del 1 de diciembre a Navidad.',
+      'Porque este año el Adviento empieza el domingo 29 de noviembre, y el calendario empieza con él: dos ventanas en noviembre, el 29 y el 30, y luego una por día del 1 al 25 de diciembre.',
   },
   {
     question: 'No me aparece el calendario en la app, ¿qué hago?',

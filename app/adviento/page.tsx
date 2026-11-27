@@ -23,8 +23,8 @@ import {
 // prometas aquí nada que la app no haga.
 
 const PAGE_URL = `${SITE_URL}/adviento`;
-const TITLE = 'Calendario de Adviento 2026: del 1 al 25 de diciembre';
-const DESCRIPTION = `Un calendario de Adviento para rezar: del 1 al 25 de diciembre, cada día una ventana con un reto, una intención y una oración en la app Refugio en la Palabra. Gratis, con ${ADVIENTO_MESES_PREMIUM} meses de Premium de regalo si completas ${ADVIENTO_MINIMO} de los ${ADVIENTO_DIAS} días.`;
+const TITLE = 'Calendario de Adviento 2026: del 29 de noviembre a Navidad';
+const DESCRIPTION = `Un calendario de Adviento para rezar: del 29 de noviembre al 25 de diciembre, cada día una ventana con un reto, una intención y una oración en la app Refugio en la Palabra. Gratis, con ${ADVIENTO_MESES_PREMIUM} meses de Premium de regalo si completas ${ADVIENTO_MINIMO} de los ${ADVIENTO_DIAS} días.`;
 
 export const metadata: Metadata = {
   // Sin la marca detrás, para que quepa entero en Google.
@@ -115,13 +115,13 @@ export default function AdvientoPage() {
           <div className="max-w-5xl mx-auto grid lg:grid-cols-2 gap-10 lg:gap-14 items-start">
             <div className="space-y-5 text-center lg:text-left">
               <p className="text-[#8a6d1f] font-medium text-sm uppercase tracking-wider">
-                Del 1 al 25 de diciembre
+                Del 29 de noviembre al 25 de diciembre
               </p>
               <h1 className="font-[family-name:var(--font-lora)] text-4xl sm:text-5xl font-semibold text-azul leading-tight tracking-tight text-balance">
                 Calendario de Adviento: una ventana cada día hasta Navidad
               </h1>
               <p className="text-lg text-texto/80 leading-relaxed">
-                Un calendario de Adviento para rezar. Cada día, del 1 al 25 de diciembre, abres una
+                Un calendario de Adviento para rezar. Cada día, del 29 de noviembre a Navidad, abres una
                 ventana en la app: un reto, una intención por la que rezamos todos y una oración. Y
                 con cada día, una figura más en tu Belén. Lo hacemos nosotros también.
               </p>
@@ -145,7 +145,7 @@ export default function AdvientoPage() {
               </h2>
               <p className="text-texto/85 leading-relaxed">
                 El calendario está dentro de la app y es gratis. Entra con tu cuenta y lo verás en
-                Inicio. La primera ventana se abre el martes 1 de diciembre.
+                Inicio. La primera ventana se abre el domingo 29 de noviembre.
               </p>
               <StoreButtons where="adviento-inicio" align="start" />
               <p className="text-sm text-texto/70 leading-relaxed">
@@ -187,12 +187,12 @@ export default function AdvientoPage() {
               </li>
               <li>
                 Lo recibe quien complete en la app al menos {ADVIENTO_MINIMO} de los{' '}
-                {ADVIENTO_DIAS} días, entre el 1 y el 25 de diciembre. Se pueden fallar{' '}
+                {ADVIENTO_DIAS} días, entre el 29 de noviembre y el 25 de diciembre. Se pueden fallar{' '}
                 {ADVIENTO_FALLOS}.
               </li>
               <li>
                 Cada ventana se completa en su día, así que el último día para empezar y optar al
-                regalo es el viernes 4 de diciembre.
+                regalo es el miércoles 2 de diciembre.
               </li>
               <li>
                 No hay que pedirlo: la app sabe qué días has completado y lo activamos en tu cuenta
