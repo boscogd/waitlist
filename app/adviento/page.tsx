@@ -3,11 +3,11 @@ import SiteHeader from '../components/SiteHeader';
 import ScrollProgress from '../components/ScrollProgress';
 import BackToTop from '../components/BackToTop';
 import SiteFooter from '../components/sections/SiteFooter';
-import StoreButtons from '../components/StoreButtons';
-import AdventForm from '../components/AdventForm';
+import StoreButtons, { DownloadLink } from '../components/StoreButtons';
 import { SITE_URL } from '@/lib/constants';
 import {
   ADVIENTO_DIAS,
+  ADVIENTO_FALLOS,
   ADVIENTO_FAQS,
   ADVIENTO_HITOS,
   ADVIENTO_MESES_PREMIUM,
@@ -15,23 +15,24 @@ import {
 } from '@/lib/content/adviento';
 
 // =====================================================
-// RETO DE ADVIENTO 2026
+// CALENDARIO DE ADVIENTO 2026
 // =====================================================
-// La página anuncia el reto y recoge las inscripciones. Quién rezó cada día
-// lo sabe la app, no la web: las reglas están en lib/content/adviento.ts y el
-// acuerdo con la app en supabase/adviento-schema.sql. No prometas aquí nada
-// que la app no pueda comprobar.
+// La página solo anuncia el calendario y lleva a la app, que es donde ocurre
+// todo: no hay formulario ni se guarda ningún dato aquí. Las reglas están en
+// lib/content/adviento.ts y tienen que coincidir con las de la app. No
+// prometas aquí nada que la app no haga.
 
 const PAGE_URL = `${SITE_URL}/adviento`;
-const TITLE = `Reto de Adviento: ${ADVIENTO_DIAS} días rezando hasta Navidad`;
-const DESCRIPTION = `Del 29 de noviembre al 24 de diciembre, reza cada día el Evangelio con la app Refugio en la Palabra. A quien nos acompañe ${ADVIENTO_MINIMO} de los ${ADVIENTO_DIAS} días le regalamos ${ADVIENTO_MESES_PREMIUM} meses de Premium.`;
+const TITLE = 'Calendario de Adviento 2026: del 1 al 25 de diciembre';
+const DESCRIPTION = `Un calendario de Adviento para rezar: del 1 al 25 de diciembre, cada día una ventana con un reto, una intención y una oración en la app Refugio en la Palabra. Gratis, con ${ADVIENTO_MESES_PREMIUM} meses de Premium de regalo si completas ${ADVIENTO_MINIMO} de los ${ADVIENTO_DIAS} días.`;
 
 export const metadata: Metadata = {
-  title: TITLE,
+  // Sin la marca detrás, para que quepa entero en Google.
+  title: { absolute: TITLE },
   description: DESCRIPTION,
   alternates: { canonical: PAGE_URL },
   openGraph: {
-    title: 'Adviento en Refugio | Refugio en la Palabra',
+    title: 'Calendario de Adviento | Refugio en la Palabra',
     description: DESCRIPTION,
     type: 'website',
     locale: 'es_ES',
@@ -41,7 +42,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Adviento en Refugio | Refugio en la Palabra',
+    title: 'Calendario de Adviento | Refugio en la Palabra',
     description: DESCRIPTION,
     images: ['/opengraph-image'],
   },
@@ -49,17 +50,18 @@ export const metadata: Metadata = {
 
 const PASOS = [
   {
-    titulo: 'Apúntate',
-    texto: 'Deja aquí tu nombre y el correo de tu cuenta de la app. Es gratis.',
+    titulo: 'Abre la app',
+    texto:
+      'El calendario está dentro de Refugio en la Palabra. Si no tienes la app, descárgala y crea tu cuenta: es gratis.',
   },
   {
-    titulo: 'Reza cada día',
+    titulo: 'Abre la ventana del día',
     texto:
-      'Abre la app y reza el Evangelio del día. Son unos minutos, y la app apunta sola cada día que rezas.',
+      'Cada día hay un reto para hacer en la app, una intención por la que rezamos todos y una oración. Al terminar, tu Belén gana una figura.',
   },
   {
     titulo: 'Llega a Navidad',
-    texto: `Si rezas ${ADVIENTO_MINIMO} de los ${ADVIENTO_DIAS} días, te regalamos ${ADVIENTO_MESES_PREMIUM} meses de Premium.`,
+    texto: `Si completas ${ADVIENTO_MINIMO} de los ${ADVIENTO_DIAS} días, te regalamos ${ADVIENTO_MESES_PREMIUM} meses de Premium.`,
   },
 ];
 
@@ -69,7 +71,7 @@ const jsonLd = [
     '@type': 'WebPage',
     '@id': `${PAGE_URL}#webpage`,
     url: PAGE_URL,
-    name: 'Adviento en Refugio | Refugio en la Palabra',
+    name: 'Calendario de Adviento | Refugio en la Palabra',
     description: DESCRIPTION,
     inLanguage: 'es-ES',
     isPartOf: { '@id': `${SITE_URL}/#website` },
@@ -89,7 +91,7 @@ const jsonLd = [
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Inicio', item: SITE_URL },
-      { '@type': 'ListItem', position: 2, name: 'Reto de Adviento', item: PAGE_URL },
+      { '@type': 'ListItem', position: 2, name: 'Calendario de Adviento', item: PAGE_URL },
     ],
   },
 ];
@@ -108,22 +110,23 @@ export default function AdvientoPage() {
       <BackToTop />
 
       <main id="main" className="flex-1 pt-20">
-        {/* Cabecera + inscripción */}
+        {/* Cabecera + cómo empezar */}
         <section className="px-6 py-12 sm:py-16">
           <div className="max-w-5xl mx-auto grid lg:grid-cols-2 gap-10 lg:gap-14 items-start">
             <div className="space-y-5 text-center lg:text-left">
               <p className="text-[#8a6d1f] font-medium text-sm uppercase tracking-wider">
-                Del 29 de noviembre al 24 de diciembre
+                Del 1 al 25 de diciembre
               </p>
               <h1 className="font-[family-name:var(--font-lora)] text-4xl sm:text-5xl font-semibold text-azul leading-tight tracking-tight text-balance">
-                Adviento en Refugio: {ADVIENTO_DIAS} días rezando hasta Navidad
+                Calendario de Adviento: una ventana cada día hasta Navidad
               </h1>
               <p className="text-lg text-texto/80 leading-relaxed">
-                Te proponemos algo sencillo para preparar la Navidad: rezar cada día el Evangelio
-                con la app, unos minutos, hasta Nochebuena. Lo hacemos nosotros también.
+                Un calendario de Adviento para rezar. Cada día, del 1 al 25 de diciembre, abres una
+                ventana en la app: un reto, una intención por la que rezamos todos y una oración. Y
+                con cada día, una figura más en tu Belén. Lo hacemos nosotros también.
               </p>
               <p className="text-lg text-texto/80 leading-relaxed">
-                A quien nos acompañe al menos{' '}
+                A quien complete al menos{' '}
                 <strong className="text-azul">
                   {ADVIENTO_MINIMO} de los {ADVIENTO_DIAS} días
                 </strong>{' '}
@@ -134,13 +137,21 @@ export default function AdvientoPage() {
             </div>
 
             <div
-              id="apuntarme"
-              className="bg-white rounded-2xl border border-azul/10 shadow-xl shadow-azul/5 p-6 sm:p-8 scroll-mt-28"
+              id="empezar"
+              className="bg-white rounded-2xl border border-azul/10 shadow-xl shadow-azul/5 p-6 sm:p-8 scroll-mt-28 space-y-5"
             >
-              <h2 className="font-[family-name:var(--font-lora)] text-2xl font-semibold text-azul mb-5">
-                Apúntate al reto
+              <h2 className="font-[family-name:var(--font-lora)] text-2xl font-semibold text-azul">
+                Para empezar no hay que apuntarse
               </h2>
-              <AdventForm />
+              <p className="text-texto/85 leading-relaxed">
+                El calendario está dentro de la app y es gratis. Entra con tu cuenta y lo verás en
+                Inicio. La primera ventana se abre el martes 1 de diciembre.
+              </p>
+              <StoreButtons where="adviento-inicio" align="start" />
+              <p className="text-sm text-texto/70 leading-relaxed">
+                ¿Ya tienes la app y no te aparece? Actualízala, o ábrela en el navegador con tu
+                misma cuenta.
+              </p>
             </div>
           </div>
         </section>
@@ -163,10 +174,6 @@ export default function AdvientoPage() {
                 </li>
               ))}
             </ol>
-            <div className="flex flex-col items-center gap-3 pt-2">
-              <p className="text-texto/80">¿Todavía no tienes la app?</p>
-              <StoreButtons where="adviento" />
-            </div>
           </div>
         </section>
 
@@ -179,16 +186,17 @@ export default function AdvientoPage() {
                 Son {ADVIENTO_MESES_PREMIUM} meses de Premium en tu cuenta de la app.
               </li>
               <li>
-                Lo recibe quien esté apuntado aquí y haya rezado el Evangelio del día en la app al
-                menos {ADVIENTO_MINIMO} de los {ADVIENTO_DIAS} días, entre el 29 de noviembre y el
-                24 de diciembre.
+                Lo recibe quien complete en la app al menos {ADVIENTO_MINIMO} de los{' '}
+                {ADVIENTO_DIAS} días, entre el 1 y el 25 de diciembre. Se pueden fallar{' '}
+                {ADVIENTO_FALLOS}.
               </li>
               <li>
-                Tienes que apuntarte con el mismo correo de tu cuenta de la app: es como sabemos a
-                quién dárselo.
+                Cada ventana se completa en su día, así que el último día para empezar y optar al
+                regalo es el viernes 4 de diciembre.
               </li>
               <li>
-                Lo activamos la semana del 28 de diciembre y te avisamos por correo.
+                No hay que pedirlo: la app sabe qué días has completado y lo activamos en tu cuenta
+                después de Navidad.
               </li>
               <li>
                 No hay que poner tarjeta. Cuando pasen los tres meses, el Premium se termina solo:
@@ -233,14 +241,12 @@ export default function AdvientoPage() {
               ))}
             </dl>
             <div className="pt-4 text-center">
-              <a
-                href="#apuntarme"
-                data-track="cta_click"
-                data-track-where="adviento-final"
+              <DownloadLink
+                where="adviento-final"
                 className="inline-block bg-azul text-white px-8 py-4 rounded-lg font-medium hover:bg-azul-800 transition-colors shadow-sm"
               >
-                Apuntarme al reto
-              </a>
+                Abrir el calendario en la app
+              </DownloadLink>
             </div>
           </div>
         </section>
